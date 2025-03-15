@@ -1,37 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audio Streamer</title>
+    <title>实时语音转写</title>
     <meta charset="UTF-8">
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        .text-display {
-            white-space: pre-wrap; /* Preserves spaces and line breaks */
-            font-size: 16px;
-        }
-        .yellow {
-            color: yellow;
-        }
-        .cyan {
-            color: cyan;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/chineseConverter.js') }}"></script>
 </head>
 <body>
-    <div id="textDisplay" style="max-width: 800px; margin: auto;">
-    <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+<div class="container">
+    <div class="header">
+        <h1>实时语音转写</h1>
+        <div class="header-controls">
+            <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()">切换到繁体</button>
+            <i class="fas fa-cog settings-icon" id="settingsIcon"></i>
+        </div>
+    </div>
+
+    <div class="content">
+        <div id="textDisplay" class="text-display"></div>
+    </div>
+
+    <!-- 引入设置面板 -->
+    {% include 'partials/settings_panel.html' %}
+</div>
+
+<script src="{{ url_for('static', filename='js/client.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 </body>
 </html> 

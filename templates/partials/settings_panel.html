@@ -1,0 +1,409 @@
+<!-- 设置面板 -->
+<div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+        <div class="settings-header">
+            <h2>设置</h2>
+            <button class="close-button" id="closeSettings">&times;</button>
+        </div>
+
+        <!-- 选项卡 -->
+        <div class="tabs">
+            <div class="tab active" data-tab="asr">ASR 语音识别</div>
+            <div class="tab" data-tab="about">关于</div>
+        </div>
+
+        <!-- 选项卡内容 -->
+        <div id="asr-tab" class="tab-content active">
+            <!-- 基本设置 -->
+            <div class="setting-group">
+                <div class="setting-title">基本设置</div>
+
+                <div class="setting-item">
+                    <label for="model-size">模型大小:</label>
+                    <select id="model-size">
+                        <option value="tiny">Tiny (较快，较低准确率)</option>
+                        <option value="base">Base (平衡)</option>
+                        <option value="small">Small (平衡)</option>
+                        <option value="medium" selected>Medium (较慢，较高准确率)</option>
+                        <option value="large-v2">Large v2 (最慢，最高准确率)</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="language">语言:</label>
+                    <select id="language">
+                        <option value="">自动检测</option>
+                        <option value="en">英语</option>
+                        <option value="zh" selected>中文</option>
+                        <option value="ja">日语</option>
+                        <option value="ko">韩语</option>
+                        <option value="fr">法语</option>
+                        <option value="de">德语</option>
+                        <option value="es">西班牙语</option>
+                        <option value="ru">俄语</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="realtime-model">实时转写模型:</label>
+                    <select id="realtime-model">
+                        <option value="tiny">Tiny</option>
+                        <option value="base">Base</option>
+                        <option value="small">Small</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 高级设置切换 -->
+            <div class="advanced-toggle" id="toggle-advanced">显示高级设置</div>
+
+            <!-- 高级设置 -->
+            <div id="advanced-settings" class="advanced-settings">
+                <!-- 常用高级设置 -->
+                <div class="setting-group">
+                    <div class="setting-title">常用高级设置</div>
+
+                    <div class="setting-item">
+                        <label for="compute-type">计算类型:</label>
+                        <select id="compute-type">
+                            <option value="float16" selected>Float16 (半精度)</option>
+                            <option value="float32">Float32 (单精度)</option>
+                            <option value="int8">Int8 (8位整数)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="beam-size">Beam Size (主模型):</label>
+                        <select id="beam-size">
+                            <option value="1">1 (最快)</option>
+                            <option value="3">3</option>
+                            <option value="5" selected>5 (平衡)</option>
+                            <option value="8">8</option>
+                            <option value="10">10 (最慢，最精确)</option>
+                        </select>
+                        <small class="setting-help">束搜索宽度，数值越大转写越精确但速度更慢</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="initial-prompt">初始提示词 (主模型):</label>
+                        <input type="text" id="initial-prompt" placeholder="例如：医学术语、技术词汇等">
+                        <small class="setting-help">可以帮助模型更准确识别特定领域的术语</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="silero-sensitivity">Silero语音检测灵敏度:</label>
+                        <div class="slider-container">
+                            <input type="range" id="silero-sensitivity" min="0" max="1" step="0.1" value="0.4">
+                            <span id="silero-value" class="slider-value">0.4</span>
+                        </div>
+                        <small class="setting-help">主要语音检测算法的灵敏度：值越高(接近1)越容易检测到语音，但可能增加误触发；值越低(接近0)可减少误触发，但可能漏检语音。推荐值：0.3-0.5。</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="silence-duration">语音后静音持续时间 (秒):</label>
+                        <div class="slider-container">
+                            <input type="range" id="silence-duration" min="0.1" max="2.0" step="0.1" value="0.7">
+                            <span id="silence-value" class="slider-value">0.7</span>
+                        </div>
+                        <small class="setting-help">检测到停止说话后，系统等待多久才结束当前录音段。较短的值(0.1-0.5秒)使系统反应更快但可能截断句子，较长的值(0.7-1.5秒)给您更多思考时间但会增加处理延迟。</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="allowed-latency">允许的延迟限制 (秒):</label>
+                        <div class="slider-container">
+                            <input type="range" id="allowed-latency" min="1" max="10" step="1" value="5">
+                            <span id="allowed-latency-value" class="slider-value">5</span>
+                        </div>
+                        <small class="setting-help">音频队列允许的最大延迟时间，超过会丢弃旧数据</small>
+                    </div>
+                </div>
+
+                <!-- 全部设置开关 -->
+                <div class="all-settings-toggle" id="toggle-all-settings">显示全部设置</div>
+
+                <!-- 全部设置区域 -->
+                <div id="all-settings" class="all-settings">
+                    <div class="setting-group">
+                        <div class="setting-title">详细转写设置</div>
+
+                        <div class="setting-item">
+                            <label for="beam-size-realtime">Beam Size (实时模型):</label>
+                            <select id="beam-size-realtime">
+                                <option value="1">1 (最快)</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3 (平衡)</option>
+                                <option value="5">5 (最慢，最精确)</option>
+                            </select>
+                            <small class="setting-help">实时转写的束搜索宽度</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="initial-prompt-realtime">初始提示词 (实时模型):</label>
+                            <input type="text" id="initial-prompt-realtime" placeholder="为实时转写提供上下文">
+                            <small class="setting-help">为实时转写提供的上下文信息</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="suppress-tokens">抑制令牌:</label>
+                            <input type="text" id="suppress-tokens" value="-1" placeholder="-1">
+                            <small class="setting-help">指定不希望模型生成的令牌ID，-1表示默认设置</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="print-transcription-time">显示转写时间:</label>
+                            <select id="print-transcription-time">
+                                <option value="false" selected>关闭</option>
+                                <option value="true">开启</option>
+                            </select>
+                            <small class="setting-help">是否显示每段转写的处理时间</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="early-transcription-silence">静音提前转写 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="early-transcription-silence" min="0" max="3" step="0.5"
+                                       value="0">
+                                <span id="early-transcription-silence-value" class="slider-value">0</span>
+                            </div>
+                            <small class="setting-help">静音多少秒后提前触发转写，0表示禁用</small>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="setting-title">详细语音活动检测</div>
+
+                        <div class="setting-item">
+                            <label for="silero-use-onnx">使用ONNX版Silero:</label>
+                            <select id="silero-use-onnx">
+                                <option value="false" selected>否</option>
+                                <option value="true">是</option>
+                            </select>
+                            <small class="setting-help">ONNX版本可能在某些设备上运行更快，功能与标准版相同。仅当您遇到性能问题时需要更改。</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="silero-deactivity">启用Silero去活动检测:</label>
+                            <select id="silero-deactivity">
+                                <option value="false" selected>否</option>
+                                <option value="true">是</option>
+                            </select>
+                            <small class="setting-help">更精确地检测语音何时真正结束，减少句子中间被错误分段的情况。适合说话有停顿的用户。</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="webrtc-sensitivity">WebRTC语音检测灵敏度:</label>
+                            <div class="slider-container">
+                                <input type="range" id="webrtc-sensitivity" min="0" max="3" step="1" value="2">
+                                <span id="webrtc-value" class="slider-value">2</span>
+                            </div>
+                            <small class="setting-help">辅助语音检测系统的灵敏度：0=最灵敏(检测更多语音但可能误触发)，3=最不灵敏(减少误触发)。嘈杂环境推荐2-3，安静环境推荐0-1。</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="min-recording-length">最小录音长度 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="min-recording-length" min="0" max="5" step="0.5" value="0">
+                                <span id="min-recording-length-value" class="slider-value">0</span>
+                            </div>
+                            <small class="setting-help">丢弃短于此长度的录音，可过滤掉短暂噪音</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="min-gap">录音间最小间隔 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="min-gap" min="0" max="5" step="0.5" value="0">
+                                <span id="min-gap-value" class="slider-value">0</span>
+                            </div>
+                            <small class="setting-help">两段录音之间的最小间隔时间</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="pre-recording-buffer">预录制缓冲区长度 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="pre-recording-buffer" min="0" max="3" step="0.5"
+                                       value="1.0">
+                                <span id="pre-recording-buffer-value" class="slider-value">1.0</span>
+                            </div>
+                            <small class="setting-help">在检测到语音前预先保存的缓冲区长度</small>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="setting-title">实时转写设置</div>
+
+                        <div class="setting-item">
+                            <label for="enable-realtime">启用实时转写:</label>
+                            <select id="enable-realtime">
+                                <option value="true" selected>开启</option>
+                                <option value="false">关闭</option>
+                            </select>
+                            <small class="setting-help">是否启用实时转写功能</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="use-main-model-realtime">对实时转写使用主模型:</label>
+                            <select id="use-main-model-realtime">
+                                <option value="false" selected>否</option>
+                                <option value="true">是</option>
+                            </select>
+                            <small class="setting-help">是否使用主模型而非实时专用模型处理实时转写</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="realtime-processing-pause">实时处理暂停时间 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="realtime-processing-pause" min="0" max="1" step="0.1"
+                                       value="0">
+                                <span id="realtime-processing-pause-value" class="slider-value">0</span>
+                            </div>
+                            <small class="setting-help">实时处理之间的暂停时间，0表示连续处理</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="init-realtime-after">初始延迟启动实时 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="init-realtime-after" min="0" max="1" step="0.1" value="0.2">
+                                <span id="init-realtime-after-value" class="slider-value">0.2</span>
+                            </div>
+                            <small class="setting-help">开始录音多久后启动实时转写</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="realtime-batch-size">实时转写批处理大小:</label>
+                            <select id="realtime-batch-size">
+                                <option value="8">8</option>
+                                <option value="16" selected>16</option>
+                                <option value="32">32</option>
+                            </select>
+                            <small class="setting-help">实时转写处理的批大小</small>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="setting-title">唤醒词设置</div>
+
+                        <div class="setting-item">
+                            <label for="wakeword-backend">唤醒词后端:</label>
+                            <select id="wakeword-backend">
+                                <option value="pvporcupine" selected>Picovoice Porcupine</option>
+                                <option value="other">其他</option>
+                            </select>
+                            <small class="setting-help">用于唤醒词检测的后端技术</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="wake-words">唤醒词:</label>
+                            <input type="text" id="wake-words" placeholder="输入唤醒词，用逗号分隔">
+                            <small class="setting-help">需要检测的唤醒词，多个词用逗号分隔</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="wake-words-sensitivity">唤醒词敏感度:</label>
+                            <div class="slider-container">
+                                <input type="range" id="wake-words-sensitivity" min="0" max="1" step="0.1"
+                                       value="0.5">
+                                <span id="wake-words-sensitivity-value" class="slider-value">0.5</span>
+                            </div>
+                            <small class="setting-help">唤醒词检测的敏感度，越高越敏感</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="wake-word-timeout">唤醒超时 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="wake-word-timeout" min="0" max="10" step="1" value="5">
+                                <span id="wake-word-timeout-value" class="slider-value">5</span>
+                            </div>
+                            <small class="setting-help">检测到唤醒词后的录音超时时间</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="wake-word-buffer">唤醒词缓冲区长度 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="wake-word-buffer" min="0" max="5" step="0.5" value="3">
+                                <span id="wake-word-buffer-value" class="slider-value">3</span>
+                            </div>
+                            <small class="setting-help">唤醒词检测的音频缓冲区长度</small>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="setting-title">系统设置</div>
+
+                        <div class="setting-item">
+                            <label for="buffer-size">缓冲区大小:</label>
+                            <select id="buffer-size">
+                                <option value="256">256</option>
+                                <option value="512" selected>512</option>
+                                <option value="1024">1024</option>
+                            </select>
+                            <small class="setting-help">音频处理缓冲区大小，对于Silero VAD必须是512</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="sample-rate">采样率 (Hz):</label>
+                            <select id="sample-rate">
+                                <option value="8000">8000</option>
+                                <option value="16000" selected>16000</option>
+                                <option value="22050">22050</option>
+                            </select>
+                            <small class="setting-help">音频处理采样率，一般使用16000</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="debug-mode">调试模式:</label>
+                            <select id="debug-mode">
+                                <option value="false" selected>关闭</option>
+                                <option value="true">开启</option>
+                            </select>
+                            <small class="setting-help">是否启用详细调试信息</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="handle-buffer-overflow">处理缓冲区溢出:</label>
+                            <select id="handle-buffer-overflow">
+                                <option value="true" selected>开启</option>
+                                <option value="false">关闭</option>
+                            </select>
+                            <small class="setting-help">是否处理音频缓冲区溢出情况</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="no-log-file">禁用日志文件:</label>
+                            <select id="no-log-file">
+                                <option value="true" selected>是</option>
+                                <option value="false">否</option>
+                            </select>
+                            <small class="setting-help">是否禁用日志文件生成</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="use-extended-logging">使用扩展日志:</label>
+                            <select id="use-extended-logging">
+                                <option value="false" selected>否</option>
+                                <option value="true">是</option>
+                            </select>
+                            <small class="setting-help">是否启用更详细的日志记录</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="about-tab" class="tab-content">
+            <h3>关于实时语音转写</h3>
+            <p>本应用使用RealtimeSTT库提供实时语音转文字功能，基于OpenAI的Whisper模型。</p>
+            <p>使用方法: 允许麦克风权限后开始说话，转写结果会实时显示在主界面。</p>
+            <p>点击右上角的设置图标可以调整语音识别参数。</p>
+            <p>版本: 1.0.0</p>
+        </div>
+
+        <!-- 按钮容器移到tab-content外部，并添加id -->
+        <div class="button-container active" id="asr-buttons">
+            <div class="button-group">
+                <button id="apply-settings" class="apply-button">应用设置</button>
+                <button id="reset-to-default" class="reset-button">恢复默认设置</button>
+            </div>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+</div> 
