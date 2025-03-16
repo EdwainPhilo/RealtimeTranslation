@@ -23,8 +23,8 @@
                     <select id="model-size">
                         <option value="tiny">Tiny (较快，较低准确率)</option>
                         <option value="base">Base (平衡)</option>
-                        <option value="small">Small (平衡)</option>
-                        <option value="medium" selected>Medium (较慢，较高准确率)</option>
+                        <option value="small" selected>Small (平衡)</option>
+                        <option value="medium">Medium (较慢，较高准确率)</option>
                         <option value="large-v2">Large v2 (最慢，最高准确率)</option>
                     </select>
                 </div>
@@ -76,8 +76,8 @@
                         <label for="beam-size">Beam Size (主模型):</label>
                         <select id="beam-size">
                             <option value="1">1 (最快)</option>
-                            <option value="3">3</option>
-                            <option value="5" selected>5 (平衡)</option>
+                            <option value="3" selected>3 (平衡)</option>
+                            <option value="5">5 (平衡)</option>
                             <option value="8">8</option>
                             <option value="10">10 (最慢，最精确)</option>
                         </select>
@@ -86,15 +86,15 @@
 
                     <div class="setting-item">
                         <label for="initial-prompt">初始提示词 (主模型):</label>
-                        <input type="text" id="initial-prompt" placeholder="例如：医学术语、技术词汇等">
+                        <input type="text" id="initial-prompt" value="这是一段中文对话，请准确转写" placeholder="例如：医学术语、技术词汇等">
                         <small class="setting-help">可以帮助模型更准确识别特定领域的术语</small>
                     </div>
 
                     <div class="setting-item">
                         <label for="silero-sensitivity">Silero语音检测灵敏度:</label>
                         <div class="slider-container">
-                            <input type="range" id="silero-sensitivity" min="0" max="1" step="0.1" value="0.4">
-                            <span id="silero-value" class="slider-value">0.4</span>
+                            <input type="range" id="silero-sensitivity" min="0" max="1" step="0.1" value="0.5">
+                            <span id="silero-value" class="slider-value">0.5</span>
                         </div>
                         <small class="setting-help">主要语音检测算法的灵敏度：值越高(接近1)越容易检测到语音，但可能增加误触发；值越低(接近0)可减少误触发，但可能漏检语音。推荐值：0.3-0.5。</small>
                     </div>
@@ -102,8 +102,8 @@
                     <div class="setting-item">
                         <label for="silence-duration">语音后静音持续时间 (秒):</label>
                         <div class="slider-container">
-                            <input type="range" id="silence-duration" min="0.1" max="2.0" step="0.1" value="0.7">
-                            <span id="silence-value" class="slider-value">0.7</span>
+                            <input type="range" id="silence-duration" min="0.1" max="2.0" step="0.1" value="0.5">
+                            <span id="silence-value" class="slider-value">0.5</span>
                         </div>
                         <small class="setting-help">检测到停止说话后，系统等待多久才结束当前录音段。较短的值(0.1-0.5秒)使系统反应更快但可能截断句子，较长的值(0.7-1.5秒)给您更多思考时间但会增加处理延迟。</small>
                     </div>
@@ -111,8 +111,8 @@
                     <div class="setting-item">
                         <label for="allowed-latency">允许的延迟限制 (秒):</label>
                         <div class="slider-container">
-                            <input type="range" id="allowed-latency" min="1" max="10" step="1" value="5">
-                            <span id="allowed-latency-value" class="slider-value">5</span>
+                            <input type="range" id="allowed-latency" min="1" max="10" step="1" value="3">
+                            <span id="allowed-latency-value" class="slider-value">3</span>
                         </div>
                         <small class="setting-help">音频队列允许的最大延迟时间，超过会丢弃旧数据</small>
                     </div>
@@ -127,11 +127,22 @@
                         <div class="setting-title">详细转写设置</div>
 
                         <div class="setting-item">
+                            <label for="batch-size">批处理大小 (主模型):</label>
+                            <select id="batch-size">
+                                <option value="8">8</option>
+                                <option value="16" selected>16</option>
+                                <option value="24">24</option>
+                                <option value="32">32</option>
+                            </select>
+                            <small class="setting-help">主模型的批处理大小，影响转写速度和内存使用</small>
+                        </div>
+
+                        <div class="setting-item">
                             <label for="beam-size-realtime">Beam Size (实时模型):</label>
                             <select id="beam-size-realtime">
                                 <option value="1">1 (最快)</option>
-                                <option value="2">2</option>
-                                <option value="3" selected>3 (平衡)</option>
+                                <option value="2" selected>2 (平衡)</option>
+                                <option value="3">3 (平衡)</option>
                                 <option value="5">5 (最慢，最精确)</option>
                             </select>
                             <small class="setting-help">实时转写的束搜索宽度</small>
@@ -139,7 +150,7 @@
 
                         <div class="setting-item">
                             <label for="initial-prompt-realtime">初始提示词 (实时模型):</label>
-                            <input type="text" id="initial-prompt-realtime" placeholder="为实时转写提供上下文">
+                            <input type="text" id="initial-prompt-realtime" value="中文对话" placeholder="为实时转写提供上下文">
                             <small class="setting-help">为实时转写提供的上下文信息</small>
                         </div>
 
@@ -161,9 +172,9 @@
                         <div class="setting-item">
                             <label for="early-transcription-silence">静音提前转写 (秒):</label>
                             <div class="slider-container">
-                                <input type="range" id="early-transcription-silence" min="0" max="3" step="0.5"
-                                       value="0">
-                                <span id="early-transcription-silence-value" class="slider-value">0</span>
+                                <input type="range" id="early-transcription-silence" min="0" max="3" step="0.1"
+                                       value="0.3">
+                                <span id="early-transcription-silence-value" class="slider-value">0.3</span>
                             </div>
                             <small class="setting-help">静音多少秒后提前触发转写，0表示禁用</small>
                         </div>
@@ -175,8 +186,8 @@
                         <div class="setting-item">
                             <label for="silero-use-onnx">使用ONNX版Silero:</label>
                             <select id="silero-use-onnx">
-                                <option value="false" selected>否</option>
-                                <option value="true">是</option>
+                                <option value="false">否</option>
+                                <option value="true" selected>是</option>
                             </select>
                             <small class="setting-help">ONNX版本可能在某些设备上运行更快，功能与标准版相同。仅当您遇到性能问题时需要更改。</small>
                         </div>
@@ -184,8 +195,8 @@
                         <div class="setting-item">
                             <label for="silero-deactivity">启用Silero去活动检测:</label>
                             <select id="silero-deactivity">
-                                <option value="false" selected>否</option>
-                                <option value="true">是</option>
+                                <option value="false">否</option>
+                                <option value="true" selected>是</option>
                             </select>
                             <small class="setting-help">更精确地检测语音何时真正结束，减少句子中间被错误分段的情况。适合说话有停顿的用户。</small>
                         </div>
@@ -193,8 +204,8 @@
                         <div class="setting-item">
                             <label for="webrtc-sensitivity">WebRTC语音检测灵敏度:</label>
                             <div class="slider-container">
-                                <input type="range" id="webrtc-sensitivity" min="0" max="3" step="1" value="2">
-                                <span id="webrtc-value" class="slider-value">2</span>
+                                <input type="range" id="webrtc-sensitivity" min="0" max="3" step="1" value="1">
+                                <span id="webrtc-value" class="slider-value">1</span>
                             </div>
                             <small class="setting-help">辅助语音检测系统的灵敏度：0=最灵敏(检测更多语音但可能误触发)，3=最不灵敏(减少误触发)。嘈杂环境推荐2-3，安静环境推荐0-1。</small>
                         </div>
@@ -202,8 +213,8 @@
                         <div class="setting-item">
                             <label for="min-recording-length">最小录音长度 (秒):</label>
                             <div class="slider-container">
-                                <input type="range" id="min-recording-length" min="0" max="5" step="0.5" value="0">
-                                <span id="min-recording-length-value" class="slider-value">0</span>
+                                <input type="range" id="min-recording-length" min="0" max="5" step="0.1" value="0.3">
+                                <span id="min-recording-length-value" class="slider-value">0.3</span>
                             </div>
                             <small class="setting-help">丢弃短于此长度的录音，可过滤掉短暂噪音</small>
                         </div>
@@ -211,8 +222,8 @@
                         <div class="setting-item">
                             <label for="min-gap">录音间最小间隔 (秒):</label>
                             <div class="slider-container">
-                                <input type="range" id="min-gap" min="0" max="5" step="0.5" value="0">
-                                <span id="min-gap-value" class="slider-value">0</span>
+                                <input type="range" id="min-gap" min="0" max="5" step="0.1" value="0.1">
+                                <span id="min-gap-value" class="slider-value">0.1</span>
                             </div>
                             <small class="setting-help">两段录音之间的最小间隔时间</small>
                         </div>
@@ -220,9 +231,9 @@
                         <div class="setting-item">
                             <label for="pre-recording-buffer">预录制缓冲区长度 (秒):</label>
                             <div class="slider-container">
-                                <input type="range" id="pre-recording-buffer" min="0" max="3" step="0.5"
-                                       value="1.0">
-                                <span id="pre-recording-buffer-value" class="slider-value">1.0</span>
+                                <input type="range" id="pre-recording-buffer" min="0" max="3" step="0.1"
+                                       value="0.5">
+                                <span id="pre-recording-buffer-value" class="slider-value">0.5</span>
                             </div>
                             <small class="setting-help">在检测到语音前预先保存的缓冲区长度</small>
                         </div>
@@ -272,7 +283,8 @@
                             <label for="realtime-batch-size">实时转写批处理大小:</label>
                             <select id="realtime-batch-size">
                                 <option value="8">8</option>
-                                <option value="16" selected>16</option>
+                                <option value="16">16</option>
+                                <option value="24" selected>24</option>
                                 <option value="32">32</option>
                             </select>
                             <small class="setting-help">实时转写处理的批大小</small>
@@ -394,6 +406,20 @@
             <p>本应用使用RealtimeSTT库提供实时语音转文字功能，基于OpenAI的Whisper模型。</p>
             <p>使用方法: 允许麦克风权限后开始说话，转写结果会实时显示在主界面。</p>
             <p>点击右上角的设置图标可以调整语音识别参数。</p>
+            
+            <div class="setting-group">
+                <div class="setting-title">实时翻译场景优化</div>
+                <p>本应用已针对实时翻译场景进行了特别优化，主要包括：</p>
+                <ul style="list-style-type: disc; padding-left: 20px; margin-bottom: 15px;">
+                    <li>使用Small模型平衡准确性和速度</li>
+                    <li>启用ONNX加速提高处理效率</li>
+                    <li>优化语音检测参数减少句子被错误分段的情况</li>
+                    <li>减少处理延迟，提高实时性</li>
+                    <li>添加中文提示词提高识别准确率</li>
+                </ul>
+                <p>这些优化使系统在实时翻译场景下表现更佳，如需进一步调整，可在设置面板中修改相关参数。</p>
+            </div>
+            
             <p>版本: 1.0.0</p>
         </div>
 

@@ -38,7 +38,7 @@ config_lock = threading.Lock()  # 用于保护配置访问
 # 默认配置
 default_config = {
     # 基本设置
-    'model': 'tiny',  # 主要转录模型大小
+    'model': 'small',  # 主要转录模型大小 (从tiny改为small，提高准确性但仍保持较快速度)
     'download_root': None,  # 模型下载目录
     'language': 'zh',  # 语言设置
     'compute_type': 'float16',  # 计算类型
@@ -57,18 +57,18 @@ default_config = {
     'use_main_model_for_realtime': False,  # 对实时转写使用主模型
     'realtime_model_type': 'tiny',  # 实时转写模型大小
     'realtime_processing_pause': 0,  # 实时处理暂停时间
-    'init_realtime_after_seconds': 0.2,  # 实时处理初始延迟
-    'realtime_batch_size': 16,  # 实时转写批处理大小
+    'init_realtime_after_seconds': 0.1,  # 实时处理初始延迟 (从0.2减少到0.1，减少初始延迟)
+    'realtime_batch_size': 24,  # 实时转写批处理大小 (从16增加到24，提高吞吐量)
 
     # 语音活动检测设置
-    'silero_sensitivity': 0.4,  # Silero VAD灵敏度
-    'silero_use_onnx': False,  # 是否使用ONNX版Silero
-    'silero_deactivity_detection': False,  # Silero去活动检测
-    'webrtc_sensitivity': 2,  # WebRTC VAD灵敏度
-    'post_speech_silence_duration': 0.7,  # 语音后静音持续时间
-    'min_length_of_recording': 0,  # 最小录音长度
-    'min_gap_between_recordings': 0,  # 录音间最小间隔
-    'pre_recording_buffer_duration': 1.0,  # 预录制缓冲区长度
+    'silero_sensitivity': 0.5,  # Silero VAD灵敏度 (从0.4增加到0.5，提高检测灵敏度)
+    'silero_use_onnx': True,  # 是否使用ONNX版Silero (启用ONNX加速)
+    'silero_deactivity_detection': True,  # Silero去活动检测 (启用，减少句子中间被错误分段的情况)
+    'webrtc_sensitivity': 1,  # WebRTC VAD灵敏度 (从2降低到1，提高灵敏度)
+    'post_speech_silence_duration': 0.5,  # 语音后静音持续时间 (从0.7减少到0.5，加快句子结束检测)
+    'min_length_of_recording': 0.3,  # 最小录音长度 (设置为0.3秒，过滤掉短暂噪音)
+    'min_gap_between_recordings': 0.1,  # 录音间最小间隔 (设置为0.1秒，避免过于频繁的分段)
+    'pre_recording_buffer_duration': 0.5,  # 预录制缓冲区长度 (从1.0减少到0.5，减少延迟)
     'on_vad_detect_start': None,  # VAD检测开始回调
     'on_vad_detect_stop': None,  # VAD检测结束回调
 
@@ -87,16 +87,16 @@ default_config = {
     'on_wakeword_detection_end': None,  # 唤醒词检测结束回调
 
     # 高级设置
-    'beam_size': 5,  # 主模型波束搜索大小
-    'beam_size_realtime': 3,  # 实时模型波束搜索大小
+    'beam_size': 3,  # 主模型波束搜索大小 (从5减少到3，加快处理速度)
+    'beam_size_realtime': 2,  # 实时模型波束搜索大小 (从3减少到2，加快实时处理)
     'buffer_size': 512,  # 缓冲区大小
     'sample_rate': 16000,  # 采样率
-    'initial_prompt': None,  # 主模型初始提示
-    'initial_prompt_realtime': None,  # 实时模型初始提示
+    'initial_prompt': "",  # 主模型初始提示 (添加提示以提高中文识别准确性)
+    'initial_prompt_realtime': "",  # 实时模型初始提示 (添加简短提示)
     'suppress_tokens': [-1],  # 抑制令牌
     'print_transcription_time': False,  # 打印转写时间
-    'early_transcription_on_silence': 0,  # 静音时提前转写
-    'allowed_latency_limit': 5.0,  # 允许的延迟限制
+    'early_transcription_on_silence': 0.3,  # 静音时提前转写 (设置为0.3秒，加快实时反馈)
+    'allowed_latency_limit': 3.0,  # 允许的延迟限制 (从5.0减少到3.0，减少延迟)
     'debug_mode': False,  # 调试模式
     'handle_buffer_overflow': True,  # 处理缓冲区溢出
     'no_log_file': True,  # 不生成日志文件

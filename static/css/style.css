@@ -402,6 +402,7 @@ body {
     box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
     margin-top: 0;
     display: none; /* 默认隐藏 */
+    box-sizing: border-box;
 }
 
 .button-container.active {
@@ -411,6 +412,10 @@ body {
 .button-group {
     display: flex;
     gap: 15px;
+    width: 100%;
+    justify-content: center;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 .apply-button, .reset-button {
@@ -422,13 +427,14 @@ body {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s;
-    flex: 1;
+    width: 160px; /* 固定宽度替代flex: 1 */
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-size: 14px;
+    text-align: center;
 }
 
 .apply-button::after, .reset-button::after {

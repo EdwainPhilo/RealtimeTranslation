@@ -117,6 +117,10 @@ function updateSettingsUI(config) {
         document.getElementById('beam-size').value = config.beam_size.toString();
     }
     
+    if (config.batch_size !== undefined && document.getElementById('batch-size')) {
+        document.getElementById('batch-size').value = config.batch_size.toString();
+    }
+    
     if (config.beam_size_realtime !== undefined && document.getElementById('beam-size-realtime')) {
         document.getElementById('beam-size-realtime').value = config.beam_size_realtime.toString();
     }
@@ -195,7 +199,7 @@ function updateSettingsUI(config) {
     if (config.wakeword_backend !== undefined && document.getElementById('wakeword-backend')) {
         document.getElementById('wakeword-backend').value = config.wakeword_backend;
     }
-    
+
     if (config.wake_words !== undefined && document.getElementById('wake-words')) {
         document.getElementById('wake-words').value = config.wake_words;
     }
@@ -274,7 +278,7 @@ function getConfigFromUI() {
         'use_microphone': false,
         'ensure_sentence_starting_uppercase': true,
         'ensure_sentence_ends_with_period': true,
-        'batch_size': parseInt(document.getElementById('realtime-batch-size').value),
+        'batch_size': parseInt(document.getElementById('batch-size').value),
         'level': 30, // WARNING 级别
         
         // 实时转写设置
