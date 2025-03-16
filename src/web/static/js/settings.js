@@ -14,10 +14,42 @@ document.addEventListener('DOMContentLoaded', function () {
         settingsOverlay.style.display = 'none';
     });
 
-    // 点击外部区域关闭设置面板
-    settingsOverlay.addEventListener('click', function (e) {
-        if (e.target === settingsOverlay) {
+    // 为外部区域关闭添加更精确的判断
+    let mouseDownTarget = null;
+    let isSelectingText = false;
+    
+    // 判断是否正在选择文本
+    document.addEventListener('selectionchange', function() {
+        isSelectingText = document.getSelection().toString().length > 0;
+    });
+    
+    // 记录鼠标按下的目标
+    settingsOverlay.addEventListener('mousedown', function(e) {
+        mouseDownTarget = e.target;
+    });
+    
+    // 只有当mousedown和mouseup都在覆盖层上时才关闭设置
+    settingsOverlay.addEventListener('mouseup', function(e) {
+        // 如果正在选择文本，不关闭
+        if (isSelectingText) {
+            setTimeout(() => { isSelectingText = false; }, 100);
+            return;
+        }
+        
+        // 只有当鼠标按下和释放都在同一个覆盖层元素上才算有效点击
+        if (e.target === settingsOverlay && mouseDownTarget === settingsOverlay) {
             settingsOverlay.style.display = 'none';
+        }
+        
+        mouseDownTarget = null;
+    });
+
+    // 阻止原始click事件关闭面板
+    // 因为我们已经在mouseup中处理了关闭逻辑
+    settingsOverlay.addEventListener('click', function(e) {
+        if (e.target === settingsOverlay) {
+            // 阻止冒泡，防止触发其他click监听器
+            e.stopPropagation();
         }
     });
 
@@ -127,12 +159,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // 移除所有激活类
         settingGroup.classList.remove('openwakeword-active');
         settingGroup.classList.remove('porcupine-active');
+        settingGroup.classList.remove('disabled-active');
         
         // 添加对应的激活类
         if (backend === 'openwakeword') {
             settingGroup.classList.add('openwakeword-active');
         } else if (backend === 'pvporcupine') {
             settingGroup.classList.add('porcupine-active');
+        } else if (backend === 'disabled') {
+            settingGroup.classList.add('disabled-active');
+            // 当选择"不启用"时，实际上我们使用pvporcupine但将唤醒词设为空
+            document.getElementById('wake-words').value = '';
         }
     }
 }); 

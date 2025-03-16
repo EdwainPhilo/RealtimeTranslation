@@ -456,6 +456,147 @@ def handle_shutdown():
         emit('error', {'message': f'关闭服务失败: {str(e)}'})
 
 
+# Socket.IO 事件：验证文件路径
+@socketio.on('validate_file_path')
+def handle_validate_file_path(data):
+    """验证文件路径是否存在"""
+    app_logger.info(f"收到文件路径验证请求: {data}")
+    
+    result = {
+        'valid': True,
+        'messages': [],
+        'path': data.get('path', '')
+    }
+    
+    # 如果路径为空，返回有效
+    if not data.get('path') or data.get('path').strip() == '':
+        emit('file_path_validation_result', result)
+        return
+    
+    # 验证每个路径
+    paths = data.get('path', '').split(',')
+    invalid_paths = []
+    
+    for path in paths:
+        path = path.strip()
+        if not path:
+            continue
+            
+        try:
+            # 验证文件是否存在
+            if not os.path.exists(path):
+                invalid_paths.append({
+                    'path': path,
+                    'reason': '文件不存在'
+                })
+                continue
+                
+            # 验证是否为文件(不是目录)
+            if not os.path.isfile(path):
+                invalid_paths.append({
+                    'path': path,
+                    'reason': '路径不是文件'
+                })
+                continue
+                
+            # 验证是否可读
+            if not os.access(path, os.R_OK):
+                invalid_paths.append({
+                    'path': path,
+                    'reason': '文件不可读'
+                })
+                continue
+                
+            # 检查是否为有效的模型文件
+            is_valid_model = False
+            
+            # 检查文件扩展名
+            file_ext = os.path.splitext(path)[1].lower()
+            if file_ext in ['.onnx', '.bin', '.tflite']:
+                try:
+                    # 检查文件头信息（基本格式验证）
+                    with open(path, 'rb') as f:
+                        header = f.read(16)  # 读取前16字节
+                        
+                        # ONNX文件通常以"ONNX"开头或有特定的二进制标识
+                        if file_ext == '.onnx' and (b'ONNX' in header or b'onnx' in header or b'proto' in header):
+                            is_valid_model = True
+                        # TFLite文件有特定的魔数
+                        elif file_ext == '.tflite' and header.startswith(b'TFL3'):
+                            is_valid_model = True
+                        # .bin文件需要额外检查
+                        elif file_ext == '.bin':
+                            # 检查是否为常见图像格式
+                            is_image = False
+                            image_signatures = [
+                                b'\xff\xd8\xff',  # JPEG
+                                b'\x89\x50\x4e\x47',  # PNG
+                                b'GIF',  # GIF
+                                b'BM',  # BMP
+                                b'\x00\x00\x01\x00'  # ICO
+                            ]
+                            for sig in image_signatures:
+                                if header.startswith(sig):
+                                    is_image = True
+                                    break
+                            
+                            if is_image:
+                                invalid_paths.append({
+                                    'path': path,
+                                    'reason': '图片文件不是有效的模型文件'
+                                })
+                                continue
+                            
+                            # 简单启发式检查，查找协议缓冲区或模型特征 
+                            if (b'proto' in header or b'layer' in header or 
+                                b'model' in header or b'weight' in header or 
+                                b'tensor' in header):
+                                is_valid_model = True
+                            else:
+                                # 检查文件大小，过小可能不是模型
+                                file_size = os.path.getsize(path)
+                                if file_size < 10000:  # 小于10KB可能不是模型
+                                    invalid_paths.append({
+                                        'path': path,
+                                        'reason': f'文件过小（{file_size}字节），可能不是有效的模型文件'
+                                    })
+                                    continue
+                                else:
+                                    # 大文件假设可能是模型
+                                    is_valid_model = True
+                except Exception as e:
+                    invalid_paths.append({
+                        'path': path,
+                        'reason': f'模型文件读取错误: {str(e)}'
+                    })
+                    continue
+            else:
+                invalid_paths.append({
+                    'path': path,
+                    'reason': f'不支持的文件类型: {file_ext}，应为.onnx、.bin或.tflite'
+                })
+                continue
+                
+            if not is_valid_model:
+                invalid_paths.append({
+                    'path': path,
+                    'reason': '文件不是有效的模型格式'
+                })
+                
+        except Exception as e:
+            invalid_paths.append({
+                'path': path,
+                'reason': f'验证出错: {str(e)}'
+            })
+    
+    if invalid_paths:
+        result['valid'] = False
+        result['messages'] = invalid_paths
+    
+    # 返回验证结果
+    emit('file_path_validation_result', result)
+
+
 def main():
     """主函数"""
     global stt_service

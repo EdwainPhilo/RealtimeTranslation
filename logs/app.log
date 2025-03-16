@@ -539,3 +539,802 @@
 2025-03-16 19:01:48,094 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
 2025-03-16 19:01:50,558 - faster_whisper - INFO - Processing audio with duration 00:02.496
 2025-03-16 19:01:50,564 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:22:28,657 - app - INFO - 启动应用程序...
+2025-03-16 19:22:28,658 - app - INFO - 已设置高进程优先级
+2025-03-16 19:22:28,658 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:22:32,379 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:22:34,100 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:22:34,116 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:22:47,175 - faster_whisper - INFO - Processing audio with duration 00:01.536
+2025-03-16 19:22:47,181 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:22:48,481 - faster_whisper - INFO - Processing audio with duration 00:01.440
+2025-03-16 19:22:48,485 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:24:06,276 - app - INFO - 启动应用程序...
+2025-03-16 19:24:06,277 - app - INFO - 已设置高进程优先级
+2025-03-16 19:24:06,277 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:24:09,776 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:24:11,829 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:24:11,841 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:24:18,161 - faster_whisper - INFO - Processing audio with duration 00:01.536
+2025-03-16 19:24:18,166 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:24:22,186 - faster_whisper - INFO - Processing audio with duration 00:02.944
+2025-03-16 19:24:22,196 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:24:27,196 - faster_whisper - INFO - Processing audio with duration 00:02.912
+2025-03-16 19:24:27,206 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:26:04,741 - faster_whisper - INFO - Processing audio with duration 00:01.216
+2025-03-16 19:26:04,746 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:26:07,448 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:26:07,452 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:26:08,884 - faster_whisper - INFO - Processing audio with duration 00:01.344
+2025-03-16 19:26:08,888 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:26:11,277 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:26:11,282 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:26:11,941 - faster_whisper - INFO - Processing audio with duration 00:01.792
+2025-03-16 19:26:11,948 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:26:15,043 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:26:15,046 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:26:16,623 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 19:26:16,628 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:26:29,985 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:26:29,989 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:26:33,370 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 19:26:33,375 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:31:19,281 - faster_whisper - INFO - Processing audio with duration 00:02.272
+2025-03-16 19:31:19,289 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:31:22,499 - faster_whisper - INFO - Processing audio with duration 00:01.312
+2025-03-16 19:31:22,504 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:31:23,191 - faster_whisper - INFO - Processing audio with duration 00:01.984
+2025-03-16 19:31:23,197 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:31:24,336 - faster_whisper - INFO - Processing audio with duration 00:03.104
+2025-03-16 19:31:24,350 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:31:27,486 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 19:31:27,493 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:31:28,662 - faster_whisper - INFO - Processing audio with duration 00:02.848
+2025-03-16 19:31:28,672 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:31:30,911 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 19:31:30,916 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:31:35,109 - faster_whisper - INFO - Processing audio with duration 00:01.440
+2025-03-16 19:31:35,114 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:31:38,575 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 19:31:38,579 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:35:47,880 - app - INFO - 启动应用程序...
+2025-03-16 19:35:47,880 - app - INFO - 已设置高进程优先级
+2025-03-16 19:35:47,880 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:35:51,488 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:35:53,016 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:35:53,032 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:36:03,117 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 19:36:03,122 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:36:04,980 - faster_whisper - INFO - Processing audio with duration 00:01.536
+2025-03-16 19:36:04,987 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:36:10,107 - faster_whisper - INFO - Processing audio with duration 00:01.920
+2025-03-16 19:36:10,112 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:38:12,318 - app - INFO - 启动应用程序...
+2025-03-16 19:38:12,319 - app - INFO - 已设置高进程优先级
+2025-03-16 19:38:12,319 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:38:16,637 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:38:17,870 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:38:17,884 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:38:24,191 - faster_whisper - INFO - Processing audio with duration 00:03.936
+2025-03-16 19:38:24,204 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 19:38:33,517 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 19:38:33,525 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:38:34,678 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:38:34,683 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:41:00,156 - app - INFO - 启动应用程序...
+2025-03-16 19:41:00,156 - app - INFO - 已设置高进程优先级
+2025-03-16 19:41:00,156 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:41:04,340 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:41:05,590 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:41:05,605 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:46:03,044 - app - INFO - 启动应用程序...
+2025-03-16 19:46:03,045 - app - INFO - 已设置高进程优先级
+2025-03-16 19:46:03,045 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:46:06,610 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:46:08,087 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:46:08,100 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:56:59,004 - app - INFO - 启动应用程序...
+2025-03-16 19:56:59,005 - app - INFO - 已设置高进程优先级
+2025-03-16 19:56:59,005 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:57:03,310 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:57:33,641 - faster_whisper - WARNING - An error occured while synchronizing the model Systran/faster-whisper-small from the Hugging Face Hub:
+(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Systran/faster-whisper-small/revision/main (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)')))"), '(Request ID: cfbc99d4-2d2a-49f3-9205-22ac3fbd3ba1)')
+2025-03-16 19:57:33,641 - faster_whisper - WARNING - Trying to load the model directly from the local cache, if it exists.
+2025-03-16 19:57:34,443 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:57:34,462 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:59:06,236 - faster_whisper - INFO - Processing audio with duration 00:02.784
+2025-03-16 19:59:06,246 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:59:09,651 - faster_whisper - INFO - Processing audio with duration 00:03.520
+2025-03-16 19:59:09,663 - faster_whisper - INFO - VAD filter removed 00:00.336 of audio
+2025-03-16 19:59:16,697 - faster_whisper - INFO - Processing audio with duration 00:06.080
+2025-03-16 19:59:16,719 - faster_whisper - INFO - VAD filter removed 00:00.160 of audio
+2025-03-16 19:59:23,336 - faster_whisper - INFO - Processing audio with duration 00:03.104
+2025-03-16 19:59:23,347 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:59:26,181 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 19:59:26,188 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 19:59:27,680 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:59:27,684 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:59:32,055 - faster_whisper - INFO - Processing audio with duration 00:03.520
+2025-03-16 19:59:32,068 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:59:34,889 - faster_whisper - INFO - Processing audio with duration 00:06.336
+2025-03-16 19:59:34,914 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:59:45,295 - faster_whisper - INFO - Processing audio with duration 00:02.400
+2025-03-16 19:59:45,303 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:59:48,775 - faster_whisper - INFO - Processing audio with duration 00:05.856
+2025-03-16 19:59:48,798 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:00:07,725 - root - ERROR - Error receiving data from connection: 
+Traceback (most recent call last):
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 317, in _recv_bytes
+    ov, err = _winapi.ReadFile(self._handle, bsize,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [WinError 109] 管道已结束。
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\112455\OneDrive - email.ncu.edu.cn\RealtimeSTT_LLM_TTS\RealtimeTranslation\src\utils\stt\audio_recorder.py", line 120, in poll_connection
+    data = self.conn.recv()
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 250, in recv
+    buf = self._recv_bytes()
+          ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 337, in _recv_bytes
+    raise EOFError
+EOFError
+2025-03-16 20:05:40,804 - app - INFO - 启动应用程序...
+2025-03-16 20:05:40,805 - app - INFO - 已设置高进程优先级
+2025-03-16 20:05:40,805 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:05:44,692 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:05:46,339 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:05:46,352 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:06:08,922 - faster_whisper - INFO - Processing audio with duration 00:00.608
+2025-03-16 20:06:08,925 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 20:06:11,418 - faster_whisper - INFO - Processing audio with duration 00:01.440
+2025-03-16 20:06:11,423 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:06:15,627 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 20:06:15,632 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:06:23,608 - faster_whisper - INFO - Processing audio with duration 00:02.816
+2025-03-16 20:06:23,619 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:06:26,178 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 20:06:26,185 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:06:43,172 - faster_whisper - INFO - Processing audio with duration 00:00.608
+2025-03-16 20:06:43,174 - faster_whisper - INFO - VAD filter removed 00:00.608 of audio
+2025-03-16 20:06:54,698 - app - INFO - 启动应用程序...
+2025-03-16 20:06:54,699 - app - INFO - 已设置高进程优先级
+2025-03-16 20:06:54,699 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:06:58,872 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:07:00,677 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:07:00,692 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:09:54,072 - app - INFO - 启动应用程序...
+2025-03-16 20:09:54,072 - app - INFO - 已设置高进程优先级
+2025-03-16 20:09:54,072 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:09:57,880 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:09:59,158 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:09:59,171 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:10:06,509 - faster_whisper - INFO - Processing audio with duration 00:01.536
+2025-03-16 20:10:06,516 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:10:19,680 - app - INFO - 启动应用程序...
+2025-03-16 20:10:19,680 - app - INFO - 已设置高进程优先级
+2025-03-16 20:10:19,680 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:10:23,325 - root - INFO - Initializing faster_whisper main transcription model medium
+2025-03-16 20:10:26,659 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:10:26,674 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:12:12,540 - torch._subclasses.fake_tensor - INFO - FakeTensor cache stats:
+2025-03-16 20:12:12,540 - torch._subclasses.fake_tensor - INFO -   cache_hits: 0
+2025-03-16 20:12:12,541 - torch._subclasses.fake_tensor - INFO -   cache_misses: 0
+2025-03-16 20:13:13,826 - app - INFO - 启动应用程序...
+2025-03-16 20:13:13,827 - app - INFO - 已设置高进程优先级
+2025-03-16 20:13:13,827 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:13:17,170 - root - INFO - Initializing faster_whisper main transcription model medium
+2025-03-16 20:13:47,493 - faster_whisper - WARNING - An error occured while synchronizing the model Systran/faster-whisper-medium from the Hugging Face Hub:
+(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Systran/faster-whisper-medium/revision/main (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)')))"), '(Request ID: 7711b0d3-57e3-4e2e-aa6b-0c072b139163)')
+2025-03-16 20:13:47,493 - faster_whisper - WARNING - Trying to load the model directly from the local cache, if it exists.
+2025-03-16 20:13:49,316 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:13:49,330 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:14:07,092 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:14:07,096 - faster_whisper - INFO - VAD filter removed 00:00.160 of audio
+2025-03-16 20:14:09,523 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 20:14:09,529 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:14:13,893 - faster_whisper - INFO - Processing audio with duration 00:02.784
+2025-03-16 20:14:13,902 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:14:15,739 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:14:15,743 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 20:14:17,921 - faster_whisper - INFO - Processing audio with duration 00:02.240
+2025-03-16 20:14:17,928 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:14:21,271 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:14:21,274 - faster_whisper - INFO - VAD filter removed 00:00.096 of audio
+2025-03-16 20:14:23,430 - faster_whisper - INFO - Processing audio with duration 00:02.144
+2025-03-16 20:14:23,436 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:14:33,298 - root - ERROR - Error receiving data from connection: 
+Traceback (most recent call last):
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 317, in _recv_bytes
+    ov, err = _winapi.ReadFile(self._handle, bsize,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [WinError 109] 管道已结束。
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\112455\OneDrive - email.ncu.edu.cn\RealtimeSTT_LLM_TTS\RealtimeTranslation\src\utils\stt\audio_recorder.py", line 120, in poll_connection
+    data = self.conn.recv()
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 250, in recv
+    buf = self._recv_bytes()
+          ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 337, in _recv_bytes
+    raise EOFError
+EOFError
+2025-03-16 20:14:36,722 - app - INFO - 启动应用程序...
+2025-03-16 20:14:36,722 - app - INFO - 已设置高进程优先级
+2025-03-16 20:14:36,722 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:14:40,245 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:14:41,467 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:14:41,479 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:16:51,660 - app - INFO - 启动应用程序...
+2025-03-16 20:16:51,660 - app - INFO - 已设置高进程优先级
+2025-03-16 20:16:51,660 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:16:55,359 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:16:56,573 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:16:56,586 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:17:06,579 - faster_whisper - INFO - Processing audio with duration 00:01.760
+2025-03-16 20:17:06,585 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:17:44,330 - app - INFO - 启动应用程序...
+2025-03-16 20:17:44,330 - app - INFO - 已设置高进程优先级
+2025-03-16 20:17:44,330 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:17:48,744 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:17:51,255 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:17:51,266 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:19:03,938 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:19:03,942 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:19:07,438 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:19:07,442 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:30:21,907 - app - INFO - 启动应用程序...
+2025-03-16 20:30:21,907 - app - INFO - 已设置高进程优先级
+2025-03-16 20:30:21,907 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:30:25,769 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:30:27,115 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:30:27,129 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:30:33,064 - root - ERROR - Error receiving data from connection: 
+Traceback (most recent call last):
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 317, in _recv_bytes
+    ov, err = _winapi.ReadFile(self._handle, bsize,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BrokenPipeError: [WinError 109] 管道已结束。
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\112455\OneDrive - email.ncu.edu.cn\RealtimeSTT_LLM_TTS\RealtimeTranslation\src\utils\stt\audio_recorder.py", line 120, in poll_connection
+    data = self.conn.recv()
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 250, in recv
+    buf = self._recv_bytes()
+          ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\112455\.conda\envs\translate_env\Lib\multiprocessing\connection.py", line 337, in _recv_bytes
+    raise EOFError
+EOFError
+2025-03-16 20:30:36,296 - app - INFO - 启动应用程序...
+2025-03-16 20:30:36,297 - app - INFO - 已设置高进程优先级
+2025-03-16 20:30:36,297 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:30:40,249 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:30:41,539 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:30:41,552 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:34:10,620 - app - INFO - 启动应用程序...
+2025-03-16 20:34:10,620 - app - INFO - 已设置高进程优先级
+2025-03-16 20:34:10,620 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:34:14,561 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:34:16,225 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:34:16,241 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:34:36,834 - faster_whisper - INFO - Processing audio with duration 00:00.960
+2025-03-16 20:34:36,838 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:37:18,221 - app - INFO - 启动应用程序...
+2025-03-16 20:37:18,222 - app - INFO - 已设置高进程优先级
+2025-03-16 20:37:18,222 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:37:21,690 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:37:23,138 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:37:23,152 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:37:28,732 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 20:37:28,736 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:37:36,966 - app - INFO - 启动应用程序...
+2025-03-16 20:37:36,966 - app - INFO - 已设置高进程优先级
+2025-03-16 20:37:36,966 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:37:40,722 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:37:42,383 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:37:42,397 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:40:56,304 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 20:40:56,311 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:46:14,755 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:46:14,760 - faster_whisper - INFO - VAD filter removed 00:00.112 of audio
+2025-03-16 20:46:26,012 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:46:26,015 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:46:28,794 - faster_whisper - INFO - Processing audio with duration 00:02.240
+2025-03-16 20:46:28,800 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:46:31,565 - faster_whisper - INFO - Processing audio with duration 00:02.176
+2025-03-16 20:46:31,571 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:46:32,770 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 20:46:32,773 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:46:35,870 - faster_whisper - INFO - Processing audio with duration 00:03.072
+2025-03-16 20:46:35,880 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:46:37,321 - faster_whisper - INFO - Processing audio with duration 00:04.512
+2025-03-16 20:46:37,334 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:46:39,090 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:46:39,093 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:46:53,378 - faster_whisper - INFO - Processing audio with duration 00:02.368
+2025-03-16 20:46:53,385 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:46:58,012 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 20:46:58,015 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 20:46:59,936 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 20:46:59,941 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:47:10,250 - faster_whisper - INFO - Processing audio with duration 00:02.688
+2025-03-16 20:47:10,257 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:47:10,687 - faster_whisper - INFO - Processing audio with duration 00:03.136
+2025-03-16 20:47:10,725 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:47:12,369 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 20:47:12,373 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:47:23,880 - faster_whisper - INFO - Processing audio with duration 00:04.064
+2025-03-16 20:47:23,892 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:47:26,009 - faster_whisper - INFO - Processing audio with duration 00:01.344
+2025-03-16 20:47:26,018 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:32,613 - faster_whisper - INFO - Processing audio with duration 00:02.496
+2025-03-16 20:47:32,622 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:47:34,480 - faster_whisper - INFO - Processing audio with duration 00:01.952
+2025-03-16 20:47:34,488 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:38,122 - faster_whisper - INFO - Processing audio with duration 00:05.568
+2025-03-16 20:47:38,139 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:39,920 - faster_whisper - INFO - Processing audio with duration 00:07.360
+2025-03-16 20:47:39,941 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:42,040 - faster_whisper - INFO - Processing audio with duration 00:09.472
+2025-03-16 20:47:42,079 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:47,900 - faster_whisper - INFO - Processing audio with duration 00:05.568
+2025-03-16 20:47:47,952 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:49,541 - faster_whisper - INFO - Processing audio with duration 00:01.696
+2025-03-16 20:47:49,547 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:51,889 - faster_whisper - INFO - Processing audio with duration 00:04.032
+2025-03-16 20:47:51,900 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:47:59,405 - faster_whisper - INFO - Processing audio with duration 00:06.880
+2025-03-16 20:47:59,432 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:48:01,630 - faster_whisper - INFO - Processing audio with duration 00:09.088
+2025-03-16 20:48:01,669 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:48:03,204 - faster_whisper - INFO - Processing audio with duration 00:01.536
+2025-03-16 20:48:03,210 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:04,659 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:48:04,665 - faster_whisper - INFO - VAD filter removed 00:00.144 of audio
+2025-03-16 20:48:09,708 - faster_whisper - INFO - Processing audio with duration 00:05.024
+2025-03-16 20:48:09,733 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:48:10,820 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 20:48:10,825 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:12,975 - faster_whisper - INFO - Processing audio with duration 00:03.232
+2025-03-16 20:48:12,986 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:14,603 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:48:14,607 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:16,651 - faster_whisper - INFO - Processing audio with duration 00:03.168
+2025-03-16 20:48:16,663 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:18,873 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 20:48:18,878 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:48:19,450 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 20:48:19,458 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:48:21,989 - faster_whisper - INFO - Processing audio with duration 00:02.336
+2025-03-16 20:48:22,000 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:23,728 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:48:23,734 - faster_whisper - INFO - VAD filter removed 00:00.096 of audio
+2025-03-16 20:48:26,862 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:48:26,865 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:48:28,237 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 20:48:28,242 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:48:57,280 - faster_whisper - INFO - Processing audio with duration 00:01.952
+2025-03-16 20:48:57,287 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:49:11,835 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 20:49:11,841 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:49:17,473 - faster_whisper - INFO - Processing audio with duration 00:05.728
+2025-03-16 20:49:17,492 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:49:19,624 - faster_whisper - INFO - Processing audio with duration 00:07.872
+2025-03-16 20:49:19,651 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:49:21,540 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:49:21,544 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:49:23,450 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 20:49:23,456 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:49:25,182 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:49:25,187 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:50:20,482 - faster_whisper - INFO - Processing audio with duration 00:01.792
+2025-03-16 20:50:20,487 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:50:20,934 - faster_whisper - INFO - Processing audio with duration 00:02.240
+2025-03-16 20:50:20,941 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:50:22,117 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 20:50:22,121 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:50:31,592 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 20:50:31,595 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:50:39,087 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 20:50:39,091 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:51:06,010 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:51:06,013 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:51:07,019 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:51:07,023 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:51:07,419 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 20:51:07,423 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:51:10,010 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 20:51:10,016 - faster_whisper - INFO - VAD filter removed 00:00.144 of audio
+2025-03-16 20:51:12,498 - faster_whisper - INFO - Processing audio with duration 00:01.568
+2025-03-16 20:51:12,503 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:56:25,911 - app - INFO - 启动应用程序...
+2025-03-16 20:56:25,911 - app - INFO - 已设置高进程优先级
+2025-03-16 20:56:25,911 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:56:30,928 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:56:32,142 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:56:32,159 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:56:39,582 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 20:56:39,586 - faster_whisper - INFO - VAD filter removed 00:00.288 of audio
+2025-03-16 20:56:41,311 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 20:56:41,317 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:56:45,222 - faster_whisper - INFO - Processing audio with duration 00:02.656
+2025-03-16 20:56:45,233 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:57:02,289 - app - INFO - 启动应用程序...
+2025-03-16 20:57:02,289 - app - INFO - 已设置高进程优先级
+2025-03-16 20:57:02,289 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:57:07,248 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 20:57:08,430 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 20:57:08,443 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:57:21,182 - faster_whisper - INFO - Processing audio with duration 00:00.576
+2025-03-16 20:57:21,184 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:57:22,478 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 20:57:22,484 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:57:25,982 - faster_whisper - INFO - Processing audio with duration 00:00.800
+2025-03-16 20:57:25,986 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:58:36,520 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 20:58:36,526 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 20:58:41,472 - faster_whisper - INFO - Processing audio with duration 00:00.832
+2025-03-16 20:58:41,475 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:59:31,523 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 20:59:31,526 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 20:59:34,101 - faster_whisper - INFO - Processing audio with duration 00:00.608
+2025-03-16 20:59:34,104 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 20:59:55,024 - app - INFO - 启动应用程序...
+2025-03-16 20:59:55,024 - app - INFO - 已设置高进程优先级
+2025-03-16 20:59:55,024 - app - INFO - 初始化 STT 服务...
+2025-03-16 20:59:58,746 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:00:00,909 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:00:00,925 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:01:00,511 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:01:02,173 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:01:02,188 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:01:06,614 - app - INFO - 启动应用程序...
+2025-03-16 21:01:06,615 - app - INFO - 已设置高进程优先级
+2025-03-16 21:01:06,615 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:01:10,858 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:01:12,566 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:01:12,582 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:15:19,691 - app - INFO - 启动应用程序...
+2025-03-16 21:15:19,691 - app - INFO - 已设置高进程优先级
+2025-03-16 21:15:19,692 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:15:23,271 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:15:24,843 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:15:24,857 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:15:48,685 - faster_whisper - INFO - Processing audio with duration 00:00.608
+2025-03-16 21:15:48,688 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:15:49,706 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 21:15:49,713 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:15:50,545 - faster_whisper - INFO - Processing audio with duration 00:02.464
+2025-03-16 21:15:50,556 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:19:13,101 - app - INFO - 启动应用程序...
+2025-03-16 21:19:13,101 - app - INFO - 已设置高进程优先级
+2025-03-16 21:19:13,102 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:19:16,737 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:19:18,014 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:19:18,028 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:19:36,307 - faster_whisper - INFO - Processing audio with duration 00:00.608
+2025-03-16 21:19:36,310 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:19:39,601 - faster_whisper - INFO - Processing audio with duration 00:01.568
+2025-03-16 21:19:39,606 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:20:15,722 - faster_whisper - INFO - Processing audio with duration 00:01.344
+2025-03-16 21:20:15,727 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:20:18,011 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:20:19,373 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:20:19,388 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:20:20,078 - faster_whisper - INFO - Processing audio with duration 00:00.800
+2025-03-16 21:20:20,081 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:20:26,689 - faster_whisper - INFO - Processing audio with duration 00:00.640
+2025-03-16 21:20:26,692 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:20:33,312 - app - INFO - 启动应用程序...
+2025-03-16 21:20:33,312 - app - INFO - 已设置高进程优先级
+2025-03-16 21:20:33,312 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:20:37,630 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:20:39,070 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:20:39,086 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:21:24,808 - app - INFO - 启动应用程序...
+2025-03-16 21:21:24,808 - app - INFO - 已设置高进程优先级
+2025-03-16 21:21:24,808 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:21:28,168 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 21:21:28,173 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:21:28,756 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:21:30,498 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:21:30,512 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:21:44,842 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 21:21:44,847 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:23:11,322 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:23:11,327 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:23:27,406 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 21:23:27,411 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:23:28,818 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 21:23:28,823 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:23:52,993 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 21:23:53,000 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:29:20,297 - app - INFO - 启动应用程序...
+2025-03-16 21:29:20,297 - app - INFO - 已设置高进程优先级
+2025-03-16 21:29:20,297 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:29:24,060 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:29:27,220 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:29:27,234 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:29:31,454 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:29:31,459 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 21:29:42,745 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 21:29:42,750 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:30:40,407 - app - INFO - 启动应用程序...
+2025-03-16 21:30:40,407 - app - INFO - 已设置高进程优先级
+2025-03-16 21:30:40,408 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:30:44,073 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:30:45,545 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:30:45,559 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:31:27,065 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 21:31:27,071 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:31:30,250 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 21:31:30,257 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:31:32,177 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 21:31:32,182 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:31:35,581 - faster_whisper - INFO - Processing audio with duration 00:01.376
+2025-03-16 21:31:35,587 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:31:37,610 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 21:31:37,614 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:31:45,636 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:31:46,993 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:31:47,008 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:32:02,498 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 21:32:02,504 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:32:09,948 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 21:32:09,952 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:33:11,875 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 21:33:11,881 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:33:16,423 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:33:18,642 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:33:18,659 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:33:36,752 - faster_whisper - INFO - Processing audio with duration 00:01.376
+2025-03-16 21:33:36,758 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:33:41,007 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:33:41,011 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:33:48,948 - app - INFO - 启动应用程序...
+2025-03-16 21:33:48,949 - app - INFO - 已设置高进程优先级
+2025-03-16 21:33:48,949 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:33:53,005 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:33:54,349 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:33:54,363 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:34:27,725 - app - INFO - 启动应用程序...
+2025-03-16 21:34:27,726 - app - INFO - 已设置高进程优先级
+2025-03-16 21:34:27,726 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:34:31,930 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:34:33,725 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:34:33,741 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:34:54,074 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:34:56,071 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:34:56,085 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:35:00,463 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 21:35:00,468 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 21:35:02,102 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:35:02,106 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:35:03,034 - faster_whisper - INFO - Processing audio with duration 00:01.792
+2025-03-16 21:35:03,039 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:35:04,047 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:35:04,051 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 21:35:05,681 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:35:05,689 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:35:15,170 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:35:15,174 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:35:16,670 - faster_whisper - INFO - Processing audio with duration 00:02.432
+2025-03-16 21:35:16,678 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:35:31,250 - faster_whisper - INFO - Processing audio with duration 00:01.344
+2025-03-16 21:35:31,254 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:39:40,111 - faster_whisper - INFO - Processing audio with duration 00:01.312
+2025-03-16 21:39:40,116 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:39:46,575 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:39:46,580 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:40:03,690 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 21:40:03,698 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:40:14,634 - faster_whisper - INFO - Processing audio with duration 00:01.312
+2025-03-16 21:40:14,639 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:41:44,454 - faster_whisper - INFO - Processing audio with duration 00:02.656
+2025-03-16 21:41:44,466 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:41:47,504 - faster_whisper - INFO - Processing audio with duration 00:03.712
+2025-03-16 21:41:47,516 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:41:51,801 - faster_whisper - INFO - Processing audio with duration 00:02.944
+2025-03-16 21:41:51,813 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 21:41:53,654 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 21:41:53,658 - faster_whisper - INFO - VAD filter removed 00:00.064 of audio
+2025-03-16 21:41:58,072 - faster_whisper - INFO - Processing audio with duration 00:04.320
+2025-03-16 21:41:58,090 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:43:08,743 - app - INFO - 启动应用程序...
+2025-03-16 21:43:08,744 - app - INFO - 已设置高进程优先级
+2025-03-16 21:43:08,744 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:43:12,493 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:43:14,396 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:43:14,411 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:46:37,860 - app - INFO - 启动应用程序...
+2025-03-16 21:46:37,860 - app - INFO - 已设置高进程优先级
+2025-03-16 21:46:37,860 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:46:40,136 - faster_whisper - INFO - Processing audio with duration 00:00.992
+2025-03-16 21:46:40,142 - faster_whisper - INFO - VAD filter removed 00:00.176 of audio
+2025-03-16 21:46:41,842 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:46:43,619 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:46:43,634 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:47:04,780 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 21:47:04,786 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 21:47:07,781 - faster_whisper - INFO - Processing audio with duration 00:02.464
+2025-03-16 21:47:07,789 - faster_whisper - INFO - VAD filter removed 00:01.520 of audio
+2025-03-16 21:47:20,755 - faster_whisper - INFO - Processing audio with duration 00:06.208
+2025-03-16 21:47:20,791 - faster_whisper - INFO - VAD filter removed 00:00.096 of audio
+2025-03-16 21:47:43,761 - faster_whisper - INFO - Processing audio with duration 00:02.336
+2025-03-16 21:47:43,768 - faster_whisper - INFO - VAD filter removed 00:01.232 of audio
+2025-03-16 21:49:17,484 - app - INFO - 启动应用程序...
+2025-03-16 21:49:17,485 - app - INFO - 已设置高进程优先级
+2025-03-16 21:49:17,485 - app - INFO - 初始化 STT 服务...
+2025-03-16 21:49:21,209 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 21:49:23,244 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 21:49:23,271 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:01:59,819 - app - INFO - 启动应用程序...
+2025-03-16 22:01:59,819 - app - INFO - 已设置高进程优先级
+2025-03-16 22:01:59,819 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:02:04,412 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:02:06,014 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:02:06,029 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:06:23,563 - app - INFO - 启动应用程序...
+2025-03-16 22:06:23,564 - app - INFO - 已设置高进程优先级
+2025-03-16 22:06:23,564 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:06:27,193 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:06:28,760 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:06:28,773 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:10:59,764 - faster_whisper - INFO - Processing audio with duration 00:04.608
+2025-03-16 22:10:59,783 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:11:04,778 - faster_whisper - INFO - Processing audio with duration 00:03.616
+2025-03-16 22:11:04,792 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:18:05,490 - app - INFO - 启动应用程序...
+2025-03-16 22:18:05,490 - app - INFO - 已设置高进程优先级
+2025-03-16 22:18:05,490 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:18:09,322 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:18:10,866 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:18:10,879 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:24:38,927 - app - INFO - 启动应用程序...
+2025-03-16 22:24:38,927 - app - INFO - 已设置高进程优先级
+2025-03-16 22:24:38,927 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:24:42,959 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:24:44,387 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:24:44,400 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:26:35,302 - app - INFO - 启动应用程序...
+2025-03-16 22:26:35,302 - app - INFO - 已设置高进程优先级
+2025-03-16 22:26:35,302 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:26:38,933 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:26:40,423 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:26:40,437 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:27:41,323 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:27:43,073 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:27:43,097 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:29:12,901 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:29:14,710 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:29:14,728 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:30:44,054 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:30:46,009 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:30:46,024 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:31:36,343 - app - INFO - 启动应用程序...
+2025-03-16 22:31:36,343 - app - INFO - 已设置高进程优先级
+2025-03-16 22:31:36,343 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:31:40,183 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:31:42,740 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:31:42,775 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:31:48,522 - faster_whisper - INFO - Processing audio with duration 00:01.376
+2025-03-16 22:31:48,527 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 22:31:51,782 - faster_whisper - INFO - Processing audio with duration 00:03.200
+2025-03-16 22:31:51,792 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 22:31:56,765 - faster_whisper - INFO - Processing audio with duration 00:02.208
+2025-03-16 22:31:56,772 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:32:07,759 - faster_whisper - INFO - Processing audio with duration 00:04.000
+2025-03-16 22:32:07,772 - faster_whisper - INFO - VAD filter removed 00:00.480 of audio
+2025-03-16 22:32:20,759 - faster_whisper - INFO - Processing audio with duration 00:01.696
+2025-03-16 22:32:20,764 - faster_whisper - INFO - VAD filter removed 00:00.272 of audio
+2025-03-16 22:32:40,763 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 22:32:40,771 - faster_whisper - INFO - VAD filter removed 00:00.464 of audio
+2025-03-16 22:32:46,776 - faster_whisper - INFO - Processing audio with duration 00:01.696
+2025-03-16 22:32:46,783 - faster_whisper - INFO - VAD filter removed 00:00.224 of audio
+2025-03-16 22:33:28,774 - faster_whisper - INFO - Processing audio with duration 00:02.464
+2025-03-16 22:33:28,784 - faster_whisper - INFO - VAD filter removed 00:00.176 of audio
+2025-03-16 22:33:39,757 - faster_whisper - INFO - Processing audio with duration 00:02.304
+2025-03-16 22:33:39,765 - faster_whisper - INFO - VAD filter removed 00:00.336 of audio
+2025-03-16 22:33:49,756 - faster_whisper - INFO - Processing audio with duration 00:02.144
+2025-03-16 22:33:49,764 - faster_whisper - INFO - VAD filter removed 00:00.576 of audio
+2025-03-16 22:34:03,756 - faster_whisper - INFO - Processing audio with duration 00:01.888
+2025-03-16 22:34:03,763 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:34:08,766 - faster_whisper - INFO - Processing audio with duration 00:02.464
+2025-03-16 22:34:08,776 - faster_whisper - INFO - VAD filter removed 00:01.648 of audio
+2025-03-16 22:34:15,768 - faster_whisper - INFO - Processing audio with duration 00:02.176
+2025-03-16 22:34:15,778 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:34:21,762 - faster_whisper - INFO - Processing audio with duration 00:02.304
+2025-03-16 22:34:21,772 - faster_whisper - INFO - VAD filter removed 00:00.304 of audio
+2025-03-16 22:35:09,760 - faster_whisper - INFO - Processing audio with duration 00:01.696
+2025-03-16 22:35:09,772 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:35:35,699 - app - INFO - 启动应用程序...
+2025-03-16 22:35:35,700 - app - INFO - 已设置高进程优先级
+2025-03-16 22:35:35,700 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:35:39,412 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:35:40,675 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:35:40,690 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:35:48,711 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 22:35:48,719 - faster_whisper - INFO - VAD filter removed 00:00.272 of audio
+2025-03-16 22:35:52,141 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 22:35:52,146 - faster_whisper - INFO - VAD filter removed 00:00.176 of audio
+2025-03-16 22:35:57,708 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 22:35:57,715 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:01,212 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 22:36:01,239 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 22:36:05,166 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 22:36:05,170 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:07,648 - faster_whisper - INFO - Processing audio with duration 00:02.304
+2025-03-16 22:36:07,656 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:30,080 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 22:36:30,087 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:31,506 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 22:36:31,510 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:32,820 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 22:36:32,824 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:34,768 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 22:36:34,776 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:36,708 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 22:36:36,714 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:36:38,809 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 22:36:38,812 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 22:36:40,962 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 22:36:40,966 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 22:36:42,716 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 22:36:42,723 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 22:36:48,621 - app - INFO - 启动应用程序...
+2025-03-16 22:36:48,621 - app - INFO - 已设置高进程优先级
+2025-03-16 22:36:48,621 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:36:52,365 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:36:53,970 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:36:53,988 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:37:53,853 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:37:56,008 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:37:56,021 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:39:55,669 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:40:00,440 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:40:00,457 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:41:26,570 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:41:28,684 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:41:28,698 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:42:31,540 - app - INFO - 启动应用程序...
+2025-03-16 22:42:31,540 - app - INFO - 已设置高进程优先级
+2025-03-16 22:42:31,540 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:42:35,646 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:42:38,013 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:42:38,027 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:53:28,623 - faster_whisper - INFO - Processing audio with duration 00:00.928
+2025-03-16 22:53:28,630 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 22:55:53,270 - app - INFO - 启动应用程序...
+2025-03-16 22:55:53,270 - app - INFO - 已设置高进程优先级
+2025-03-16 22:55:53,271 - app - INFO - 初始化 STT 服务...
+2025-03-16 22:55:57,157 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:55:58,509 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 22:55:58,814 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 22:55:58,828 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 23:01:40,525 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 23:01:40,640 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 23:10:08,070 - app - INFO - 启动应用程序...
+2025-03-16 23:10:08,071 - app - INFO - 已设置高进程优先级
+2025-03-16 23:10:08,071 - app - INFO - 初始化 STT 服务...
+2025-03-16 23:10:18,355 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 23:10:20,650 - faster_whisper - WARNING - An error occured while synchronizing the model Systran/faster-whisper-small from the Hugging Face Hub:
+(MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Systran/faster-whisper-small/revision/main (Caused by ProxyError('Unable to connect to proxy', NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x0000026171EE7F90>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。')))"), '(Request ID: 2f067305-6559-47a0-8d26-c51eb10316d8)')
+2025-03-16 23:10:20,650 - faster_whisper - WARNING - Trying to load the model directly from the local cache, if it exists.
+2025-03-16 23:10:23,276 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 23:10:23,389 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 23:10:52,223 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 23:10:52,245 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 23:11:21,257 - app - INFO - 启动应用程序...
+2025-03-16 23:11:21,257 - app - INFO - 已设置高进程优先级
+2025-03-16 23:11:21,257 - app - INFO - 初始化 STT 服务...
+2025-03-16 23:11:31,825 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 23:11:36,702 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 23:11:36,819 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio

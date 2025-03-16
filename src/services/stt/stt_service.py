@@ -154,28 +154,15 @@ class STTService:
             return audio_data
 
     def create_recorder(self):
-        """创建录音机"""
-        print("创建/重新创建录音机...")
-        self.recorder_ready.clear()  # 重置就绪标志
-
+        """创建并初始化录音机，如果成功返回True，否则返回False和错误信息"""
         try:
-            # 关闭旧录音机
-            if self.recorder:
+            if self.recorder is not None:
                 try:
-                    print("关闭旧录音机...")
-                    if hasattr(self.recorder, 'stop'):
-                        self.recorder.stop()
-                    if hasattr(self.recorder, 'shutdown'):
-                        self.recorder.shutdown()
-                    del self.recorder
-                    self.recorder = None
-                    # 强制垃圾回收
-                    import gc
-                    gc.collect()
-                    print("旧录音机已关闭并释放资源")
+                    self.recorder.shutdown()
+                    time.sleep(0.5)  # 等待资源释放
                 except Exception as e:
-                    print(f"关闭旧录音机时出错: {e}")
-                    self.recorder = None
+                    print(f"关闭旧录音机时出现异常: {e}")
+                self.recorder = None
 
             # 添加回调函数
             with self.config_lock:
@@ -184,7 +171,50 @@ class STTService:
 
             # 创建新录音机
             print("创建新录音机...")
-            self.recorder = AudioToTextRecorder(**config_copy)
+            try:
+                self.recorder = AudioToTextRecorder(**config_copy)
+            except Exception as e:
+                error_str = str(e)
+                # 检查是否是OpenWakeWord模型加载错误
+                if ('openwakeword' in error_str.lower() or 'onnx' in error_str.lower() or 
+                    'protobuf' in error_str.lower() or 'model' in error_str.lower()):
+                    
+                    # 记录错误但继续尝试重置模型路径
+                    print(f"OpenWakeWord模型加载失败: {e}")
+                    logging.error(f"OpenWakeWord模型加载失败，将自动重置模型路径", exc_info=True)
+                    
+                    # 备份原始路径以便日志记录
+                    original_paths = config_copy.get('openwakeword_model_paths', None)
+                    
+                    # 重置模型路径为空，使用默认模型
+                    config_copy['openwakeword_model_paths'] = None
+                    
+                    # 更新配置
+                    with self.config_lock:
+                        if 'openwakeword_model_paths' in self.current_config:
+                            self.current_config['openwakeword_model_paths'] = None
+                    
+                    # 保存更新后的配置到文件
+                    self.save_config_to_file({'openwakeword_model_paths': None})
+                    
+                    # 尝试全局访问socketio实例
+                    try:
+                        from app import socketio
+                        socketio.emit('model_path_reset', {
+                            'message': '检测到无效的模型文件，已自动重置为默认模型',
+                            'old_path': str(original_paths),
+                            'error': str(e)
+                        })
+                    except Exception as emit_error:
+                        print(f"无法发送通知: {emit_error}")
+                    
+                    print(f"已重置模型路径，从 {original_paths} 改为默认模型")
+                    
+                    # 重新尝试创建录音机
+                    self.recorder = AudioToTextRecorder(**config_copy)
+                else:
+                    # 其他错误则直接抛出
+                    raise
 
             # 设置为就绪状态
             self.recorder_ready.set()
