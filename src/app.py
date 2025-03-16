@@ -8,11 +8,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import threading
-import json
 import base64
 import logging
 import time
-import asyncio
 import psutil
 
 # 配置日志
@@ -141,14 +139,32 @@ def handle_update_config(data):
             import time
             import os
             import sys
+            import subprocess
 
             # 等待2秒确保客户端收到重启消息
             time.sleep(2)
 
             print("重启应用程序...")
-            # 使用Python的可执行文件路径重新启动脚本
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
+            # 在Windows环境下使用subprocess启动新进程并退出当前进程
+            if sys.platform == 'win32':
+                python = sys.executable
+                args = [python] + sys.argv
+                app_logger.info(f"使用Windows方式重启应用: {args}")
+                # 创建无窗口的进程
+                subprocess.Popen(args, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                # 关闭STT服务
+                if stt_service:
+                    try:
+                        stt_service.shutdown()
+                    except Exception as e:
+                        app_logger.error(f"关闭STT服务时出错: {e}")
+                # 等待一小段时间确保新进程已启动
+                time.sleep(1)
+                os._exit(0)  # 强制退出当前进程
+            else:
+                # 在Unix系统上使用execl
+                python = sys.executable
+                os.execl(python, python, *sys.argv)
 
         restart_thread = threading.Thread(target=delayed_restart)
         restart_thread.daemon = True
@@ -184,14 +200,32 @@ def handle_reset_to_default():
             import time
             import os
             import sys
+            import subprocess
 
             # 等待2秒确保客户端收到重启消息
             time.sleep(2)
 
             print("重启应用程序...")
-            # 使用Python的可执行文件路径重新启动脚本
-            python = sys.executable
-            os.execl(python, python, *sys.argv)
+            # 在Windows环境下使用subprocess启动新进程并退出当前进程
+            if sys.platform == 'win32':
+                python = sys.executable
+                args = [python] + sys.argv
+                app_logger.info(f"使用Windows方式重启应用: {args}")
+                # 创建无窗口的进程
+                subprocess.Popen(args, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                # 关闭STT服务
+                if stt_service:
+                    try:
+                        stt_service.shutdown()
+                    except Exception as e:
+                        app_logger.error(f"关闭STT服务时出错: {e}")
+                # 等待一小段时间确保新进程已启动
+                time.sleep(1)
+                os._exit(0)  # 强制退出当前进程
+            else:
+                # 在Unix系统上使用execl
+                python = sys.executable
+                os.execl(python, python, *sys.argv)
 
         restart_thread = threading.Thread(target=delayed_restart)
         restart_thread.daemon = True
