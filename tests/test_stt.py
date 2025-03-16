@@ -10,7 +10,7 @@ import os
 # 将当前目录添加到 Python 路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from utils.stt import STTService
+from src.utils.stt import STTService
 
 def realtime_callback(text):
     """实时文本回调"""
