@@ -514,6 +514,53 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleButton.textContent = useSimplifiedChinese ? '切换到繁体' : '切换到简体';
         }
     }
+
+    // 获取按钮和对话框元素
+    const shutdownIcon = document.getElementById('shutdownIcon');
+    const shutdownDialog = document.getElementById('shutdownConfirmDialog');
+    const confirmShutdownBtn = document.getElementById('confirmShutdown');
+    const cancelShutdownBtn = document.getElementById('cancelShutdown');
+    
+    // 显示确认对话框
+    shutdownIcon.addEventListener('click', function() {
+        shutdownDialog.style.display = 'flex';
+    });
+    
+    // 取消关闭
+    cancelShutdownBtn.addEventListener('click', function() {
+        shutdownDialog.style.display = 'none';
+    });
+    
+    // 确认关闭
+    confirmShutdownBtn.addEventListener('click', function() {
+        shutdownDialog.style.display = 'none';
+        
+        // 发送关闭请求到服务器
+        socket.emit('shutdown_service');
+        
+        // 显示关闭状态
+        displayDiv.innerHTML = '<span class="shutdown-message">服务正在关闭，请稍候...</span>';
+    });
+    
+    // 点击对话框外部区域关闭对话框
+    shutdownDialog.addEventListener('click', function(event) {
+        if (event.target === shutdownDialog) {
+            shutdownDialog.style.display = 'none';
+        }
+    });
+    
+    // 监听服务关闭事件
+    socket.on('service_shutdown', function(data) {
+        console.log('服务正在关闭:', data);
+        
+        // 显示关闭倒计时
+        displayDiv.innerHTML = `<span class="shutdown-message">服务正在关闭，${data.countdown}秒后将自动断开连接...</span>`;
+        
+        // 倒计时结束后刷新页面
+        setTimeout(function() {
+            displayDiv.innerHTML = '<span class="shutdown-message">服务已关闭，请关闭浏览器或刷新页面重新连接</span>';
+        }, data.countdown * 1000);
+    });
 });
 
 // 请求麦克风访问权限

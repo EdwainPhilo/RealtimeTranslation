@@ -6,7 +6,7 @@ import time
 import json
 import os
 import sys
-from .audio_recorder import AudioToTextRecorder
+from src.utils.stt.audio_recorder import AudioToTextRecorder
 
 # 配置日志
 logging.basicConfig(

@@ -21,7 +21,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs', 'app.log'), encoding='utf-8')
+        logging.FileHandler(
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs', 'app.log'),
+            encoding='utf-8')
     ]
 )
 
@@ -36,7 +38,7 @@ app_logger = logging.getLogger('app')
 app_logger.setLevel(logging.INFO)
 
 # 创建 Flask 应用
-app = Flask(__name__, 
+app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web', 'templates'),
             static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web', 'static'))
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -50,7 +52,7 @@ socketio = SocketIO(
 )
 
 # 导入 STT 服务
-from src.utils.stt.stt_service import STTService
+from src.services.stt import STTService
 
 
 # STT 服务回调函数
@@ -130,7 +132,7 @@ def handle_update_config(data):
         emit('restart_required', {
             'message': '正在重启应用以应用新配置...',
             'countdown': 5  # 5秒倒计时
-        }, broadcast=True)
+        })
 
         print("配置已更新，准备重启应用...")
 
@@ -173,7 +175,7 @@ def handle_reset_to_default():
         emit('restart_required', {
             'message': '正在恢复默认设置并重启应用...',
             'countdown': 5  # 5秒倒计时
-        }, broadcast=True)
+        })
 
         print("已恢复默认设置，准备重启应用...")
 
@@ -289,16 +291,16 @@ def send_performance_metrics():
     while True:
         try:
             process = psutil.Process()
-            
+
             # 获取系统信息
             cpu_percent = process.cpu_percent()
             memory_info = process.memory_info()
             memory_percent = process.memory_percent()
-            
+
             # 获取系统总体信息
             sys_memory = psutil.virtual_memory()
             sys_cpu = psutil.cpu_percent()
-            
+
             # 组装指标数据
             metrics = {
                 'process': {
@@ -314,16 +316,17 @@ def send_performance_metrics():
                 },
                 'timestamp': time.time()
             }
-            
+
             # 发送到客户端
             socketio.emit('performance_metrics', metrics)
-            
+
             # 记录到日志
             if time.time() % 300 < 1:  # 每5分钟记录一次
-                app_logger.info(f"性能指标 - 进程: CPU {cpu_percent}%, 内存 {memory_info.rss/1e6:.1f}MB; 系统: CPU {sys_cpu}%, 内存 {sys_memory.percent}%")
-                
+                app_logger.info(
+                    f"性能指标 - 进程: CPU {cpu_percent}%, 内存 {memory_info.rss / 1e6:.1f}MB; 系统: CPU {sys_cpu}%, 内存 {sys_memory.percent}%")
+
             time.sleep(5)  # 每5秒发送一次
-            
+
         except Exception as e:
             app_logger.error(f"发送性能指标错误: {e}")
             time.sleep(30)  # 出错后等待更长时间
@@ -333,53 +336,90 @@ def send_performance_metrics():
 def check_service_health():
     """检查服务健康状态并尝试恢复"""
     global stt_service
-    
+
     consecutive_failures = 0
     max_failures = 3
-    
+
     while True:
         try:
             # 检查 STT 服务是否正常
             if stt_service and not stt_service.is_ready():
                 consecutive_failures += 1
                 app_logger.warning(f"STT 服务状态异常 (失败计数: {consecutive_failures}/{max_failures})")
-                
+
                 # 如果连续多次失败，尝试重启服务
                 if consecutive_failures >= max_failures:
                     app_logger.error("STT 服务连续多次失败，尝试重新初始化...")
-                    
+
                     try:
                         # 关闭现有服务
                         if stt_service:
                             stt_service.shutdown()
-                        
+
                         # 重新创建服务
                         stt_service = create_stt_service()
                         app_logger.info("STT 服务已重新初始化")
-                        
+
                         # 重置失败计数
                         consecutive_failures = 0
-                        
+
                         # 通知所有客户端服务已恢复
-                        socketio.emit('recorder_status', {'ready': stt_service.is_ready()}, broadcast=True)
-                        
+                        socketio.emit('recorder_status', {'ready': stt_service.is_ready()})
+
                     except Exception as e:
                         app_logger.error(f"重新初始化 STT 服务失败: {e}", exc_info=True)
             else:
                 # 服务正常，重置失败计数
                 consecutive_failures = 0
-            
+
             # 执行内存回收
             if time.time() % 600 < 1:  # 每10分钟执行一次
                 import gc
                 collected = gc.collect()
                 app_logger.debug(f"执行垃圾回收，回收了 {collected} 个对象")
-                
+
             time.sleep(30)  # 每30秒检查一次
-            
+
         except Exception as e:
             app_logger.error(f"健康检查异常: {e}")
             time.sleep(60)  # 出错后等待更长时间
+
+
+# Socket.IO 事件：接收关闭服务请求
+@socketio.on('shutdown_service')
+def handle_shutdown():
+    app_logger.info("收到关闭服务请求")
+
+    try:
+        # 通知所有客户端服务即将关闭
+        socketio.emit('service_shutdown', {
+            'message': '服务正在关闭...',
+            'countdown': 3  # 3秒倒计时
+        })
+
+        # 使用线程延迟关闭，确保消息发送到客户端
+        def delayed_shutdown():
+            time.sleep(2)  # 等待2秒确保客户端收到消息
+            app_logger.info("正在关闭服务...")
+
+            # 清理资源
+            if stt_service:
+                try:
+                    stt_service.shutdown()
+                    app_logger.info("STT 服务已关闭")
+                except Exception as e:
+                    app_logger.error(f"关闭 STT 服务时出错: {e}")
+
+            # 退出程序
+            os._exit(0)  # 强制退出，确保所有线程都被终止
+
+        shutdown_thread = threading.Thread(target=delayed_shutdown)
+        shutdown_thread.daemon = True
+        shutdown_thread.start()
+
+    except Exception as e:
+        app_logger.error(f"处理关闭请求时出错: {e}", exc_info=True)
+        emit('error', {'message': f'关闭服务失败: {str(e)}'})
 
 
 def main():
@@ -388,7 +428,7 @@ def main():
 
     try:
         app_logger.info("启动应用程序...")
-        
+
         # 设置进程优先级（仅在 Windows 上）
         if sys.platform == 'win32':
             try:
@@ -400,10 +440,10 @@ def main():
 
         # 创建 STT 服务
         stt_service = create_stt_service()
-        
+
         # 启动各监控线程
         app_logger.info("启动监控线程...")
-        
+
         # 资源监控线程
         monitor_thread = threading.Thread(target=monitor_resources, daemon=True)
         monitor_thread.start()
@@ -411,7 +451,7 @@ def main():
         # 性能指标发送线程
         metrics_thread = threading.Thread(target=send_performance_metrics, daemon=True)
         metrics_thread.start()
-        
+
         # 健康检查线程
         health_thread = threading.Thread(target=check_service_health, daemon=True)
         health_thread.start()
@@ -419,7 +459,7 @@ def main():
         # 等待 STT 服务就绪
         app_logger.info("等待 STT 服务就绪...")
         ready_timeout = time.time() + 30  # 30秒超时
-        
+
         while time.time() < ready_timeout:
             if stt_service.is_ready():
                 app_logger.info("STT 服务已就绪")
@@ -437,7 +477,7 @@ def main():
             port=5000,
             debug=False,
             use_reloader=False,  # 禁用重载器以提高性能
-            log_output=False     # 禁用 socketio 的日志输出
+            log_output=False  # 禁用 socketio 的日志输出
         )
     except KeyboardInterrupt:
         app_logger.info("收到用户中断，正在关闭应用...")

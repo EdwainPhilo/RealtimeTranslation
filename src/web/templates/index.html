@@ -14,12 +14,27 @@
         <h1>实时语音转写</h1>
         <div class="header-controls">
             <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()">切换到繁体</button>
-            <i class="fas fa-cog settings-icon" id="settingsIcon"></i>
+            <div class="control-buttons">
+                <i class="fas fa-cog settings-icon" id="settingsIcon" title="设置"></i>
+                <i class="fas fa-power-off shutdown-icon" id="shutdownIcon" title="关闭服务"></i>
+            </div>
         </div>
     </div>
 
     <div class="content">
         <div id="textDisplay" class="text-display"></div>
+    </div>
+    
+    <!-- 确认关闭对话框 -->
+    <div id="shutdownConfirmDialog" class="dialog">
+        <div class="dialog-content">
+            <h3>确认关闭</h3>
+            <p>确定要关闭服务吗？这将结束当前的语音转写会话。</p>
+            <div class="dialog-buttons">
+                <button id="cancelShutdown" class="button secondary">取消</button>
+                <button id="confirmShutdown" class="button primary">确认关闭</button>
+            </div>
+        </div>
     </div>
 
     <!-- 引入设置面板 -->
