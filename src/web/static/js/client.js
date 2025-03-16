@@ -219,6 +219,11 @@ function updateSettingsUI(config) {
         document.getElementById('wake-word-buffer-value').textContent = config.wake_word_buffer_duration;
     }
     
+    if (config.wake_word_activation_delay !== undefined && document.getElementById('wake-word-activation-delay')) {
+        document.getElementById('wake-word-activation-delay').value = config.wake_word_activation_delay;
+        document.getElementById('wake-word-activation-delay-value').textContent = config.wake_word_activation_delay;
+    }
+    
     // 更新系统设置
     if (config.buffer_size !== undefined && document.getElementById('buffer-size')) {
         document.getElementById('buffer-size').value = config.buffer_size.toString();
@@ -305,7 +310,7 @@ function getConfigFromUI() {
         'openwakeword_inference_framework': "onnx",
         'wake_words': document.getElementById('wake-words').value,
         'wake_words_sensitivity': parseFloat(document.getElementById('wake-words-sensitivity').value),
-        'wake_word_activation_delay': 0.0,
+        'wake_word_activation_delay': parseFloat(document.getElementById('wake-word-activation-delay').value),
         'wake_word_timeout': parseFloat(document.getElementById('wake-word-timeout').value),
         'wake_word_buffer_duration': parseFloat(document.getElementById('wake-word-buffer').value),
         

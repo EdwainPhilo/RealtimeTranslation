@@ -89,7 +89,8 @@ document.addEventListener('DOMContentLoaded', function () {
         'init-realtime-after',
         'wake-words-sensitivity',
         'wake-word-timeout',
-        'wake-word-buffer'
+        'wake-word-buffer',
+        'wake-word-activation-delay'
     ];
 
     sliders.forEach(id => {

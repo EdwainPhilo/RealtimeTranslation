@@ -298,7 +298,6 @@
                             <label for="wakeword-backend">唤醒词后端:</label>
                             <select id="wakeword-backend">
                                 <option value="pvporcupine" selected>Picovoice Porcupine</option>
-                                <option value="other">其他</option>
                             </select>
                             <small class="setting-help">用于唤醒词检测的后端技术</small>
                         </div>
@@ -335,6 +334,15 @@
                                 <span id="wake-word-buffer-value" class="slider-value">3</span>
                             </div>
                             <small class="setting-help">唤醒词检测的音频缓冲区长度</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="wake-word-activation-delay">唤醒词激活延迟 (秒):</label>
+                            <div class="slider-container">
+                                <input type="range" id="wake-word-activation-delay" min="0" max="2" step="0.1" value="0">
+                                <span id="wake-word-activation-delay-value" class="slider-value">0</span>
+                            </div>
+                            <small class="setting-help">检测到唤醒词后等待的延迟时间</small>
                         </div>
                     </div>
 
