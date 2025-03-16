@@ -3,7 +3,7 @@ import os
 from multiprocessing import freeze_support
 
 # 将当前目录添加到 Python 路径
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
@@ -21,7 +21,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('app.log', encoding='utf-8')  # 添加文件日志
+        logging.FileHandler(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs', 'app.log'), encoding='utf-8')
     ]
 )
 
@@ -36,7 +36,9 @@ app_logger = logging.getLogger('app')
 app_logger.setLevel(logging.INFO)
 
 # 创建 Flask 应用
-app = Flask(__name__)
+app = Flask(__name__, 
+            template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web', 'templates'),
+            static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web', 'static'))
 app.config['SECRET_KEY'] = 'your-secret-key'
 socketio = SocketIO(
     app,
@@ -48,7 +50,7 @@ socketio = SocketIO(
 )
 
 # 导入 STT 服务
-from utils.stt.stt_service import STTService
+from src.utils.stt.stt_service import STTService
 
 
 # STT 服务回调函数

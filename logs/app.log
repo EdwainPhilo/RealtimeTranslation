@@ -1,0 +1,541 @@
+2025-03-16 16:06:34,735 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:06:36,086 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:06:36,099 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:06:50,377 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:06:50,381 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:06:53,478 - faster_whisper - INFO - Processing audio with duration 00:02.208
+2025-03-16 16:06:53,488 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:07:00,436 - faster_whisper - INFO - Processing audio with duration 00:01.376
+2025-03-16 16:07:00,442 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:07:00,872 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 16:07:00,879 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:07:02,991 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:07:02,995 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:07:09,324 - faster_whisper - INFO - Processing audio with duration 00:01.216
+2025-03-16 16:07:09,331 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:07:13,022 - faster_whisper - INFO - Processing audio with duration 00:01.920
+2025-03-16 16:07:13,028 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:07:17,813 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 16:07:17,813 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:07:20,467 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:07:20,471 - faster_whisper - INFO - VAD filter removed 00:01.120 of audio
+2025-03-16 16:07:22,275 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 16:07:22,280 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:07:26,091 - faster_whisper - INFO - Processing audio with duration 00:02.016
+2025-03-16 16:07:26,097 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:09:09,694 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:09:13,173 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:09:14,473 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:09:14,488 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:09:28,348 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:09:28,352 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:09:30,537 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:09:30,541 - faster_whisper - INFO - VAD filter removed 00:00.288 of audio
+2025-03-16 16:09:35,906 - faster_whisper - INFO - Processing audio with duration 00:01.216
+2025-03-16 16:09:35,910 - faster_whisper - INFO - VAD filter removed 00:01.216 of audio
+2025-03-16 16:09:37,043 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:09:37,047 - faster_whisper - INFO - VAD filter removed 00:01.120 of audio
+2025-03-16 16:09:57,527 - faster_whisper - INFO - Processing audio with duration 00:04.064
+2025-03-16 16:09:57,545 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:09:59,089 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:09:59,094 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:10:00,900 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:10:00,904 - faster_whisper - INFO - VAD filter removed 00:01.120 of audio
+2025-03-16 16:10:02,283 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:10:02,289 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:10:03,631 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:10:03,639 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 16:10:05,604 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:10:05,608 - faster_whisper - INFO - VAD filter removed 00:00.288 of audio
+2025-03-16 16:10:08,343 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:10:08,348 - faster_whisper - INFO - VAD filter removed 00:00.096 of audio
+2025-03-16 16:11:42,171 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:11:42,177 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:15:37,807 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 16:15:37,812 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:17:35,596 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:17:39,163 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:17:40,346 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:17:40,359 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:17:46,645 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:17:46,648 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:17:48,477 - faster_whisper - INFO - Processing audio with duration 00:01.728
+2025-03-16 16:17:48,482 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:21:10,140 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:21:13,848 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:21:15,031 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:21:15,044 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:21:37,649 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 16:21:37,654 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:21:38,915 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:21:38,918 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 16:23:57,780 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:24:01,305 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:24:02,563 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:24:02,577 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:24:11,975 - faster_whisper - INFO - Processing audio with duration 00:02.720
+2025-03-16 16:24:11,982 - faster_whisper - INFO - VAD filter removed 00:00.192 of audio
+2025-03-16 16:24:12,981 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:24:12,984 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:24:57,788 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:25:01,326 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:25:03,187 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:25:03,195 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:25:07,952 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:25:07,957 - faster_whisper - INFO - VAD filter removed 00:00.288 of audio
+2025-03-16 16:29:00,826 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:29:04,365 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:29:05,546 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:29:05,561 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:29:16,356 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:29:16,360 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:30:19,214 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:30:23,132 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:30:24,327 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:30:24,341 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:30:28,737 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:30:28,742 - faster_whisper - INFO - VAD filter removed 00:00.288 of audio
+2025-03-16 16:30:39,643 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:30:39,650 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:30:45,855 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:30:45,863 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:31:37,911 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:31:41,266 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:31:42,742 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:31:42,755 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:31:50,760 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:31:50,762 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:31:53,343 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 16:31:53,351 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:31:54,120 - faster_whisper - INFO - Processing audio with duration 00:02.432
+2025-03-16 16:31:54,128 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:31:57,212 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:31:57,219 - faster_whisper - INFO - VAD filter removed 00:00.224 of audio
+2025-03-16 16:32:02,011 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:32:02,015 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 16:32:42,407 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:32:42,412 - faster_whisper - INFO - VAD filter removed 00:00.192 of audio
+2025-03-16 16:38:55,545 - app - INFO - 启动应用程序...
+2025-03-16 16:38:55,546 - app - INFO - 已设置高进程优先级
+2025-03-16 16:38:55,546 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:38:59,240 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:39:00,695 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:39:00,712 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:39:04,061 - faster_whisper - INFO - Processing audio with duration 00:00.896
+2025-03-16 16:39:04,066 - faster_whisper - INFO - VAD filter removed 00:00.112 of audio
+2025-03-16 16:39:15,762 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:39:15,767 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:39:21,107 - faster_whisper - INFO - Processing audio with duration 00:02.272
+2025-03-16 16:39:21,117 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:39:26,146 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:39:26,150 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:39:29,302 - faster_whisper - INFO - Processing audio with duration 00:02.912
+2025-03-16 16:39:29,309 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:41:24,222 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:41:24,227 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:41:29,398 - faster_whisper - INFO - Processing audio with duration 00:02.272
+2025-03-16 16:41:29,409 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:41:31,151 - faster_whisper - INFO - Processing audio with duration 00:04.000
+2025-03-16 16:41:31,168 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:41:33,714 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 16:41:33,719 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:41:35,010 - faster_whisper - INFO - Processing audio with duration 00:02.784
+2025-03-16 16:41:35,025 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:41:43,361 - faster_whisper - INFO - Processing audio with duration 00:08.320
+2025-03-16 16:41:43,387 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:41:46,955 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 16:41:46,961 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:41:49,568 - faster_whisper - INFO - Processing audio with duration 00:02.144
+2025-03-16 16:41:49,575 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:41:53,074 - faster_whisper - INFO - Processing audio with duration 00:02.816
+2025-03-16 16:41:53,085 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:41:54,912 - faster_whisper - INFO - Processing audio with duration 00:01.600
+2025-03-16 16:41:54,917 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:42:10,424 - faster_whisper - INFO - Processing audio with duration 00:03.648
+2025-03-16 16:42:10,439 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:14,376 - faster_whisper - INFO - Processing audio with duration 00:07.584
+2025-03-16 16:42:14,403 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:16,897 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 16:42:16,903 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:42:19,749 - faster_whisper - INFO - Processing audio with duration 00:02.464
+2025-03-16 16:42:19,760 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:22,064 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:42:22,070 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:25,337 - faster_whisper - INFO - Processing audio with duration 00:03.392
+2025-03-16 16:42:25,352 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:26,804 - faster_whisper - INFO - Processing audio with duration 00:04.832
+2025-03-16 16:42:26,822 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:30,937 - faster_whisper - INFO - Processing audio with duration 00:08.960
+2025-03-16 16:42:30,968 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:33,767 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:42:33,772 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:42:36,743 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:42:36,750 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:37,746 - faster_whisper - INFO - Processing audio with duration 00:02.144
+2025-03-16 16:42:37,755 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:39,165 - faster_whisper - INFO - Processing audio with duration 00:03.552
+2025-03-16 16:42:39,180 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:40,823 - faster_whisper - INFO - Processing audio with duration 00:01.760
+2025-03-16 16:42:40,830 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:42:44,025 - faster_whisper - INFO - Processing audio with duration 00:04.960
+2025-03-16 16:42:44,044 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:42:45,856 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 16:42:45,863 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:46,914 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:42:46,918 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:42:51,964 - faster_whisper - INFO - Processing audio with duration 00:02.496
+2025-03-16 16:42:51,972 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:42:52,576 - faster_whisper - INFO - Processing audio with duration 00:03.104
+2025-03-16 16:42:52,587 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:42:56,027 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:42:56,031 - faster_whisper - INFO - VAD filter removed 00:00.224 of audio
+2025-03-16 16:42:56,721 - faster_whisper - INFO - Processing audio with duration 00:01.792
+2025-03-16 16:42:56,728 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:42:58,096 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:42:58,103 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:02,778 - faster_whisper - INFO - Processing audio with duration 00:02.560
+2025-03-16 16:43:02,787 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:05,088 - faster_whisper - INFO - Processing audio with duration 00:02.272
+2025-03-16 16:43:05,096 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:43:05,974 - faster_whisper - INFO - Processing audio with duration 00:03.136
+2025-03-16 16:43:05,985 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:43:08,305 - faster_whisper - INFO - Processing audio with duration 00:02.464
+2025-03-16 16:43:08,316 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:10,109 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:43:10,114 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:43:11,487 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:43:11,494 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:12,515 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:43:12,519 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:18,283 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:43:18,290 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:20,465 - faster_whisper - INFO - Processing audio with duration 00:01.952
+2025-03-16 16:43:20,471 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:22,525 - faster_whisper - INFO - Processing audio with duration 00:01.312
+2025-03-16 16:43:22,529 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:43:24,633 - faster_whisper - INFO - Processing audio with duration 00:02.208
+2025-03-16 16:43:24,641 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:27,923 - faster_whisper - INFO - Processing audio with duration 00:05.504
+2025-03-16 16:43:27,947 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:29,889 - faster_whisper - INFO - Processing audio with duration 00:01.600
+2025-03-16 16:43:29,894 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:31,427 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 16:43:31,432 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:43:37,581 - faster_whisper - INFO - Processing audio with duration 00:05.216
+2025-03-16 16:43:37,639 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:39,435 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:43:39,443 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 16:43:40,823 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:43:40,830 - faster_whisper - INFO - VAD filter removed 00:00.256 of audio
+2025-03-16 16:43:42,079 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:43:42,084 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:47,495 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:43:47,499 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:48,043 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 16:43:48,049 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:51,889 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:43:51,901 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:52,587 - faster_whisper - INFO - Processing audio with duration 00:01.888
+2025-03-16 16:43:52,594 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:54,144 - faster_whisper - INFO - Processing audio with duration 00:01.632
+2025-03-16 16:43:54,150 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:57,366 - faster_whisper - INFO - Processing audio with duration 00:01.440
+2025-03-16 16:43:57,384 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:43:58,486 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 16:43:58,492 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:05,300 - faster_whisper - INFO - Processing audio with duration 00:04.192
+2025-03-16 16:44:05,316 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:06,481 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:06,487 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:07,390 - faster_whisper - INFO - Processing audio with duration 00:02.016
+2025-03-16 16:44:07,397 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:08,991 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:08,996 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:12,746 - faster_whisper - INFO - Processing audio with duration 00:03.008
+2025-03-16 16:44:12,759 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:14,126 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 16:44:14,137 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:15,141 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:15,145 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:16,900 - faster_whisper - INFO - Processing audio with duration 00:01.600
+2025-03-16 16:44:16,906 - faster_whisper - INFO - VAD filter removed 00:00.640 of audio
+2025-03-16 16:44:18,120 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:44:18,128 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:22,370 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:44:22,375 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:44:23,929 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:23,933 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:24,847 - faster_whisper - INFO - Processing audio with duration 00:02.016
+2025-03-16 16:44:24,856 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:44:27,015 - faster_whisper - INFO - Processing audio with duration 00:02.240
+2025-03-16 16:44:27,026 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:30,592 - faster_whisper - INFO - Processing audio with duration 00:03.168
+2025-03-16 16:44:30,601 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:44:34,268 - faster_whisper - INFO - Processing audio with duration 00:03.328
+2025-03-16 16:44:34,280 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:36,126 - faster_whisper - INFO - Processing audio with duration 00:01.440
+2025-03-16 16:44:36,130 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:38,452 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:38,456 - faster_whisper - INFO - VAD filter removed 00:01.120 of audio
+2025-03-16 16:44:41,056 - faster_whisper - INFO - Processing audio with duration 00:02.048
+2025-03-16 16:44:41,063 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:42,022 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:44:42,027 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:44,604 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:44,608 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:44:45,997 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:46,001 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:50,945 - faster_whisper - INFO - Processing audio with duration 00:02.304
+2025-03-16 16:44:50,956 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:51,976 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:51,982 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:44:53,343 - faster_whisper - INFO - Processing audio with duration 00:01.312
+2025-03-16 16:44:53,348 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:44:54,815 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:44:54,819 - faster_whisper - INFO - VAD filter removed 00:00.160 of audio
+2025-03-16 16:44:56,461 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:44:56,465 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:44:57,127 - faster_whisper - INFO - Processing audio with duration 00:01.792
+2025-03-16 16:44:57,133 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:08,979 - faster_whisper - INFO - Processing audio with duration 00:01.536
+2025-03-16 16:45:08,983 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:45:09,963 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:09,967 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:45:12,824 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:12,828 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:16,218 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:16,224 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:45:17,763 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:17,766 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:45:18,318 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 16:45:18,325 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:45:19,538 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:19,543 - faster_whisper - INFO - VAD filter removed 00:00.224 of audio
+2025-03-16 16:45:23,492 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 16:45:23,499 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:24,069 - faster_whisper - INFO - Processing audio with duration 00:02.080
+2025-03-16 16:45:24,076 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:26,470 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 16:45:26,475 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:30,584 - faster_whisper - INFO - Processing audio with duration 00:02.272
+2025-03-16 16:45:30,596 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:45:34,835 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:34,840 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:45:36,627 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:45:36,633 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:45,374 - faster_whisper - INFO - Processing audio with duration 00:01.888
+2025-03-16 16:45:45,381 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:46,955 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:46,960 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:48,805 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 16:45:48,812 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:45:50,238 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:45:50,244 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:45:52,108 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 16:45:52,115 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:45:54,586 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:54,591 - faster_whisper - INFO - VAD filter removed 00:00.208 of audio
+2025-03-16 16:45:55,711 - faster_whisper - INFO - Processing audio with duration 00:02.240
+2025-03-16 16:45:55,719 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:45:58,946 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:45:58,951 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:00,426 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:46:00,431 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:02,418 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:46:02,422 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:03,401 - faster_whisper - INFO - Processing audio with duration 00:01.056
+2025-03-16 16:46:03,407 - faster_whisper - INFO - VAD filter removed 00:00.160 of audio
+2025-03-16 16:46:06,841 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:46:06,845 - faster_whisper - INFO - VAD filter removed 00:00.144 of audio
+2025-03-16 16:46:09,430 - faster_whisper - INFO - Processing audio with duration 00:01.792
+2025-03-16 16:46:09,436 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:11,354 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 16:46:11,360 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:13,384 - faster_whisper - INFO - Processing audio with duration 00:01.568
+2025-03-16 16:46:13,390 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:15,605 - faster_whisper - INFO - Processing audio with duration 00:02.176
+2025-03-16 16:46:15,612 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:21,556 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 16:46:21,563 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:26,964 - faster_whisper - INFO - Processing audio with duration 00:05.344
+2025-03-16 16:46:26,981 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:27,837 - faster_whisper - INFO - Processing audio with duration 00:06.208
+2025-03-16 16:46:27,865 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:30,027 - faster_whisper - INFO - Processing audio with duration 00:01.824
+2025-03-16 16:46:30,036 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:30,983 - faster_whisper - INFO - Processing audio with duration 00:02.784
+2025-03-16 16:46:30,995 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:32,177 - faster_whisper - INFO - Processing audio with duration 00:01.248
+2025-03-16 16:46:32,182 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:33,619 - faster_whisper - INFO - Processing audio with duration 00:01.376
+2025-03-16 16:46:33,626 - faster_whisper - INFO - VAD filter removed 00:00.448 of audio
+2025-03-16 16:46:35,289 - faster_whisper - INFO - Processing audio with duration 00:03.040
+2025-03-16 16:46:35,303 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:37,385 - faster_whisper - INFO - Processing audio with duration 00:02.048
+2025-03-16 16:46:37,393 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:39,497 - faster_whisper - INFO - Processing audio with duration 00:01.408
+2025-03-16 16:46:39,502 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:46:42,880 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:46:42,884 - faster_whisper - INFO - VAD filter removed 00:00.096 of audio
+2025-03-16 16:46:44,081 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:46:44,085 - faster_whisper - INFO - VAD filter removed 00:00.176 of audio
+2025-03-16 16:46:46,637 - faster_whisper - INFO - Processing audio with duration 00:01.376
+2025-03-16 16:46:46,643 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:55,774 - faster_whisper - INFO - Processing audio with duration 00:01.920
+2025-03-16 16:46:55,781 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:56,225 - faster_whisper - INFO - Processing audio with duration 00:02.368
+2025-03-16 16:46:56,235 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:46:58,402 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:46:58,408 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:47:01,987 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:47:01,992 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 16:47:04,765 - faster_whisper - INFO - Processing audio with duration 00:02.880
+2025-03-16 16:47:04,777 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:48:20,426 - faster_whisper - INFO - Processing audio with duration 00:03.360
+2025-03-16 16:48:20,440 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:48:22,416 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:48:22,424 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:50:44,368 - faster_whisper - INFO - Processing audio with duration 00:01.504
+2025-03-16 16:50:44,373 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:33,610 - faster_whisper - INFO - Processing audio with duration 00:01.152
+2025-03-16 16:52:33,615 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:36,512 - faster_whisper - INFO - Processing audio with duration 00:02.240
+2025-03-16 16:52:36,520 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:52:38,287 - faster_whisper - INFO - Processing audio with duration 00:01.856
+2025-03-16 16:52:38,294 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:39,367 - faster_whisper - INFO - Processing audio with duration 00:01.216
+2025-03-16 16:52:39,372 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:51,177 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 16:52:51,183 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:53,943 - faster_whisper - INFO - Processing audio with duration 00:01.760
+2025-03-16 16:52:53,951 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:57,200 - faster_whisper - INFO - Processing audio with duration 00:02.080
+2025-03-16 16:52:57,208 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:52:59,185 - faster_whisper - INFO - Processing audio with duration 00:02.112
+2025-03-16 16:52:59,192 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:00,236 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:53:00,242 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:01,206 - faster_whisper - INFO - Processing audio with duration 00:02.144
+2025-03-16 16:53:01,214 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:02,556 - faster_whisper - INFO - Processing audio with duration 00:01.472
+2025-03-16 16:53:02,561 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:53:03,836 - faster_whisper - INFO - Processing audio with duration 00:02.752
+2025-03-16 16:53:03,876 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:53:13,417 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:13,422 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:17,504 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:53:17,508 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 16:53:18,771 - faster_whisper - INFO - Processing audio with duration 00:02.432
+2025-03-16 16:53:18,786 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 16:53:20,020 - faster_whisper - INFO - Processing audio with duration 00:03.680
+2025-03-16 16:53:20,034 - faster_whisper - INFO - VAD filter removed 00:00.080 of audio
+2025-03-16 16:53:21,396 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:21,399 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:24,137 - faster_whisper - INFO - Processing audio with duration 00:02.528
+2025-03-16 16:53:24,150 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:53:26,505 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:26,510 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:53:30,214 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:30,219 - faster_whisper - INFO - VAD filter removed 00:00.064 of audio
+2025-03-16 16:53:39,924 - faster_whisper - INFO - Processing audio with duration 00:01.088
+2025-03-16 16:53:39,930 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:41,682 - faster_whisper - INFO - Processing audio with duration 00:01.696
+2025-03-16 16:53:41,690 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 16:53:46,436 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:46,441 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:47,884 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:47,890 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:49,974 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:49,980 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:53:52,009 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:53:52,013 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:56:49,672 - app - INFO - 启动应用程序...
+2025-03-16 16:56:49,673 - app - INFO - 已设置高进程优先级
+2025-03-16 16:56:49,673 - app - INFO - 初始化 STT 服务...
+2025-03-16 16:56:53,196 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 16:56:54,401 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 16:56:54,414 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:56:58,402 - faster_whisper - INFO - Processing audio with duration 00:00.960
+2025-03-16 16:56:58,406 - faster_whisper - INFO - VAD filter removed 00:00.272 of audio
+2025-03-16 16:57:04,444 - faster_whisper - INFO - Processing audio with duration 00:03.360
+2025-03-16 16:57:04,456 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:57:06,103 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:06,108 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:57:07,303 - faster_whisper - INFO - Processing audio with duration 00:01.312
+2025-03-16 16:57:07,309 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:57:19,750 - faster_whisper - INFO - Processing audio with duration 00:01.280
+2025-03-16 16:57:19,760 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:57:21,983 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:21,986 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:57:25,884 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:25,890 - faster_whisper - INFO - VAD filter removed 00:00.064 of audio
+2025-03-16 16:57:28,174 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:28,179 - faster_whisper - INFO - VAD filter removed 00:00.032 of audio
+2025-03-16 16:57:33,884 - faster_whisper - INFO - Processing audio with duration 00:01.664
+2025-03-16 16:57:33,889 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:57:34,897 - faster_whisper - INFO - Processing audio with duration 00:02.656
+2025-03-16 16:57:34,906 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:57:36,762 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:36,766 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 16:57:38,256 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:38,263 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:57:39,878 - faster_whisper - INFO - Processing audio with duration 00:01.184
+2025-03-16 16:57:39,884 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 16:57:41,696 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 16:57:41,701 - faster_whisper - INFO - VAD filter removed 00:00.128 of audio
+2025-03-16 17:09:18,547 - app - INFO - 启动应用程序...
+2025-03-16 17:09:18,547 - app - INFO - 已设置高进程优先级
+2025-03-16 17:09:18,547 - app - INFO - 初始化 STT 服务...
+2025-03-16 17:09:22,406 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 17:09:24,413 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 17:09:24,426 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 17:09:31,690 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 17:09:31,694 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 17:09:33,940 - faster_whisper - INFO - Processing audio with duration 00:01.696
+2025-03-16 17:09:33,946 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 17:09:38,189 - faster_whisper - INFO - Processing audio with duration 00:02.624
+2025-03-16 17:09:38,199 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 17:09:39,521 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 17:09:39,527 - faster_whisper - INFO - VAD filter removed 00:00.016 of audio
+2025-03-16 17:09:47,195 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 17:09:47,202 - faster_whisper - INFO - VAD filter removed 00:00.160 of audio
+2025-03-16 17:11:20,648 - app - INFO - 启动应用程序...
+2025-03-16 17:11:20,649 - app - INFO - 已设置高进程优先级
+2025-03-16 17:11:20,649 - app - INFO - 初始化 STT 服务...
+2025-03-16 17:11:24,412 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 18:43:32,512 - app - INFO - 启动应用程序...
+2025-03-16 18:43:32,512 - app - INFO - 已设置高进程优先级
+2025-03-16 18:43:32,513 - app - INFO - 初始化 STT 服务...
+2025-03-16 18:43:36,579 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 18:43:38,010 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 18:43:38,024 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 18:43:48,917 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 18:43:48,921 - faster_whisper - INFO - VAD filter removed 00:00.192 of audio
+2025-03-16 18:43:51,597 - faster_whisper - INFO - Processing audio with duration 00:01.568
+2025-03-16 18:43:51,602 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 18:46:13,357 - app - INFO - 启动应用程序...
+2025-03-16 18:46:13,358 - app - INFO - 已设置高进程优先级
+2025-03-16 18:46:13,358 - app - INFO - 初始化 STT 服务...
+2025-03-16 18:46:16,891 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 18:46:18,097 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 18:46:18,110 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 18:47:42,764 - app - INFO - 启动应用程序...
+2025-03-16 18:47:42,764 - app - INFO - 已设置高进程优先级
+2025-03-16 18:47:42,765 - app - INFO - 初始化 STT 服务...
+2025-03-16 18:47:46,121 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:01:25,821 - app - INFO - 启动应用程序...
+2025-03-16 19:01:25,822 - app - INFO - 已设置高进程优先级
+2025-03-16 19:01:25,822 - app - INFO - 初始化 STT 服务...
+2025-03-16 19:01:29,322 - root - INFO - Initializing faster_whisper main transcription model small
+2025-03-16 19:01:31,066 - faster_whisper - INFO - Processing audio with duration 00:01.620
+2025-03-16 19:01:31,081 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:01:37,766 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:01:37,772 - faster_whisper - INFO - VAD filter removed 00:01.120 of audio
+2025-03-16 19:01:39,051 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:01:39,053 - faster_whisper - INFO - VAD filter removed 00:00.288 of audio
+2025-03-16 19:01:42,326 - faster_whisper - INFO - Processing audio with duration 00:01.120
+2025-03-16 19:01:42,331 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
+2025-03-16 19:01:48,088 - faster_whisper - INFO - Processing audio with duration 00:01.344
+2025-03-16 19:01:48,094 - faster_whisper - INFO - VAD filter removed 00:00.000 of audio
+2025-03-16 19:01:50,558 - faster_whisper - INFO - Processing audio with duration 00:02.496
+2025-03-16 19:01:50,564 - faster_whisper - INFO - VAD filter removed 00:00.048 of audio
