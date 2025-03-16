@@ -198,10 +198,23 @@ function updateSettingsUI(config) {
     // 更新唤醒词设置
     if (config.wakeword_backend !== undefined && document.getElementById('wakeword-backend')) {
         document.getElementById('wakeword-backend').value = config.wakeword_backend;
+        // 触发后端切换事件，更新UI显示
+        const event = new Event('change');
+        document.getElementById('wakeword-backend').dispatchEvent(event);
     }
 
     if (config.wake_words !== undefined && document.getElementById('wake-words')) {
         document.getElementById('wake-words').value = config.wake_words;
+    }
+    
+    if (config.openwakeword_model_paths !== undefined && document.getElementById('openwakeword-models')) {
+        document.getElementById('openwakeword-models').value = Array.isArray(config.openwakeword_model_paths) ? 
+            config.openwakeword_model_paths.join(',') : 
+            (config.openwakeword_model_paths || '');
+    }
+    
+    if (config.openwakeword_inference_framework !== undefined && document.getElementById('openwakeword-framework')) {
+        document.getElementById('openwakeword-framework').value = config.openwakeword_inference_framework;
     }
     
     if (config.wake_words_sensitivity !== undefined && document.getElementById('wake-words-sensitivity')) {
@@ -306,8 +319,14 @@ function getConfigFromUI() {
         
         // 唤醒词设置
         'wakeword_backend': document.getElementById('wakeword-backend').value,
-        'openwakeword_model_paths': null,
-        'openwakeword_inference_framework': "onnx",
+        'openwakeword_model_paths': document.getElementById('openwakeword-models') ? 
+            (document.getElementById('openwakeword-models').value.trim() ? 
+                document.getElementById('openwakeword-models').value.split(',').map(path => path.trim()) : 
+                null) : 
+            null,
+        'openwakeword_inference_framework': document.getElementById('openwakeword-framework') ? 
+            document.getElementById('openwakeword-framework').value : 
+            "onnx",
         'wake_words': document.getElementById('wake-words').value,
         'wake_words_sensitivity': parseFloat(document.getElementById('wake-words-sensitivity').value),
         'wake_word_activation_delay': parseFloat(document.getElementById('wake-word-activation-delay').value),
@@ -566,6 +585,16 @@ document.addEventListener('DOMContentLoaded', function() {
             displayDiv.innerHTML = '<span class="shutdown-message">服务已关闭，请关闭浏览器或刷新页面重新连接</span>';
         }, data.countdown * 1000);
     });
+
+    // 初始化唤醒词设置UI状态
+    const wakewordBackend = document.getElementById('wakeword-backend');
+    if (wakewordBackend) {
+        const settingGroup = wakewordBackend.closest('.setting-group');
+        if (settingGroup) {
+            // 默认显示OpenWakeWord设置
+            settingGroup.classList.add('openwakeword-active');
+        }
+    }
 });
 
 // 请求麦克风访问权限

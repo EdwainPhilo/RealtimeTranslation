@@ -297,12 +297,28 @@
                         <div class="setting-item">
                             <label for="wakeword-backend">唤醒词后端:</label>
                             <select id="wakeword-backend">
-                                <option value="pvporcupine" selected>Picovoice Porcupine</option>
+                                <option value="openwakeword" selected>OpenWakeWord</option>
+                                <option value="pvporcupine">Picovoice Porcupine</option>
                             </select>
                             <small class="setting-help">用于唤醒词检测的后端技术</small>
                         </div>
+                        
+                        <div class="setting-item openwakeword-only">
+                            <label for="openwakeword-models">OpenWakeWord模型路径:</label>
+                            <input type="text" id="openwakeword-models" placeholder="输入模型路径，用逗号分隔，留空则使用预训练模型">
+                            <small class="setting-help">自定义OpenWakeWord模型路径，留空则使用所有预训练模型</small>
+                        </div>
+                        
+                        <div class="setting-item openwakeword-only">
+                            <label for="openwakeword-framework">推理框架:</label>
+                            <select id="openwakeword-framework">
+                                <option value="onnx" selected>ONNX</option>
+                                <option value="tflite">TensorFlow Lite</option>
+                            </select>
+                            <small class="setting-help">OpenWakeWord使用的推理框架</small>
+                        </div>
 
-                        <div class="setting-item">
+                        <div class="setting-item pvporcupine-only">
                             <label for="wake-words">唤醒词:</label>
                             <input type="text" id="wake-words" placeholder="输入唤醒词，用逗号分隔">
                             <small class="setting-help">需要检测的唤醒词，多个词用逗号分隔</small>
@@ -342,7 +358,7 @@
                                 <input type="range" id="wake-word-activation-delay" min="0" max="2" step="0.1" value="0">
                                 <span id="wake-word-activation-delay-value" class="slider-value">0</span>
                             </div>
-                            <small class="setting-help">检测到唤醒词后等待的延迟时间</small>
+                            <small class="setting-help">检测到唤醒词后等待的延迟时间，可以避免误触发</small>
                         </div>
                     </div>
 

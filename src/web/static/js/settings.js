@@ -108,4 +108,31 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+    
+    // 处理唤醒词后端切换
+    const wakewordBackend = document.getElementById('wakeword-backend');
+    if (wakewordBackend) {
+        // 初始化显示
+        updateWakewordSettings(wakewordBackend.value);
+        
+        wakewordBackend.addEventListener('change', function() {
+            updateWakewordSettings(this.value);
+        });
+    }
+    
+    // 更新唤醒词设置界面
+    function updateWakewordSettings(backend) {
+        const settingGroup = wakewordBackend.closest('.setting-group');
+        
+        // 移除所有激活类
+        settingGroup.classList.remove('openwakeword-active');
+        settingGroup.classList.remove('porcupine-active');
+        
+        // 添加对应的激活类
+        if (backend === 'openwakeword') {
+            settingGroup.classList.add('openwakeword-active');
+        } else if (backend === 'pvporcupine') {
+            settingGroup.classList.add('porcupine-active');
+        }
+    }
 }); 
