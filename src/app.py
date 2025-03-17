@@ -91,10 +91,15 @@ def create_stt_service():
 stt_service = None
 
 
-# 路由：主页
+# 主页路由
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# 重启页面路由
+@app.route('/restart')
+def restart_page():
+    return render_template('restart.html')
 
 
 # Socket.IO 事件：连接
@@ -126,10 +131,11 @@ def handle_update_config(data):
         # 保存当前配置到文件，以便重启后恢复
         stt_service.update_config(data)
 
-        # 通知客户端我们即将重启
+        # 通知客户端我们即将重启，并重定向到重启页面
         emit('restart_required', {
             'message': '正在重启应用以应用新配置...',
-            'countdown': 5  # 5秒倒计时
+            'countdown': 3,  # 3秒倒计时
+            'redirect_to': '/restart'  # 重定向到重启页面
         })
 
         print("配置已更新，准备重启应用...")
@@ -141,7 +147,7 @@ def handle_update_config(data):
             import sys
             import subprocess
 
-            # 等待2秒确保客户端收到重启消息
+            # 等待2秒确保客户端收到重启消息并重定向
             time.sleep(2)
 
             print("重启应用程序...")
@@ -190,7 +196,8 @@ def handle_reset_to_default():
         # 通知客户端我们即将重启
         emit('restart_required', {
             'message': '正在恢复默认设置并重启应用...',
-            'countdown': 5  # 5秒倒计时
+            'countdown': 3,  # 3秒倒计时
+            'redirect_to': '/restart'  # 重定向到重启页面
         })
 
         print("已恢复默认设置，准备重启应用...")

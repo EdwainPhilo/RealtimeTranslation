@@ -491,6 +491,20 @@ socket.on('recorder_status', function (data) {
 socket.on('restart_required', function (data) {
     console.log('应用即将重启:', data);
 
+    // 如果提供了重定向URL，则在倒计时结束后重定向
+    if (data.redirect_to) {
+        // 显示简单的重启消息
+        displayDiv.innerHTML = `<span class="restart-message">应用正在重启，${data.countdown || 3}秒后将跳转到重启页面...</span>`;
+        
+        // 倒计时结束后重定向
+        setTimeout(function () {
+            window.location.href = data.redirect_to;
+        }, (data.countdown || 3) * 1000);
+        
+        return; // 不显示对话框，直接返回
+    }
+
+    // 旧的处理逻辑（兼容性保留）
     // 创建重启提示对话框
     const restartDialog = document.createElement('div');
     restartDialog.style.position = 'fixed';
