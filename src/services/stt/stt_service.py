@@ -208,6 +208,24 @@ class STTService:
                     else:
                         # 重置失败，抛出原始异常
                         raise e
+                # 检查是否是Porcupine相关错误
+                elif ('porcupine' in error_str.lower() or 'wake_words' in error_str.lower() or 
+                     'wake word' in error_str.lower() or 'access_key' in error_str.lower() or
+                     'api key' in error_str.lower() or 'keyword' in error_str.lower() or
+                    'picovoice' in error_str.lower() or 'accesskey' in error_str.lower()or
+                    'wakeword' in error_str.lower()):
+                    
+                    # 记录错误但继续尝试重置Porcupine设置
+                    print(f"Porcupine初始化失败: {e}")
+                    logging.error(f"Porcupine初始化失败，将自动重置相关设置", exc_info=True)
+                    
+                    # 使用专门的方法重置Porcupine设置
+                    if self.reset_porcupine_settings(e):
+                        # 重置成功，尝试继续创建录音机
+                        return self.recorder
+                    else:
+                        # 重置失败，抛出原始异常
+                        raise e
                 else:
                     # 其他类型的错误，直接抛出
                     raise e
@@ -468,7 +486,9 @@ class STTService:
             error_message = '检测到无效的模型文件，已自动重置为默认模型'
             self.record_startup_error(error_message, str(e))
             
-            # 尝试全局访问socketio实例
+            stt_logger.info(f"已重置OpenWakeWord模型路径从 '{original_paths}' 到 'None'")
+            
+            # 尝试全局访问socketio实例，通知前端
             try:
                 from app import socketio
                 socketio.emit('model_path_reset', {
@@ -478,8 +498,6 @@ class STTService:
                 })
             except Exception as emit_error:
                 print(f"无法发送通知: {emit_error}")
-            
-            print(f"已重置模型路径，从 {original_paths} 改为默认模型")
             
             # 触发完整应用重启
             def delayed_restart():
@@ -518,4 +536,100 @@ class STTService:
             return True
         except Exception as reset_error:
             print(f"重置模型路径时出错: {reset_error}")
+            return False
+            
+    def reset_porcupine_settings(self, e):
+        """重置Porcupine设置并记录错误"""
+        try:
+            # 保存原始设置用于日志
+            config_copy = self.current_config.copy()
+            original_wake_words = config_copy.get('wake_words', '')
+            original_access_key = config_copy.get('porcupine_access_key', '')
+            
+            error_str = str(e).lower()
+            error_message = ''
+            
+            # 根据错误类型决定重置策略
+            if 'access_key' in error_str or 'invalid access key' in error_str or 'api key' in error_str or 'accesskey' in error_str:
+                # Access Key错误，同时重置唤醒词和access_key
+                config_copy['wake_words'] = ''
+                config_copy['porcupine_access_key'] = ''
+                
+                # 更新当前配置
+                self.current_config['wake_words'] = ''
+                self.current_config['porcupine_access_key'] = ''
+                
+                # 保存到配置文件
+                self.save_config_to_file({
+                    'wake_words': '',
+                    'porcupine_access_key': ''
+                })
+                
+                error_message = 'Porcupine访问密钥无效，已自动重置唤醒词和访问密钥'
+                stt_logger.info(f"已重置Porcupine访问密钥从 '{original_access_key}' 到 ''，重置唤醒词从 '{original_wake_words}' 到 ''")
+            else:
+                # 唤醒词错误，只重置唤醒词
+                config_copy['wake_words'] = ''
+                
+                # 更新当前配置
+                self.current_config['wake_words'] = ''
+                
+                # 保存到配置文件
+                self.save_config_to_file({
+                    'wake_words': ''
+                })
+                
+                error_message = 'Porcupine唤醒词无效，已自动重置唤醒词'
+                stt_logger.info(f"已重置Porcupine唤醒词从 '{original_wake_words}' 到 ''")
+            
+            # 记录启动失败信息
+            self.record_startup_error(error_message, str(e))
+            
+            # 尝试全局访问socketio实例，通知前端
+            try:
+                from app import socketio
+                socketio.emit('model_path_reset', {
+                    'message': error_message,
+                    'error': str(e)
+                })
+            except Exception as emit_error:
+                print(f"无法发送通知: {emit_error}")
+            
+            # 触发完整应用重启
+            def delayed_restart():
+                print("Porcupine设置已重置，2秒后自动重启应用...")
+                time.sleep(2)  # 等待2秒确保消息发送和配置保存完成
+                
+                try:
+                    # 在Windows环境下重启应用
+                    if sys.platform == 'win32':
+                        python = sys.executable
+                        script_path = sys.argv[0]
+                        args = sys.argv[1:]
+                        
+                        # 使用subprocess启动新进程
+                        subprocess.Popen([python, script_path] + args, 
+                                       creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                        
+                        # 延迟退出当前进程
+                        time.sleep(1)
+                        print("正在关闭当前进程...")
+                        os._exit(0)
+                    else:
+                        # Linux/Mac重启方式
+                        os.execl(sys.executable, sys.executable, *sys.argv)
+                except Exception as restart_error:
+                    print(f"自动重启失败: {restart_error}")
+                    logging.error(f"自动重启失败", exc_info=True)
+            
+            # 启动重启线程
+            restart_thread = threading.Thread(target=delayed_restart)
+            restart_thread.daemon = True
+            restart_thread.start()
+            
+            # 临时创建默认模型以允许当前操作继续
+            self.recorder = AudioToTextRecorder(**config_copy)
+            return True
+        except Exception as reset_error:
+            print(f"重置Porcupine设置时出错: {reset_error}")
             return False 

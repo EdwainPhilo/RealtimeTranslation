@@ -397,22 +397,46 @@ socket.on('disconnect', function () {
 
 // 处理模型路径重置事件
 socket.on('model_path_reset', function (data) {
-    console.warn('模型路径重置:', data);
+    console.warn('配置重置:', data);
 
     // 显示简短通知
-    showStatusMessage('检测到无效的模型文件，已自动重置为默认模型', false);
+    showStatusMessage(data.message || '检测到配置错误，已自动重置相关设置', false);
 
-    // 如果当前正在设置页面，更新UI并高亮显示
-    const modelPathInput = document.getElementById('openwakeword-models');
-    if (modelPathInput) {
-        // 清空输入框
-        modelPathInput.value = '';
+    // 检测错误类型并更新相应UI
+    if (data.error && data.error.toLowerCase().includes('porcupine')) {
+        // Porcupine相关错误
+        
+        // 清空唤醒词输入框
+        const wakeWordsInput = document.getElementById('wake-words');
+        if (wakeWordsInput) {
+            wakeWordsInput.value = '';
+            wakeWordsInput.classList.add('validation-error');
+            showValidationError('wake-words', '检测到无效的唤醒词，已自动重置');
+        }
+        
+        // 如果是access_key错误，也清空access_key输入框
+        if (data.error.toLowerCase().includes('access_key') || 
+            data.error.toLowerCase().includes('api key')) {
+            const accessKeyInput = document.getElementById('porcupine-access-key');
+            if (accessKeyInput) {
+                accessKeyInput.value = '';
+                accessKeyInput.classList.add('validation-error');
+                showValidationError('porcupine-access-key', '检测到无效的访问密钥，已自动重置');
+            }
+        }
+    } else {
+        // OpenWakeWord模型路径错误
+        const modelPathInput = document.getElementById('openwakeword-models');
+        if (modelPathInput) {
+            // 清空输入框
+            modelPathInput.value = '';
 
-        // 添加错误样式
-        modelPathInput.classList.add('validation-error');
+            // 添加错误样式
+            modelPathInput.classList.add('validation-error');
 
-        // 显示错误消息
-        showValidationError('openwakeword-models', '检测到无效的模型文件，已自动重置为默认值');
+            // 显示错误消息
+            showValidationError('openwakeword-models', '检测到无效的模型文件，已自动重置为默认值');
+        }
     }
 
     // 不需要额外的倒计时和刷新逻辑，重启页面会处理这些

@@ -772,7 +772,7 @@ class AudioToTextRecorder:
                 try:
                     # 获取access_key，如果未提供则使用空字符串
                     access_key = getattr(self, 'porcupine_access_key', '')
-                    
+
                     # 只有当提供了access_key时才使用它
                     if access_key:
                         self.porcupine = pvporcupine.create(
@@ -782,18 +782,12 @@ class AudioToTextRecorder:
                         )
                     else:
                         # 尝试使用旧版本的API（不需要access_key）
-                        try:
-                            self.porcupine = pvporcupine.create(
-                                keywords=self.wake_words_list,
-                                sensitivities=self.wake_words_sensitivities
-                            )
-                        except TypeError:
-                            # 如果失败，提示用户需要access_key
-                            raise ValueError(
-                                "Porcupine需要access_key。请在设置中提供有效的Porcupine访问密钥，"
-                                "或者切换到OpenWakeWord后端。"
-                            )
-                    
+
+                        self.porcupine = pvporcupine.create(
+                            keywords=self.wake_words_list,
+                            sensitivities=self.wake_words_sensitivities
+                        )
+
                     self.buffer_size = self.porcupine.frame_length
                     self.sample_rate = self.porcupine.sample_rate
 
@@ -802,7 +796,7 @@ class AudioToTextRecorder:
                         "Error initializing porcupine "
                         f"wake word detection engine: {e}"
                     )
-                    raise
+                    raise e
 
                 logging.debug(
                     "Porcupine wake word detection engine initialized successfully"
