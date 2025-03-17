@@ -9,6 +9,9 @@ import sys
 import traceback
 from threading import Thread, Event, Lock
 from src.utils.stt.audio_recorder import AudioToTextRecorder
+import importlib
+import subprocess
+from typing import Dict, Any, Optional, List, Union
 
 # 配置日志
 logging.basicConfig(
@@ -17,6 +20,13 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logging.getLogger('websockets').setLevel(logging.WARNING)
+
+# 创建服务专用的日志记录器
+stt_logger = logging.getLogger('stt_service')
+stt_logger.setLevel(logging.INFO)
+
+# 启动失败记录文件路径
+STARTUP_ERROR_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'startup_error.json')
 
 # 默认配置
 default_config = {
@@ -93,7 +103,8 @@ default_config = {
 
 
 class STTService:
-    def __init__(self, realtime_callback=None, full_sentence_callback=None):
+    def __init__(self, realtime_callback=None, full_sentence_callback=None, socketio=None):
+        self.socketio = socketio
         self.recorder = None
         self.recorder_ready = threading.Event()
         self.is_running = True
@@ -106,6 +117,9 @@ class STTService:
         
         # 从文件加载上次保存的配置
         self.load_config_from_file()
+        
+        # 检查是否存在启动失败记录
+        self.check_startup_error()
         
         # 先创建录音机
         print("初始化 STT 服务...")
@@ -135,13 +149,14 @@ class STTService:
         print(f"\r{text}", end='', flush=True)
 
     def get_serializable_config(self):
-        """获取可序列化的配置 (移除回调函数等不可序列化的对象)"""
-        with self.config_lock:
-            serializable_config = {}
-            for key, value in self.current_config.items():
-                if not callable(value):  # 跳过函数类型
-                    serializable_config[key] = value
-        return serializable_config
+        """获取可序列化的配置，添加启动错误信息"""
+        config = self.current_config.copy()
+        
+        # 添加启动错误信息（如果有）
+        if hasattr(self, 'last_startup_error') and self.last_startup_error:
+            config['startup_error'] = self.last_startup_error
+        
+        return config
 
     def decode_and_resample(self, audio_data, original_sample_rate, target_sample_rate=16000):
         """重采样函数"""
@@ -185,72 +200,16 @@ class STTService:
                     print(f"OpenWakeWord模型加载失败: {e}")
                     logging.error(f"OpenWakeWord模型加载失败，将自动重置模型路径", exc_info=True)
                     
-                    # 备份原始路径以便日志记录
-                    original_paths = config_copy.get('openwakeword_model_paths', None)
-                    
-                    # 重置模型路径为空，使用默认模型
-                    config_copy['openwakeword_model_paths'] = None
-                    
-                    # 更新配置
-                    with self.config_lock:
-                        if 'openwakeword_model_paths' in self.current_config:
-                            self.current_config['openwakeword_model_paths'] = None
-                    
-                    # 保存更新后的配置到文件
-                    self.save_config_to_file({'openwakeword_model_paths': None})
-                    
-                    # 尝试全局访问socketio实例
-                    try:
-                        from app import socketio
-                        socketio.emit('model_path_reset', {
-                            'message': '检测到无效的模型文件，已自动重置为默认模型',
-                            'old_path': str(original_paths),
-                            'error': str(e)
-                        })
-                    except Exception as emit_error:
-                        print(f"无法发送通知: {emit_error}")
-                    
-                    print(f"已重置模型路径，从 {original_paths} 改为默认模型")
-                    
-                    # 触发完整应用重启
-                    def delayed_restart():
-                        print("模型路径已重置，2秒后自动重启应用...")
-                        time.sleep(2)  # 等待2秒确保消息发送和配置保存完成
-                        
-                        try:
-                            # 在Windows环境下重启应用
-                            if sys.platform == 'win32':
-                                import subprocess
-                                python = sys.executable
-                                script_path = sys.argv[0]
-                                args = sys.argv[1:]
-                                
-                                # 使用subprocess启动新进程
-                                subprocess.Popen([python, script_path] + args, 
-                                               creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
-                                
-                                # 延迟退出当前进程
-                                time.sleep(1)
-                                print("正在关闭当前进程...")
-                                os._exit(0)
-                            else:
-                                # Linux/Mac重启方式
-                                os.execl(sys.executable, sys.executable, *sys.argv)
-                        except Exception as restart_error:
-                            print(f"自动重启失败: {restart_error}")
-                            logging.error(f"自动重启失败", exc_info=True)
-                    
-                    # 启动重启线程
-                    restart_thread = threading.Thread(target=delayed_restart)
-                    restart_thread.daemon = True
-                    restart_thread.start()
-                    
-                    # 临时创建默认模型以允许当前操作继续
-                    self.recorder = AudioToTextRecorder(**config_copy)
-                    return True, None  # 返回成功，因为重启线程已经启动
+                    # 使用专门的方法重置模型路径
+                    if self.reset_openwakeword_model_paths(e):
+                        # 重置成功，尝试继续创建录音机
+                        return self.recorder
+                    else:
+                        # 重置失败，抛出原始异常
+                        raise e
                 else:
-                    # 其他错误则直接抛出
-                    raise
+                    # 其他类型的错误，直接抛出
+                    raise e
 
             # 设置为就绪状态
             self.recorder_ready.set()
@@ -429,11 +388,133 @@ class STTService:
         return self.recorder_ready.is_set()
 
     def shutdown(self):
-        """关闭服务"""
+        """关闭服务，清除启动失败记录"""
         self.is_running = False
         if self.recorder:
             try:
                 self.recorder.stop()
                 self.recorder.shutdown()
             except:
-                pass 
+                pass
+        
+        # 清除启动失败记录
+        self.clear_startup_error()
+        
+        return True
+
+    def check_startup_error(self):
+        """检查是否存在启动失败记录，并记录到日志"""
+        if os.path.exists(STARTUP_ERROR_FILE):
+            try:
+                with open(STARTUP_ERROR_FILE, 'r', encoding='utf-8') as f:
+                    error_data = json.load(f)
+                    
+                stt_logger.warning(f"检测到上次启动失败: {error_data.get('message', '未知错误')}")
+                stt_logger.warning(f"错误详情: {error_data.get('error', '无详细信息')}")
+                stt_logger.warning(f"发生时间: {error_data.get('timestamp', '未知时间')}")
+                
+                # 记录到全局变量，供前端获取
+                self.last_startup_error = error_data
+            except Exception as e:
+                stt_logger.error(f"读取启动失败记录出错: {e}")
+                self.last_startup_error = None
+        else:
+            self.last_startup_error = None
+    
+    def record_startup_error(self, message, error_details):
+        """记录启动失败信息到文件"""
+        try:
+            error_data = {
+                "message": message,
+                "error": str(error_details),
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            with open(STARTUP_ERROR_FILE, 'w', encoding='utf-8') as f:
+                json.dump(error_data, f, ensure_ascii=False, indent=2)
+                
+            stt_logger.info(f"已记录启动失败信息: {message}")
+        except Exception as e:
+            stt_logger.error(f"记录启动失败信息出错: {e}")
+    
+    def clear_startup_error(self):
+        """清除启动失败记录"""
+        if os.path.exists(STARTUP_ERROR_FILE):
+            try:
+                os.remove(STARTUP_ERROR_FILE)
+                stt_logger.info("已清除启动失败记录")
+            except Exception as e:
+                stt_logger.error(f"清除启动失败记录出错: {e}")
+    
+    def reset_openwakeword_model_paths(self, e):
+        """重置OpenWakeWord模型路径并记录错误"""
+        try:
+            # 保存原始路径用于日志
+            config_copy = self.current_config.copy()
+            original_paths = config_copy.get('openwakeword_model_paths', None)
+            
+            # 重置模型路径
+            config_copy['openwakeword_model_paths'] = None
+            
+            # 更新当前配置
+            if 'openwakeword_model_paths' in self.current_config:
+                self.current_config['openwakeword_model_paths'] = None
+            
+            # 保存到配置文件
+            self.save_config_to_file({'openwakeword_model_paths': None})
+            
+            # 记录启动失败信息
+            error_message = '检测到无效的模型文件，已自动重置为默认模型'
+            self.record_startup_error(error_message, str(e))
+            
+            # 尝试全局访问socketio实例
+            try:
+                from app import socketio
+                socketio.emit('model_path_reset', {
+                    'message': error_message,
+                    'old_path': str(original_paths),
+                    'error': str(e)
+                })
+            except Exception as emit_error:
+                print(f"无法发送通知: {emit_error}")
+            
+            print(f"已重置模型路径，从 {original_paths} 改为默认模型")
+            
+            # 触发完整应用重启
+            def delayed_restart():
+                print("模型路径已重置，2秒后自动重启应用...")
+                time.sleep(2)  # 等待2秒确保消息发送和配置保存完成
+                
+                try:
+                    # 在Windows环境下重启应用
+                    if sys.platform == 'win32':
+                        python = sys.executable
+                        script_path = sys.argv[0]
+                        args = sys.argv[1:]
+                        
+                        # 使用subprocess启动新进程
+                        subprocess.Popen([python, script_path] + args, 
+                                       creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                        
+                        # 延迟退出当前进程
+                        time.sleep(1)
+                        print("正在关闭当前进程...")
+                        os._exit(0)
+                    else:
+                        # Linux/Mac重启方式
+                        os.execl(sys.executable, sys.executable, *sys.argv)
+                except Exception as restart_error:
+                    print(f"自动重启失败: {restart_error}")
+                    logging.error(f"自动重启失败", exc_info=True)
+            
+            # 启动重启线程
+            restart_thread = threading.Thread(target=delayed_restart)
+            restart_thread.daemon = True
+            restart_thread.start()
+            
+            # 临时创建默认模型以允许当前操作继续
+            self.recorder = AudioToTextRecorder(**config_copy)
+            return True
+        except Exception as reset_error:
+            print(f"重置模型路径时出错: {reset_error}")
+            return False 

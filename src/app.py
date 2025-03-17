@@ -78,7 +78,8 @@ def create_stt_service():
     try:
         service = STTService(
             realtime_callback=realtime_text_callback,
-            full_sentence_callback=full_sentence_callback
+            full_sentence_callback=full_sentence_callback,
+            socketio=socketio
         )
         app_logger.info("STT 服务初始化成功")
         return service

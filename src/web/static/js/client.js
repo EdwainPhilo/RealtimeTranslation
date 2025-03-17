@@ -429,6 +429,11 @@ socket.on('config', function (config) {
     currentConfig = config;
     updateSettingsUI(config);
     console.log('收到服务器配置:', config);
+    
+    // 检查是否有启动错误信息
+    if (config.startup_error) {
+        showStartupErrorDialog(config.startup_error);
+    }
 });
 
 // 配置更新响应
@@ -905,4 +910,106 @@ function showFileValidationResult(inputId, result) {
         
         showValidationError(inputId, `文件路径验证失败:\n${errorMessages}`);
     }
+}
+
+/**
+ * 显示启动错误对话框
+ * @param {Object} errorData - 错误数据对象
+ */
+function showStartupErrorDialog(errorData) {
+    console.warn('检测到上次启动失败:', errorData);
+    
+    // 移除可能已存在的对话框
+    const existingOverlay = document.querySelector('.startup-error-overlay');
+    if (existingOverlay) {
+        document.body.removeChild(existingOverlay);
+    }
+    
+    // 创建遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'startup-error-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    `;
+    
+    // 创建对话框容器
+    const dialogContainer = document.createElement('div');
+    dialogContainer.style.cssText = `
+        background-color: #1e1e1e;
+        color: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        width: 500px;
+        max-width: 90%;
+        position: relative;
+        max-height: 80vh;
+        overflow-y: auto;
+    `;
+    
+    // 添加内容
+    let contentHtml = `
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <i class="fas fa-exclamation-triangle" style="color: #ff5252; font-size: 24px; margin-right: 15px;"></i>
+            <h3 style="margin: 0; color: #ff5252; font-size: 20px;">启动错误提醒</h3>
+        </div>
+        <div style="margin-bottom: 20px; line-height: 1.5;">
+            <p><strong>错误信息:</strong> ${errorData.message}</p>
+            <p><strong>发生时间:</strong> ${errorData.timestamp}</p>
+    `;
+    
+    // 如果是模型文件问题，添加特殊说明
+    if (errorData.message.includes('模型文件')) {
+        contentHtml += `
+            <div style="background-color: rgba(255, 82, 82, 0.1); padding: 15px; border-radius: 5px; margin-top: 15px; border-left: 4px solid #ff5252;">
+                <p style="margin: 0; font-weight: bold;">模型文件问题说明:</p>
+                <p style="margin-top: 10px; margin-bottom: 0;">系统检测到您配置的OpenWakeWord模型文件存在问题，可能是文件损坏或格式不正确。系统已自动清空模型路径并恢复使用默认模型。</p>
+            </div>
+        `;
+    }
+    
+    // 添加详细错误信息（可折叠）
+    contentHtml += `
+        <div style="margin-top: 20px;">
+            <details>
+                <summary style="cursor: pointer; color: #00aaff; margin-bottom: 10px;">查看详细错误信息</summary>
+                <pre style="background-color: #252525; padding: 10px; border-radius: 5px; overflow-x: auto; max-height: 150px; font-size: 12px;">${errorData.error}</pre>
+            </details>
+        </div>
+    `;
+    
+    // 添加关闭按钮
+    contentHtml += `
+        <div style="text-align: right; margin-top: 25px;">
+            <button id="closeErrorDialogBtn" style="background-color: #00aaff; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s;">我知道了</button>
+        </div>
+    `;
+    
+    dialogContainer.innerHTML = contentHtml;
+    overlay.appendChild(dialogContainer);
+    document.body.appendChild(overlay);
+    
+    // 阻止点击对话框内容时关闭
+    dialogContainer.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    // 点击遮罩层背景关闭对话框
+    overlay.addEventListener('click', function() {
+        document.body.removeChild(overlay);
+    });
+    
+    // 点击关闭按钮关闭对话框
+    document.getElementById('closeErrorDialogBtn').addEventListener('click', function() {
+        document.body.removeChild(overlay);
+    });
 } 
