@@ -838,6 +838,12 @@ body {
     background-color: rgba(255, 56, 96, 0.05);
 }
 
+/* 必填项标记样式 */
+.required {
+    color: #ff3860;
+    margin-left: 3px;
+}
+
 .validation-error-message {
     color: #ff3860;
     font-size: 0.85rem;
@@ -867,11 +873,16 @@ body {
 
 /* 特别长的输入框处理 */
 .openwakeword-only input[type="text"],
-#wake-words {
-    font-size: 13px;
+#wake-words,
+#porcupine-access-key {
+    width: 100%;
+    font-size: 14px;
     padding: 8px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    margin-top: 5px;
 }
 
 /* 其他唤醒词相关的类 */ 

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const settingsIcon = document.getElementById('settingsIcon');
     const settingsOverlay = document.getElementById('settingsOverlay');
     const closeSettings = document.getElementById('closeSettings');
+    const saveSettings = document.getElementById('saveSettings');
 
     // 打开设置面板
     settingsIcon.addEventListener('click', function () {
@@ -13,6 +14,70 @@ document.addEventListener('DOMContentLoaded', function () {
     closeSettings.addEventListener('click', function () {
         settingsOverlay.style.display = 'none';
     });
+
+    // 保存设置前验证
+    if (saveSettings) {
+        saveSettings.addEventListener('click', function(e) {
+            // 如果验证失败，阻止保存
+            if (!validateSettings()) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+    }
+
+    // 验证设置
+    function validateSettings() {
+        let isValid = true;
+        const wakewordBackend = document.getElementById('wakeword-backend');
+        
+        // 清除所有验证错误
+        clearValidationErrors();
+        
+        // 如果选择了Porcupine后端，验证access_key和唤醒词
+        if (wakewordBackend && wakewordBackend.value === 'pvporcupine') {
+            const accessKey = document.getElementById('porcupine-access-key');
+            const wakeWords = document.getElementById('wake-words');
+            
+            // 验证access_key
+            if (!accessKey.value.trim()) {
+                showValidationError(accessKey, 'porcupine-access-key-error', 'Porcupine访问密钥不能为空');
+                isValid = false;
+            }
+            
+            // 验证唤醒词
+            if (!wakeWords.value.trim()) {
+                showValidationError(wakeWords, 'wake-words-error', '唤醒词不能为空');
+                isValid = false;
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // 显示验证错误
+    function showValidationError(element, errorId, message) {
+        element.classList.add('validation-error');
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+    
+    // 清除所有验证错误
+    function clearValidationErrors() {
+        // 移除所有验证错误类
+        document.querySelectorAll('.validation-error').forEach(element => {
+            element.classList.remove('validation-error');
+        });
+        
+        // 隐藏所有错误消息
+        document.querySelectorAll('.validation-error-message').forEach(element => {
+            element.style.display = 'none';
+        });
+    }
 
     // 为外部区域关闭添加更精确的判断
     let mouseDownTarget = null;
@@ -149,6 +214,36 @@ document.addEventListener('DOMContentLoaded', function () {
         
         wakewordBackend.addEventListener('change', function() {
             updateWakewordSettings(this.value);
+        });
+    }
+    
+    // 为输入框添加input事件监听器，当用户输入内容时自动清除错误状态
+    const porcupineAccessKey = document.getElementById('porcupine-access-key');
+    const wakeWords = document.getElementById('wake-words');
+    
+    if (porcupineAccessKey) {
+        porcupineAccessKey.addEventListener('input', function() {
+            if (this.value.trim()) {
+                // 清除错误状态
+                this.classList.remove('validation-error');
+                const errorElement = document.getElementById('porcupine-access-key-error');
+                if (errorElement) {
+                    errorElement.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    if (wakeWords) {
+        wakeWords.addEventListener('input', function() {
+            if (this.value.trim()) {
+                // 清除错误状态
+                this.classList.remove('validation-error');
+                const errorElement = document.getElementById('wake-words-error');
+                if (errorElement) {
+                    errorElement.style.display = 'none';
+                }
+            }
         });
     }
     

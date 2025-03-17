@@ -271,6 +271,7 @@ class AudioToTextRecorder:
 
                  # Wake word parameters
                  wakeword_backend: str = "pvporcupine",
+                 porcupine_access_key: str = "",
                  openwakeword_model_paths: str = None,
                  openwakeword_inference_framework: str = "onnx",
                  wake_words: str = "",
@@ -422,6 +423,7 @@ class AudioToTextRecorder:
             library to use for wake word detection. Supported options include
             'pvporcupine' for using the Porcupine wake word engine or 'oww' for
             using the OpenWakeWord engine.
+        - porcupine_access_key (str, default=""): Access key for Porcupine.
         - openwakeword_model_paths (str, default=None): Comma-separated paths
             to model files for the openwakeword library. These paths point to
             custom models that can be used for wake word detection when the
@@ -520,6 +522,7 @@ class AudioToTextRecorder:
         self.gpu_device_index = gpu_device_index
         self.device = device
         self.wake_words = wake_words
+        self.porcupine_access_key = porcupine_access_key  # 添加保存porcupine_access_key
         self.wake_word_activation_delay = wake_word_activation_delay
         self.wake_word_timeout = wake_word_timeout
         self.wake_word_buffer_duration = wake_word_buffer_duration
@@ -767,10 +770,30 @@ class AudioToTextRecorder:
             if self.wakeword_backend in {'pvp', 'pvporcupine'}:
 
                 try:
-                    self.porcupine = pvporcupine.create(
-                        keywords=self.wake_words_list,
-                        sensitivities=self.wake_words_sensitivities
-                    )
+                    # 获取access_key，如果未提供则使用空字符串
+                    access_key = getattr(self, 'porcupine_access_key', '')
+                    
+                    # 只有当提供了access_key时才使用它
+                    if access_key:
+                        self.porcupine = pvporcupine.create(
+                            access_key=access_key,
+                            keywords=self.wake_words_list,
+                            sensitivities=self.wake_words_sensitivities
+                        )
+                    else:
+                        # 尝试使用旧版本的API（不需要access_key）
+                        try:
+                            self.porcupine = pvporcupine.create(
+                                keywords=self.wake_words_list,
+                                sensitivities=self.wake_words_sensitivities
+                            )
+                        except TypeError:
+                            # 如果失败，提示用户需要access_key
+                            raise ValueError(
+                                "Porcupine需要access_key。请在设置中提供有效的Porcupine访问密钥，"
+                                "或者切换到OpenWakeWord后端。"
+                            )
+                    
                     self.buffer_size = self.porcupine.frame_length
                     self.sample_rate = self.porcupine.sample_rate
 

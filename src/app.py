@@ -247,9 +247,15 @@ def handle_reset_to_default():
         })
 
 
+# 添加防抖变量
+last_recorder_status_time = 0
+RECORDER_STATUS_DEBOUNCE_TIME = 3  # 3秒内不重复发送相同状态
+
 # Socket.IO 事件：接收音频数据
 @socketio.on('audio_data')
 def handle_audio_data(data):
+    global last_recorder_status_time
+    
     try:
         # 检查数据大小
         if len(data['audio']) > 1e6:  # 限制单个数据包大小为1MB
@@ -262,14 +268,23 @@ def handle_audio_data(data):
 
         # 使用线程处理音频数据
         def process_audio():
+            global last_recorder_status_time
             try:
                 success = stt_service.feed_audio(audio_data, sample_rate)
                 if not success:
-                    app_logger.warning("音频处理失败")
-                    socketio.emit('recorder_status', {'ready': stt_service.is_ready()})
+                    current_time = time.time()
+                    # 检查是否需要发送状态消息（防抖）
+                    if current_time - last_recorder_status_time >= RECORDER_STATUS_DEBOUNCE_TIME:
+                        app_logger.warning("录音机未就绪，忽略接收到的音频数据")
+                        socketio.emit('recorder_status', {'ready': False})
+                        last_recorder_status_time = current_time
             except Exception as e:
-                app_logger.error(f"音频处理错误: {e}")
-                socketio.emit('recorder_status', {'ready': False})
+                current_time = time.time()
+                # 检查是否需要发送状态消息（防抖）
+                if current_time - last_recorder_status_time >= RECORDER_STATUS_DEBOUNCE_TIME:
+                    app_logger.error(f"音频处理错误: {e}")
+                    socketio.emit('recorder_status', {'ready': False})
+                    last_recorder_status_time = current_time
 
         thread = threading.Thread(target=process_audio)
         thread.daemon = True

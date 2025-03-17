@@ -67,6 +67,7 @@ default_config = {
 
     # 唤醒词设置
     'wakeword_backend': "pvporcupine",  # 唤醒词后端
+    'porcupine_access_key': "",  # Porcupine访问密钥
     'openwakeword_model_paths': None,  # 开放唤醒词模型路径
     'openwakeword_inference_framework': "onnx",  # 开放唤醒词推理框架
     'wake_words': "",  # 唤醒词

@@ -8,6 +8,11 @@ let waitingForConfigUpdate = false; // 是否正在等待配置更新
 let useSimplifiedChinese = true; // 是否使用简体中文
 let originalFullSentences = []; // 保存原始句子（未转换前）
 
+// 添加防抖变量，用于跟踪上一次显示的状态消息
+let lastRecorderStatusMessage = '';
+let lastRecorderStatusTime = 0;
+const RECORDER_STATUS_DEBOUNCE_TIME = 3000; // 3秒内不重复显示相同消息
+
 // 处理文本转换的辅助函数
 function processText(text) {
     return useSimplifiedChinese ? window.ChineseConverter.convertToSimplified(text) : text;
@@ -210,6 +215,10 @@ function updateSettingsUI(config) {
         document.getElementById('wake-words').value = config.wake_words || '';
     }
 
+    if (config.porcupine_access_key !== undefined && document.getElementById('porcupine-access-key')) {
+        document.getElementById('porcupine-access-key').value = config.porcupine_access_key;
+    }
+
     if (config.openwakeword_model_paths !== undefined && document.getElementById('openwakeword-models')) {
         document.getElementById('openwakeword-models').value = Array.isArray(config.openwakeword_model_paths) ?
             config.openwakeword_model_paths.join(',') :
@@ -322,13 +331,19 @@ function getConfigFromUI() {
 
         // 唤醒词设置
         'wakeword_backend': document.getElementById('wakeword-backend').value === 'disabled' ? 'pvporcupine' : document.getElementById('wakeword-backend').value,
+        'porcupine_access_key': document.getElementById('porcupine-access-key') ? 
+            document.getElementById('porcupine-access-key').value.trim() : 
+            '',
         'openwakeword_model_paths': document.getElementById('openwakeword-models') ?
             document.getElementById('openwakeword-models').value.trim() || null :
             null,
         'openwakeword_inference_framework': document.getElementById('openwakeword-framework') ?
             document.getElementById('openwakeword-framework').value :
             "onnx",
-        'wake_words': document.getElementById('wakeword-backend').value === 'disabled' ? '' : document.getElementById('wake-words').value,
+        'wake_words': document.getElementById('wakeword-backend').value === 'disabled' ? '' : 
+            (document.getElementById('wakeword-backend').value === 'pvporcupine' && document.getElementById('wake-words') ? 
+                document.getElementById('wake-words').value.trim() : 
+                document.getElementById('wake-words').value),
         'wake_words_sensitivity': parseFloat(document.getElementById('wake-words-sensitivity').value),
         'wake_word_activation_delay': parseFloat(document.getElementById('wake-word-activation-delay').value),
         'wake_word_timeout': parseFloat(document.getElementById('wake-word-timeout').value),
@@ -453,6 +468,19 @@ socket.on('config_updated', function (response) {
 
 // 设置录音机状态
 socket.on('recorder_status', function (data) {
+    const currentTime = Date.now();
+    const message = data.ready ? '录音机已准备就绪' : '录音机未就绪';
+    
+    // 如果是相同消息且时间间隔小于防抖时间，则不显示
+    if (message === lastRecorderStatusMessage && 
+        (currentTime - lastRecorderStatusTime) < RECORDER_STATUS_DEBOUNCE_TIME) {
+        return;
+    }
+    
+    // 更新最后显示的消息和时间
+    lastRecorderStatusMessage = message;
+    lastRecorderStatusTime = currentTime;
+    
     if (data.ready) {
         if (waitingForConfigUpdate) {
             // 如果是配置更新后的状态变更，则关闭设置面板
@@ -511,6 +539,23 @@ document.addEventListener('DOMContentLoaded', function () {
     if (applySettingsBtn) {
         applySettingsBtn.addEventListener('click', async function () {
             const config = getConfigFromUI();
+
+            // 验证Porcupine设置
+            if (config.wakeword_backend === 'pvporcupine') {
+                // 验证access_key
+                if (!config.porcupine_access_key) {
+                    showValidationError('porcupine-access-key', 'Porcupine访问密钥不能为空');
+                    showStatusMessage('设置验证失败，请修正错误后重试', false);
+                    return; // 阻止提交
+                }
+                
+                // 验证唤醒词
+                if (!config.wake_words) {
+                    showValidationError('wake-words', '唤醒词不能为空');
+                    showStatusMessage('设置验证失败，请修正错误后重试', false);
+                    return; // 阻止提交
+                }
+            }
 
             // 验证OpenWakeWord模型路径
             if (config.wakeword_backend === 'openwakeword' && document.getElementById('openwakeword-models')) {
@@ -688,6 +733,37 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (!formatValidation.valid) {
             showValidationError('openwakeword-models', formatValidation.message);
         }
+    }
+
+    // 为输入框添加input事件监听器，当用户输入内容时自动清除错误状态
+    const porcupineAccessKey = document.getElementById('porcupine-access-key');
+    const wakeWords = document.getElementById('wake-words');
+    const wakewordBackendSelect = document.getElementById('wakeword-backend');
+    
+    if (wakewordBackendSelect) {
+        wakewordBackendSelect.addEventListener('change', function() {
+            // 当切换到非pvporcupine时，清除相关错误状态
+            if (this.value !== 'pvporcupine') {
+                clearValidationError('porcupine-access-key');
+                clearValidationError('wake-words');
+            }
+        });
+    }
+    
+    if (porcupineAccessKey) {
+        porcupineAccessKey.addEventListener('input', function() {
+            if (this.value.trim()) {
+                clearValidationError('porcupine-access-key');
+            }
+        });
+    }
+    
+    if (wakeWords) {
+        wakeWords.addEventListener('input', function() {
+            if (this.value.trim()) {
+                clearValidationError('wake-words');
+            }
+        });
     }
 });
 
