@@ -775,6 +775,15 @@ body {
     animation: pulse 1.5s infinite alternate;
 }
 
+.restart-message {
+    display: block;
+    text-align: center;
+    padding: 20px;
+    color: #00aaff;
+    font-size: 20px;
+    animation: pulse 1.5s infinite alternate;
+}
+
 @keyframes pulse {
     from {
         opacity: 0.7;

@@ -384,25 +384,8 @@ socket.on('disconnect', function () {
 socket.on('model_path_reset', function(data) {
     console.warn('模型路径重置:', data);
     
-    // 显示通知
-    showStatusMessage('检测到无效的模型文件，已自动重置为默认模型。系统将在5秒后自动重启...', false);
-    
-    // 启动重启倒计时
-    let countdown = 5;
-    const countdownTimer = setInterval(function() {
-        countdown--;
-        showStatusMessage(`检测到无效的模型文件，已自动重置为默认模型。系统将在${countdown}秒后自动重启...`, false);
-        
-        if (countdown <= 0) {
-            clearInterval(countdownTimer);
-            showStatusMessage('系统正在重启中，页面将在10秒后自动刷新...', false);
-            
-            // 10秒后刷新页面
-            setTimeout(function() {
-                window.location.reload();
-            }, 10000);
-        }
-    }, 1000);
+    // 显示简短通知
+    showStatusMessage('检测到无效的模型文件，已自动重置为默认模型', false);
     
     // 如果当前正在设置页面，更新UI并高亮显示
     const modelPathInput = document.getElementById('openwakeword-models');
@@ -410,15 +393,14 @@ socket.on('model_path_reset', function(data) {
         // 清空输入框
         modelPathInput.value = '';
         
-        // 显示重置的详细信息
-        showValidationError('openwakeword-models', 
-            `检测到无效模型文件，已自动重置路径。\n原因: ${data.error}`);
+        // 添加错误样式
+        modelPathInput.classList.add('validation-error');
         
-        // 更新配置
-        if (currentConfig) {
-            currentConfig.openwakeword_model_paths = null;
-        }
+        // 显示错误消息
+        showValidationError('openwakeword-models', '检测到无效的模型文件，已自动重置为默认值');
     }
+    
+    // 不需要额外的倒计时和刷新逻辑，重启页面会处理这些
 });
 
 socket.on('realtime', function (data) {
@@ -504,52 +486,16 @@ socket.on('restart_required', function (data) {
         return; // 不显示对话框，直接返回
     }
 
-    // 旧的处理逻辑（兼容性保留）
-    // 创建重启提示对话框
-    const restartDialog = document.createElement('div');
-    restartDialog.style.position = 'fixed';
-    restartDialog.style.top = '50%';
-    restartDialog.style.left = '50%';
-    restartDialog.style.transform = 'translate(-50%, -50%)';
-    restartDialog.style.backgroundColor = '#333';
-    restartDialog.style.color = '#fff';
-    restartDialog.style.padding = '20px';
-    restartDialog.style.borderRadius = '8px';
-    restartDialog.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
-    restartDialog.style.zIndex = '2000';
-    restartDialog.style.textAlign = 'center';
-
-    // 添加图标和文字
-    restartDialog.innerHTML = `
-        <div style="font-size: 24px; margin-bottom: 15px;">
-            <i class="fas fa-sync-alt" style="color: #00aaff;"></i>
-        </div>
-        <div style="font-size: 18px; margin-bottom: 15px;">
-            ${data.message || '应用正在重启...'}
-        </div>
-        <div style="font-size: 16px;" id="restart-countdown">
-            页面将在 <span style="color: #00aaff; font-weight: bold;">${data.countdown || 5}</span> 秒后自动刷新
-        </div>
-    `;
-
-    // 添加到页面
-    document.body.appendChild(restartDialog);
-
-    // 设置倒计时
-    let countdown = data.countdown || 5;
-    const countdownInterval = setInterval(() => {
-        countdown--;
-        const countdownElement = document.getElementById('restart-countdown');
-        if (countdownElement) {
-            countdownElement.innerHTML = `页面将在 <span style="color: #00aaff; font-weight: bold;">${countdown}</span> 秒后自动刷新`;
-        }
-
-        if (countdown <= 0) {
-            clearInterval(countdownInterval);
-            // 刷新页面
-            window.location.reload();
-        }
-    }, 1000);
+    // 旧的处理逻辑已被移除，现在所有重启都应该使用重定向
+    console.warn('收到没有重定向URL的重启请求，将刷新页面');
+    
+    // 显示简单的重启消息
+    displayDiv.innerHTML = `<span class="restart-message">应用正在重启，页面将在5秒后刷新...</span>`;
+    
+    // 5秒后刷新页面（兼容旧版本）
+    setTimeout(function () {
+        window.location.reload();
+    }, 5000);
 });
 
 start_msg();
