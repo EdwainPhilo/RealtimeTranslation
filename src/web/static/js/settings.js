@@ -35,20 +35,14 @@ document.addEventListener('DOMContentLoaded', function () {
         // 清除所有验证错误
         clearValidationErrors();
         
-        // 如果选择了Porcupine后端，验证access_key和唤醒词
+        // 如果选择了Porcupine后端，并且唤醒词不为空，则验证access_key
         if (wakewordBackend && wakewordBackend.value === 'pvporcupine') {
             const accessKey = document.getElementById('porcupine-access-key');
             const wakeWords = document.getElementById('wake-words');
             
-            // 验证access_key
-            if (!accessKey.value.trim()) {
-                showValidationError(accessKey, 'porcupine-access-key-error', 'Porcupine访问密钥不能为空');
-                isValid = false;
-            }
-            
-            // 验证唤醒词
-            if (!wakeWords.value.trim()) {
-                showValidationError(wakeWords, 'wake-words-error', '唤醒词不能为空');
+            // 只有当唤醒词不为空时，才要求access_key必填
+            if (wakeWords && wakeWords.value.trim() && !accessKey.value.trim()) {
+                showValidationError(accessKey, 'porcupine-access-key-error', 'Porcupine访问密钥不能为空（唤醒词存在时必填）');
                 isValid = false;
             }
         }
@@ -221,6 +215,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const porcupineAccessKey = document.getElementById('porcupine-access-key');
     const wakeWords = document.getElementById('wake-words');
     
+    // 页面加载时初始化access_key的必填状态
+    const requiredSpan = document.getElementById('access-key-required');
+    if (requiredSpan && wakeWords) {
+        // 如果唤醒词为空，则隐藏必填标记
+        if (!wakeWords.value.trim()) {
+            requiredSpan.style.display = 'none';
+        }
+    }
+    
     if (porcupineAccessKey) {
         porcupineAccessKey.addEventListener('input', function() {
             if (this.value.trim()) {
@@ -243,6 +246,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (errorElement) {
                     errorElement.style.display = 'none';
                 }
+                
+                // 设置access_key为必填
+                const requiredSpan = document.getElementById('access-key-required');
+                if (requiredSpan) {
+                    requiredSpan.style.display = '';
+                }
+            } else {
+                // 设置access_key为非必填
+                const requiredSpan = document.getElementById('access-key-required');
+                if (requiredSpan) {
+                    requiredSpan.style.display = 'none';
+                }
             }
         });
     }
@@ -261,10 +276,27 @@ document.addEventListener('DOMContentLoaded', function () {
             settingGroup.classList.add('openwakeword-active');
         } else if (backend === 'pvporcupine') {
             settingGroup.classList.add('porcupine-active');
+            
+            // 检查唤醒词内容，更新access_key的必填标记
+            const requiredSpan = document.getElementById('access-key-required');
+            
+            if (requiredSpan) {
+                if (wakeWords && wakeWords.value.trim()) {
+                    requiredSpan.style.display = '';
+                } else {
+                    requiredSpan.style.display = 'none';
+                }
+            }
         } else if (backend === 'disabled') {
             settingGroup.classList.add('disabled-active');
             // 当选择"不启用"时，实际上我们使用pvporcupine但将唤醒词设为空
             document.getElementById('wake-words').value = '';
+            
+            // 隐藏access_key的必填标记
+            const requiredSpan = document.getElementById('access-key-required');
+            if (requiredSpan) {
+                requiredSpan.style.display = 'none';
+            }
         }
     }
 }); 

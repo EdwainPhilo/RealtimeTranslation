@@ -542,16 +542,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // 验证Porcupine设置
             if (config.wakeword_backend === 'pvporcupine') {
-                // 验证access_key
-                if (!config.porcupine_access_key) {
-                    showValidationError('porcupine-access-key', 'Porcupine访问密钥不能为空');
-                    showStatusMessage('设置验证失败，请修正错误后重试', false);
-                    return; // 阻止提交
-                }
-                
-                // 验证唤醒词
-                if (!config.wake_words) {
-                    showValidationError('wake-words', '唤醒词不能为空');
+                // 只有当唤醒词不为空时，才要求access_key必填
+                if (config.wake_words && config.wake_words.trim() && !config.porcupine_access_key) {
+                    showValidationError('porcupine-access-key', 'Porcupine访问密钥不能为空（唤醒词存在时必填）');
                     showStatusMessage('设置验证失败，请修正错误后重试', false);
                     return; // 阻止提交
                 }

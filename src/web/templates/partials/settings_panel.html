@@ -320,15 +320,15 @@
                         </div>
 
                         <div class="setting-item pvporcupine-only">
-                            <label for="porcupine-access-key">Porcupine访问密钥: <span class="required">*</span></label>
+                            <label for="porcupine-access-key">Porcupine访问密钥: <span class="required" id="access-key-required">*</span></label>
                             <input type="text" id="porcupine-access-key" placeholder="输入Picovoice Console获取的访问密钥" required>
-                            <small class="setting-help">从<a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>获取的访问密钥，免费版有使用限制</small>
+                            <small class="setting-help">从<a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>获取的访问密钥，免费版有使用限制。唤醒词为空时可不填，此时不启用唤醒词功能。</small>
                             <div class="validation-error-message" id="porcupine-access-key-error" style="display: none;"></div>
                         </div>
 
                         <div class="setting-item pvporcupine-only">
-                            <label for="wake-words">唤醒词: <span class="required">*</span></label>
-                            <input type="text" id="wake-words" placeholder="输入唤醒词，用逗号分隔" required>
+                            <label for="wake-words">唤醒词:</label>
+                            <input type="text" id="wake-words" placeholder="输入唤醒词，用逗号分隔，留空则不启用唤醒词功能">
                             <small class="setting-help">预训练模型支持的唤醒词：porcupine, picovoice, alexa, blueberry, grapefruit, hey google, jarvis, ok google, hey siri, pico clock, terminator, grasshopper, bumblebee, computer, hey barista, americano。如需其他唤醒词，请前往<a href="https://console.picovoice.ai/" target="_blank">Picovoice Console</a>训练。</small>
                             <div class="validation-error-message" id="wake-words-error" style="display: none;"></div>
                         </div>
