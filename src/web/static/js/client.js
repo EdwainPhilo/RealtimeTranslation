@@ -381,25 +381,25 @@ socket.on('disconnect', function () {
 });
 
 // 处理模型路径重置事件
-socket.on('model_path_reset', function(data) {
+socket.on('model_path_reset', function (data) {
     console.warn('模型路径重置:', data);
-    
+
     // 显示简短通知
     showStatusMessage('检测到无效的模型文件，已自动重置为默认模型', false);
-    
+
     // 如果当前正在设置页面，更新UI并高亮显示
     const modelPathInput = document.getElementById('openwakeword-models');
     if (modelPathInput) {
         // 清空输入框
         modelPathInput.value = '';
-        
+
         // 添加错误样式
         modelPathInput.classList.add('validation-error');
-        
+
         // 显示错误消息
         showValidationError('openwakeword-models', '检测到无效的模型文件，已自动重置为默认值');
     }
-    
+
     // 不需要额外的倒计时和刷新逻辑，重启页面会处理这些
 });
 
@@ -429,7 +429,7 @@ socket.on('config', function (config) {
     currentConfig = config;
     updateSettingsUI(config);
     console.log('收到服务器配置:', config);
-    
+
     // 检查是否有启动错误信息
     if (config.startup_error) {
         showStartupErrorDialog(config.startup_error);
@@ -482,21 +482,21 @@ socket.on('restart_required', function (data) {
     if (data.redirect_to) {
         // 显示简单的重启消息
         displayDiv.innerHTML = `<span class="restart-message">应用正在重启，${data.countdown || 3}秒后将跳转到重启页面...</span>`;
-        
+
         // 倒计时结束后重定向
         setTimeout(function () {
             window.location.href = data.redirect_to;
         }, (data.countdown || 3) * 1000);
-        
+
         return; // 不显示对话框，直接返回
     }
 
     // 旧的处理逻辑已被移除，现在所有重启都应该使用重定向
     console.warn('收到没有重定向URL的重启请求，将刷新页面');
-    
+
     // 显示简单的重启消息
     displayDiv.innerHTML = `<span class="restart-message">应用正在重启，页面将在5秒后刷新...</span>`;
-    
+
     // 5秒后刷新页面（兼容旧版本）
     setTimeout(function () {
         window.location.reload();
@@ -511,11 +511,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (applySettingsBtn) {
         applySettingsBtn.addEventListener('click', async function () {
             const config = getConfigFromUI();
-            
+
             // 验证OpenWakeWord模型路径
             if (config.wakeword_backend === 'openwakeword' && document.getElementById('openwakeword-models')) {
                 const pathsString = document.getElementById('openwakeword-models').value;
-                
+
                 // 首先进行格式验证
                 const formatValidation = validateOpenWakeWordPaths(pathsString);
                 if (!formatValidation.valid) {
@@ -523,16 +523,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     showStatusMessage('设置验证失败，请修正错误后重试', false);
                     return; // 阻止提交
                 }
-                
+
                 // 然后验证文件是否存在（如果路径不为空）
                 if (pathsString.trim()) {
                     try {
                         showStatusMessage('正在验证文件路径...', true);
                         const fileValidation = await validateFilePath(pathsString);
-                        
+
                         // 显示验证结果
                         showFileValidationResult('openwakeword-models', fileValidation);
-                        
+
                         // 如果验证失败，阻止提交
                         if (!fileValidation.valid) {
                             showStatusMessage('文件路径验证失败，请修正错误后重试', false);
@@ -544,13 +544,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         showStatusMessage('文件验证过程出错，将继续提交设置，但可能导致录音服务启动失败', false);
                     }
                 }
-                
+
                 clearValidationError('openwakeword-models', true); // 显示成功状态
             }
-            
+
             socket.emit('update_config', config);
             console.log('发送配置到服务器:', config);
-            
+
             // 显示正在更新的消息
             showStatusMessage('正在应用设置...', true);
             // 不立即关闭设置面板，而是等待响应
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const openwakewordModelsInput = document.getElementById('openwakeword-models');
     if (openwakewordModelsInput) {
         // 实时格式验证
-        openwakewordModelsInput.addEventListener('input', function() {
+        openwakewordModelsInput.addEventListener('input', function () {
             const formatValidation = validateOpenWakeWordPaths(this.value);
             if (!formatValidation.valid) {
                 showValidationError('openwakeword-models', formatValidation.message);
@@ -653,16 +653,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 clearValidationError('openwakeword-models');
             }
         });
-        
+
         // 添加失去焦点时验证文件路径
-        openwakewordModelsInput.addEventListener('blur', async function() {
+        openwakewordModelsInput.addEventListener('blur', async function () {
             // 首先进行格式验证
             const formatValidation = validateOpenWakeWordPaths(this.value);
             if (!formatValidation.valid) {
                 showValidationError('openwakeword-models', formatValidation.message);
                 return;
             }
-            
+
             // 如果格式验证通过且值不为空，验证文件路径
             if (this.value.trim()) {
                 try {
@@ -677,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 clearValidationError('openwakeword-models');
             }
         });
-        
+
         // 初始格式验证
         const formatValidation = validateOpenWakeWordPaths(openwakewordModelsInput.value);
         if (formatValidation.valid && openwakewordModelsInput.value.trim()) {
@@ -875,17 +875,17 @@ function validateFilePath(path) {
         const timeout = setTimeout(() => {
             reject(new Error('验证请求超时'));
         }, 5000);
-        
+
         // 请求验证
-        socket.emit('validate_file_path', { path: path });
-        
+        socket.emit('validate_file_path', {path: path});
+
         // 一次性事件监听器
         function validationResultHandler(result) {
             clearTimeout(timeout);
             socket.off('file_path_validation_result', validationResultHandler);
             resolve(result);
         }
-        
+
         // 监听验证结果
         socket.on('file_path_validation_result', validationResultHandler);
     });
@@ -899,15 +899,15 @@ function validateFilePath(path) {
 function showFileValidationResult(inputId, result) {
     const input = document.getElementById(inputId);
     if (!input) return;
-    
+
     if (result.valid) {
         clearValidationError(inputId, result.path.trim() !== '');
     } else {
         // 构建错误消息
-        const errorMessages = result.messages.map(item => 
+        const errorMessages = result.messages.map(item =>
             `"${item.path}": ${item.reason}`
         ).join('\n');
-        
+
         showValidationError(inputId, `文件路径验证失败:\n${errorMessages}`);
     }
 }
@@ -918,13 +918,13 @@ function showFileValidationResult(inputId, result) {
  */
 function showStartupErrorDialog(errorData) {
     console.warn('检测到上次启动失败:', errorData);
-    
+
     // 移除可能已存在的对话框
     const existingOverlay = document.querySelector('.startup-error-overlay');
     if (existingOverlay) {
         document.body.removeChild(existingOverlay);
     }
-    
+
     // 创建遮罩层
     const overlay = document.createElement('div');
     overlay.className = 'startup-error-overlay';
@@ -940,7 +940,7 @@ function showStartupErrorDialog(errorData) {
         align-items: center;
         z-index: 2000;
     `;
-    
+
     // 创建对话框容器
     const dialogContainer = document.createElement('div');
     dialogContainer.style.cssText = `
@@ -955,7 +955,7 @@ function showStartupErrorDialog(errorData) {
         max-height: 80vh;
         overflow-y: auto;
     `;
-    
+
     // 添加内容
     let contentHtml = `
         <div style="display: flex; align-items: center; margin-bottom: 20px;">
@@ -966,7 +966,7 @@ function showStartupErrorDialog(errorData) {
             <p><strong>错误信息:</strong> ${errorData.message}</p>
             <p><strong>发生时间:</strong> ${errorData.timestamp}</p>
     `;
-    
+
     // 如果是模型文件问题，添加特殊说明
     if (errorData.message.includes('模型文件')) {
         contentHtml += `
@@ -976,7 +976,7 @@ function showStartupErrorDialog(errorData) {
             </div>
         `;
     }
-    
+
     // 添加详细错误信息（可折叠）
     contentHtml += `
         <div style="margin-top: 20px;">
@@ -986,30 +986,30 @@ function showStartupErrorDialog(errorData) {
             </details>
         </div>
     `;
-    
+
     // 添加关闭按钮
     contentHtml += `
         <div style="text-align: right; margin-top: 25px;">
             <button id="closeErrorDialogBtn" style="background-color: #00aaff; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: all 0.3s;">我知道了</button>
         </div>
     `;
-    
+
     dialogContainer.innerHTML = contentHtml;
     overlay.appendChild(dialogContainer);
     document.body.appendChild(overlay);
-    
+
     // 阻止点击对话框内容时关闭
-    dialogContainer.addEventListener('click', function(e) {
+    dialogContainer.addEventListener('click', function (e) {
         e.stopPropagation();
     });
-    
+
     // 点击遮罩层背景关闭对话框
-    overlay.addEventListener('click', function() {
+    overlay.addEventListener('click', function () {
         document.body.removeChild(overlay);
     });
-    
+
     // 点击关闭按钮关闭对话框
-    document.getElementById('closeErrorDialogBtn').addEventListener('click', function() {
+    document.getElementById('closeErrorDialogBtn').addEventListener('click', function () {
         document.body.removeChild(overlay);
     });
 } 
