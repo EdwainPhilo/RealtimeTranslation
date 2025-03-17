@@ -6,6 +6,8 @@ import time
 import json
 import os
 import sys
+import traceback
+from threading import Thread, Event, Lock
 from src.utils.stt.audio_recorder import AudioToTextRecorder
 
 # 配置日志
@@ -210,8 +212,42 @@ class STTService:
                     
                     print(f"已重置模型路径，从 {original_paths} 改为默认模型")
                     
-                    # 重新尝试创建录音机
+                    # 触发完整应用重启
+                    def delayed_restart():
+                        print("模型路径已重置，2秒后自动重启应用...")
+                        time.sleep(2)  # 等待2秒确保消息发送和配置保存完成
+                        
+                        try:
+                            # 在Windows环境下重启应用
+                            if sys.platform == 'win32':
+                                import subprocess
+                                python = sys.executable
+                                script_path = sys.argv[0]
+                                args = sys.argv[1:]
+                                
+                                # 使用subprocess启动新进程
+                                subprocess.Popen([python, script_path] + args, 
+                                               creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                                
+                                # 延迟退出当前进程
+                                time.sleep(1)
+                                print("正在关闭当前进程...")
+                                os._exit(0)
+                            else:
+                                # Linux/Mac重启方式
+                                os.execl(sys.executable, sys.executable, *sys.argv)
+                        except Exception as restart_error:
+                            print(f"自动重启失败: {restart_error}")
+                            logging.error(f"自动重启失败", exc_info=True)
+                    
+                    # 启动重启线程
+                    restart_thread = threading.Thread(target=delayed_restart)
+                    restart_thread.daemon = True
+                    restart_thread.start()
+                    
+                    # 临时创建默认模型以允许当前操作继续
                     self.recorder = AudioToTextRecorder(**config_copy)
+                    return True, None  # 返回成功，因为重启线程已经启动
                 else:
                     # 其他错误则直接抛出
                     raise

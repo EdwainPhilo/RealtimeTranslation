@@ -385,7 +385,24 @@ socket.on('model_path_reset', function(data) {
     console.warn('模型路径重置:', data);
     
     // 显示通知
-    showStatusMessage(data.message, false);
+    showStatusMessage('检测到无效的模型文件，已自动重置为默认模型。系统将在5秒后自动重启...', false);
+    
+    // 启动重启倒计时
+    let countdown = 5;
+    const countdownTimer = setInterval(function() {
+        countdown--;
+        showStatusMessage(`检测到无效的模型文件，已自动重置为默认模型。系统将在${countdown}秒后自动重启...`, false);
+        
+        if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            showStatusMessage('系统正在重启中，页面将在10秒后自动刷新...', false);
+            
+            // 10秒后刷新页面
+            setTimeout(function() {
+                window.location.reload();
+            }, 10000);
+        }
+    }, 1000);
     
     // 如果当前正在设置页面，更新UI并高亮显示
     const modelPathInput = document.getElementById('openwakeword-models');
