@@ -9,53 +9,102 @@
     <script src="{{ url_for('static', filename='js/chineseConverter.js') }}"></script>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1><i class="fas fa-microphone-alt"></i> 实时语音转写</h1>
-        <div class="header-controls">
-            <div id="recording-status-indicator" class="recording-status recording-active" title="录音状态">
-                <div class="wave-container">
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
+    <!-- 音效元素 -->
+    <audio id="wakeSound" class="wakeword-sound" preload="auto">
+        <source src="/static/sounds/wake.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="timeoutSound" class="wakeword-sound" preload="auto">
+        <source src="/static/sounds/timeout.mp3" type="audio/mpeg">
+    </audio>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-microphone-alt"></i> 实时语音转写</h1>
+            <div class="header-controls">
+                <div id="recording-status-indicator" class="recording-status recording-active" title="录音状态">
+                    <div class="wave-container">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+                <div id="wakeword-status-indicator" class="wakeword-status wakeword-style-1 disabled" title="唤醒词状态">
+                    <div class="wakeword-icon"></div>
+                    <span>禁用</span>
+                </div>
+                <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()" title="点击切换简繁中文">简</button>
+                <div class="control-buttons">
+                    <i class="fas fa-cog settings-icon" id="settingsIcon" title="设置"></i>
+                    <i class="fas fa-power-off shutdown-icon" id="shutdownIcon" title="关闭服务"></i>
                 </div>
             </div>
-            <div id="wakeword-status-indicator" class="wakeword-status disabled" title="唤醒词状态">
-                <div class="wakeword-icon"></div>
-                <span>禁用</span>
-            </div>
-            <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()">切换到繁体</button>
-            <div class="control-buttons">
-                <i class="fas fa-cog settings-icon" id="settingsIcon" title="设置"></i>
-                <i class="fas fa-power-off shutdown-icon" id="shutdownIcon" title="关闭服务"></i>
+        </div>
+
+        <div class="content">
+            <div id="textDisplay" class="text-display"></div>
+        </div>
+        
+        <!-- 确认关闭对话框 -->
+        <div id="shutdownConfirmDialog" class="dialog">
+            <div class="dialog-content">
+                <h3>确认关闭</h3>
+                <p>确定要关闭服务吗？这将结束当前的语音转写会话。</p>
+                <div class="dialog-buttons">
+                    <button id="cancelShutdown" class="button secondary">取消</button>
+                    <button id="confirmShutdown" class="button primary">确认关闭</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="content">
-        <div id="textDisplay" class="text-display"></div>
-    </div>
-    
-    <!-- 确认关闭对话框 -->
-    <div id="shutdownConfirmDialog" class="dialog">
-        <div class="dialog-content">
-            <h3>确认关闭</h3>
-            <p>确定要关闭服务吗？这将结束当前的语音转写会话。</p>
-            <div class="dialog-buttons">
-                <button id="cancelShutdown" class="button secondary">取消</button>
-                <button id="confirmShutdown" class="button primary">确认关闭</button>
+        <!-- 唤醒灯样式选择面板 -->
+        <div id="wakewordStyleDialog" class="dialog">
+            <div class="dialog-content">
+                <h3>选择唤醒灯样式</h3>
+                <div class="wakeword-style-options">
+                    <div class="wakeword-style-option" data-style="1">
+                        <div class="wakeword-preview wakeword-style-1">
+                            <div class="wakeword-icon"></div>
+                        </div>
+                        <span>样式1: 圆形指示灯</span>
+                    </div>
+                    <div class="wakeword-style-option" data-style="2">
+                        <div class="wakeword-preview wakeword-style-2">
+                            <div class="wakeword-icon"></div>
+                        </div>
+                        <span>样式2: 方形指示灯</span>
+                    </div>
+                    <div class="wakeword-style-option" data-style="3">
+                        <div class="wakeword-preview wakeword-style-3 activated">
+                            <div class="wakeword-icon"></div>
+                        </div>
+                        <span>样式3: 波浪指示灯</span>
+                    </div>
+                    <div class="wakeword-style-option" data-style="4">
+                        <div class="wakeword-preview wakeword-style-4 activated">
+                            <div class="wakeword-icon"></div>
+                        </div>
+                        <span>样式4: 呼吸灯效果</span>
+                    </div>
+                    <div class="wakeword-style-option" data-style="5">
+                        <div class="wakeword-preview wakeword-style-5 activated">
+                            <div class="wakeword-icon"></div>
+                        </div>
+                        <span>样式5: 脉冲指示器</span>
+                    </div>
+                </div>
+                <div class="dialog-buttons">
+                    <button id="closeWakewordStyleDialog" class="button secondary">关闭</button>
+                </div>
             </div>
         </div>
+
+        <!-- 引入设置面板 -->
+        {% include 'partials/settings_panel.html' %}
     </div>
 
-    <!-- 引入设置面板 -->
-    {% include 'partials/settings_panel.html' %}
-</div>
-
-<script src="{{ url_for('static', filename='js/client.js') }}"></script>
-<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 </body>
 </html> 

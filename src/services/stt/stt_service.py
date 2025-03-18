@@ -166,7 +166,7 @@ class STTService:
             if self.socketio:
                 self.socketio.emit('wakeword_status', {
                     'status': 'activated',
-                    'message': '唤醒词已激活'
+                    'message': '激活'
                 })
                 # 同时发送录音状态变更为激活
                 self.socketio.emit('recording_status', {
@@ -183,7 +183,7 @@ class STTService:
             if self.socketio:
                 self.socketio.emit('wakeword_status', {
                     'status': 'listening',
-                    'message': '等待唤醒词'
+                    'message': '等待'
                 })
                 # 同时发送录音状态变更为禁用
                 self.socketio.emit('recording_status', {
@@ -200,7 +200,7 @@ class STTService:
             if self.socketio:
                 self.socketio.emit('wakeword_status', {
                     'status': 'listening',
-                    'message': '等待唤醒词'
+                    'message': '等待'
                 })
                 # 同时发送录音状态变更为禁用
                 self.socketio.emit('recording_status', {
@@ -217,7 +217,7 @@ class STTService:
             if self.socketio:
                 self.socketio.emit('wakeword_status', {
                     'status': 'disabled',
-                    'message': '唤醒词未启用'
+                    'message': '禁用'
                 })
                 # 同时发送录音状态变更为启用
                 self.socketio.emit('recording_status', {

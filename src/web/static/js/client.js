@@ -7,6 +7,24 @@ let currentConfig = {}; // 存储当前配置信息
 let waitingForConfigUpdate = false; // 是否正在等待配置更新
 let useSimplifiedChinese = true; // 是否使用简体中文
 let originalFullSentences = []; // 保存原始句子（未转换前）
+let currentWakewordStyle = 1; // 当前唤醒灯样式
+
+// 音效播放函数
+function playWakeSound() {
+    const wakeSound = document.getElementById('wakeSound');
+    if (wakeSound) {
+        wakeSound.currentTime = 0;
+        wakeSound.play().catch(error => console.log('播放唤醒音效失败:', error));
+    }
+}
+
+function playTimeoutSound() {
+    const timeoutSound = document.getElementById('timeoutSound');
+    if (timeoutSound) {
+        timeoutSound.currentTime = 0;
+        timeoutSound.play().catch(error => console.log('播放超时音效失败:', error));
+    }
+}
 
 // 添加防抖变量，用于跟踪上一次显示的状态消息
 let lastRecorderStatusMessage = '';
@@ -46,7 +64,7 @@ function toggleChineseMode() {
     // 更新按钮文本
     const toggleButton = document.getElementById('toggle-chinese-mode');
     if (toggleButton) {
-        toggleButton.textContent = useSimplifiedChinese ? '切换到繁体' : '切换到简体';
+        toggleButton.textContent = useSimplifiedChinese ? '简' : '繁';
     }
 
     // 保存用户偏好到localStorage
@@ -62,7 +80,7 @@ function updateWakewordStatusIndicator(status, message) {
     if (!indicator) return;
     
     // 移除所有状态类
-    indicator.classList.remove('disabled', 'listening', 'activated');
+    indicator.classList.remove('disabled', 'listening', 'activated', 'timeout');
     
     // 设置文本
     const textElement = indicator.querySelector('span');
@@ -80,6 +98,14 @@ function updateWakewordStatusIndicator(status, message) {
         case 'activated':
             indicator.classList.add('activated');
             if (textElement) textElement.textContent = message || '激活';
+            // 播放唤醒音效
+            playWakeSound();
+            break;
+        case 'timeout':
+            indicator.classList.add('timeout');
+            if (textElement) textElement.textContent = message || '超时';
+            // 播放超时音效
+            playTimeoutSound();
             break;
     }
     
@@ -90,6 +116,8 @@ function updateWakewordStatusIndicator(status, message) {
         updateRecordingStatusIndicator(false, '休眠');
     } else if (status === 'activated') {
         updateRecordingStatusIndicator(true, '聆听');
+    } else if (status === 'timeout') {
+        updateRecordingStatusIndicator(false, '休眠');
     }
     
     console.log(`唤醒词状态更新为: ${status}`);
@@ -739,8 +767,26 @@ document.addEventListener('DOMContentLoaded', function () {
         // 更新切换按钮文本
         const toggleButton = document.getElementById('toggle-chinese-mode');
         if (toggleButton) {
-            toggleButton.textContent = useSimplifiedChinese ? '切换到繁体' : '切换到简体';
+            toggleButton.textContent = useSimplifiedChinese ? '简' : '繁';
         }
+    }
+    
+    // 从localStorage加载唤醒灯样式偏好
+    const savedWakewordStyle = localStorage.getItem('wakewordStyle');
+    if (savedWakewordStyle !== null) {
+        currentWakewordStyle = parseInt(savedWakewordStyle);
+    }
+    // 应用唤醒灯样式
+    updateWakewordStyle();
+    
+    // 添加点击唤醒灯切换样式的事件
+    const wakewordIndicator = document.getElementById('wakeword-status-indicator');
+    if (wakewordIndicator) {
+        wakewordIndicator.addEventListener('dblclick', function(e) {
+            // 双击打开唤醒灯样式选择面板
+            openWakewordStyleDialog();
+            e.stopPropagation(); // 阻止事件冒泡
+        });
     }
 
     // 获取按钮和对话框元素
@@ -877,6 +923,42 @@ document.addEventListener('DOMContentLoaded', function () {
         wakeWords.addEventListener('input', function() {
             if (this.value.trim()) {
                 clearValidationError('wake-words');
+            }
+        });
+    }
+
+    // 设置唤醒灯样式选择面板的事件
+    const styleDialog = document.getElementById('wakewordStyleDialog');
+    const closeStyleDialogBtn = document.getElementById('closeWakewordStyleDialog');
+    
+    // 点击选项切换样式
+    document.querySelectorAll('.wakeword-style-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const style = parseInt(this.getAttribute('data-style'));
+            currentWakewordStyle = style;
+            updateWakewordStyle();
+            updateSelectedStyle();
+            
+            // 保存用户偏好到localStorage
+            localStorage.setItem('wakewordStyle', currentWakewordStyle.toString());
+            
+            // 显示状态消息
+            showStatusMessage(`唤醒灯样式已切换到样式${currentWakewordStyle}`, true);
+        });
+    });
+    
+    // 关闭对话框
+    if (closeStyleDialogBtn) {
+        closeStyleDialogBtn.addEventListener('click', function() {
+            styleDialog.style.display = 'none';
+        });
+    }
+    
+    // 点击对话框外部区域关闭对话框
+    if (styleDialog) {
+        styleDialog.addEventListener('click', function(event) {
+            if (event.target === styleDialog) {
+                styleDialog.style.display = 'none';
             }
         });
     }
@@ -1333,5 +1415,55 @@ function stopAudioVisualization() {
     
     if (audioContext && audioContext.state !== 'closed') {
         audioAnalyser = null;
+    }
+}
+
+// 切换唤醒灯样式
+function toggleWakewordStyle() {
+    currentWakewordStyle = (currentWakewordStyle % 5) + 1;
+    updateWakewordStyle();
+    
+    // 保存用户偏好到localStorage
+    localStorage.setItem('wakewordStyle', currentWakewordStyle.toString());
+    
+    // 显示状态消息
+    showStatusMessage(`唤醒灯样式已切换到样式${currentWakewordStyle}`, true);
+}
+
+// 更新唤醒灯样式
+function updateWakewordStyle() {
+    const indicator = document.getElementById('wakeword-status-indicator');
+    if (!indicator) return;
+    
+    // 移除所有样式类
+    indicator.classList.remove('wakeword-style-1', 'wakeword-style-2', 'wakeword-style-3', 'wakeword-style-4', 'wakeword-style-5');
+    
+    // 添加当前样式类
+    indicator.classList.add(`wakeword-style-${currentWakewordStyle}`);
+}
+
+// 打开唤醒灯样式选择面板
+function openWakewordStyleDialog() {
+    const dialog = document.getElementById('wakewordStyleDialog');
+    if (!dialog) return;
+    
+    // 更新当前选中的样式
+    updateSelectedStyle();
+    
+    // 显示对话框
+    dialog.style.display = 'flex';
+}
+
+// 更新样式选择面板中选中的样式
+function updateSelectedStyle() {
+    // 移除所有选项的选中状态
+    document.querySelectorAll('.wakeword-style-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // 添加当前样式的选中状态
+    const currentOption = document.querySelector(`.wakeword-style-option[data-style="${currentWakewordStyle}"]`);
+    if (currentOption) {
+        currentOption.classList.add('selected');
     }
 } 
