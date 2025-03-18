@@ -143,6 +143,90 @@ class STTService:
         else:
             print("录音机创建失败，不启动监控线程")
 
+    def setup_wakeword_callbacks(self):
+        """设置唤醒词回调函数"""
+        if self.recorder:
+            config_copy = self.current_config.copy()
+            # 设置唤醒词检测回调
+            config_copy['on_wakeword_detected'] = self.on_wakeword_detected
+            config_copy['on_wakeword_timeout'] = self.on_wakeword_timeout
+            config_copy['on_wakeword_detection_start'] = self.on_wakeword_detection_start
+            config_copy['on_wakeword_detection_end'] = self.on_wakeword_detection_end
+            
+            # 更新录音机的回调
+            with self.config_lock:
+                for key, value in config_copy.items():
+                    if key.startswith('on_') and hasattr(self.recorder, key):
+                        setattr(self.recorder, key, value)
+
+    def on_wakeword_detected(self):
+        """唤醒词检测到的回调"""
+        try:
+            print("检测到唤醒词，超时时间为:", self.current_config.get('wake_word_timeout', 5.0), "秒")
+            if self.socketio:
+                self.socketio.emit('wakeword_status', {
+                    'status': 'activated',
+                    'message': '唤醒词已激活'
+                })
+                # 同时发送录音状态变更为激活
+                self.socketio.emit('recording_status', {
+                    'active': True,
+                    'message': '录音已启用'
+                })
+        except Exception as e:
+            print(f"发送唤醒词状态出错: {e}")
+
+    def on_wakeword_timeout(self):
+        """唤醒词超时的回调"""
+        try:
+            print("唤醒词超时")
+            if self.socketio:
+                self.socketio.emit('wakeword_status', {
+                    'status': 'listening',
+                    'message': '等待唤醒词'
+                })
+                # 同时发送录音状态变更为禁用
+                self.socketio.emit('recording_status', {
+                    'active': False,
+                    'message': '录音已禁用'
+                })
+        except Exception as e:
+            print(f"发送唤醒词状态出错: {e}")
+
+    def on_wakeword_detection_start(self):
+        """唤醒词检测开始的回调"""
+        try:
+            print("开始检测唤醒词")
+            if self.socketio:
+                self.socketio.emit('wakeword_status', {
+                    'status': 'listening',
+                    'message': '等待唤醒词'
+                })
+                # 同时发送录音状态变更为禁用
+                self.socketio.emit('recording_status', {
+                    'active': False,
+                    'message': '录音已禁用'
+                })
+        except Exception as e:
+            print(f"发送唤醒词状态出错: {e}")
+
+    def on_wakeword_detection_end(self):
+        """唤醒词检测结束的回调"""
+        try:
+            print("停止检测唤醒词")
+            if self.socketio:
+                self.socketio.emit('wakeword_status', {
+                    'status': 'disabled',
+                    'message': '唤醒词未启用'
+                })
+                # 同时发送录音状态变更为启用
+                self.socketio.emit('recording_status', {
+                    'active': True,
+                    'message': '录音已启用'
+                })
+        except Exception as e:
+            print(f"发送唤醒词状态出错: {e}")
+
     def text_detected(self, text):
         """当实时转录稳定时调用的回调函数"""
         if self.realtime_callback:
@@ -232,6 +316,10 @@ class STTService:
 
             # 设置为就绪状态
             self.recorder_ready.set()
+            
+            # 设置唤醒词回调函数
+            self.setup_wakeword_callbacks()
+            
             return True, None
         except Exception as e:
             print(f"创建录音机过程中出现异常: {e}")

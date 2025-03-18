@@ -47,6 +47,68 @@ function toggleChineseMode() {
     showStatusMessage(useSimplifiedChinese ? '已切换到简体中文' : '已切换到繁体中文', true);
 }
 
+// 更新唤醒词状态指示器
+function updateWakewordStatusIndicator(status, message) {
+    const indicator = document.getElementById('wakeword-status-indicator');
+    if (!indicator) return;
+    
+    // 移除所有状态类
+    indicator.classList.remove('disabled', 'listening', 'activated');
+    
+    // 设置文本
+    const textElement = indicator.querySelector('span');
+    
+    // 根据状态设置类和文本
+    switch (status) {
+        case 'disabled':
+            indicator.classList.add('disabled');
+            if (textElement) textElement.textContent = message || '未启用';
+            break;
+        case 'listening':
+            indicator.classList.add('listening');
+            if (textElement) textElement.textContent = message || '等待唤醒';
+            break;
+        case 'activated':
+            indicator.classList.add('activated');
+            if (textElement) textElement.textContent = message || '已唤醒';
+            break;
+    }
+    
+    // 同时更新录音状态
+    if (status === 'disabled') {
+        updateRecordingStatusIndicator(true, '录音启用');
+    } else if (status === 'listening') {
+        updateRecordingStatusIndicator(false, '录音禁用');
+    } else if (status === 'activated') {
+        updateRecordingStatusIndicator(true, '录音启用');
+    }
+    
+    console.log(`唤醒词状态更新为: ${status}`);
+}
+
+// 更新录音状态指示器
+function updateRecordingStatusIndicator(isActive, message) {
+    const indicator = document.getElementById('recording-status-indicator');
+    if (!indicator) return;
+    
+    // 移除所有状态类
+    indicator.classList.remove('recording-active', 'recording-inactive');
+    
+    // 设置文本
+    const textElement = indicator.querySelector('span:not(.status-circle)');
+    
+    // 根据状态设置类和文本
+    if (isActive) {
+        indicator.classList.add('recording-active');
+        if (textElement) textElement.textContent = message || '录音启用';
+    } else {
+        indicator.classList.add('recording-inactive');
+        if (textElement) textElement.textContent = message || '录音禁用';
+    }
+    
+    console.log(`录音状态更新为: ${isActive ? '启用' : '禁用'}`);
+}
+
 function displayRealtimeText(realtimeText, displayDiv) {
     let displayedText = fullSentences.map((sentence, index) => {
         let span = document.createElement('span');
@@ -463,11 +525,41 @@ socket.on('fullSentence', function (data) {
     }
 });
 
+// 处理唤醒词状态事件
+socket.on('wakeword_status', function (data) {
+    console.log('唤醒词状态更新:', data);
+    updateWakewordStatusIndicator(data.status, data.message);
+});
+
+// 处理录音状态事件
+socket.on('recording_status', function (data) {
+    console.log('录音状态更新:', data);
+    updateRecordingStatusIndicator(data.active, data.message);
+});
+
 // 接收服务器配置
 socket.on('config', function (config) {
     currentConfig = config;
     updateSettingsUI(config);
     console.log('收到服务器配置:', config);
+
+    // 根据配置设置初始唤醒词状态
+    if (config.wakeword_backend === 'pvporcupine' && (!config.wake_words || config.wake_words === '')) {
+        // 唤醒词为空，视为未启用
+        updateWakewordStatusIndicator('disabled', '唤醒词未启用');
+        // 唤醒词未启用时，录音是启用的
+        updateRecordingStatusIndicator(true, '录音启用');
+    } else if (config.wakeword_backend === 'disabled') {
+        // 明确禁用
+        updateWakewordStatusIndicator('disabled', '唤醒词未启用');
+        // 唤醒词未启用时，录音是启用的
+        updateRecordingStatusIndicator(true, '录音启用');
+    } else {
+        // 唤醒词已配置，默认为监听状态
+        updateWakewordStatusIndicator('listening', '等待唤醒词');
+        // 等待唤醒时，录音是禁用的
+        updateRecordingStatusIndicator(false, '录音禁用');
+    }
 
     // 检查是否有启动错误信息
     if (config.startup_error) {

@@ -13,6 +13,14 @@
     <div class="header">
         <h1><i class="fas fa-microphone-alt"></i> 实时语音转写</h1>
         <div class="header-controls">
+            <div id="wakeword-status-indicator" class="wakeword-status disabled" title="唤醒词状态">
+                <div class="wakeword-icon"></div>
+                <span>未启用</span>
+            </div>
+            <div id="recording-status-indicator" class="recording-status recording-active" title="录音状态">
+                <span class="status-circle"></span>
+                <span>录音启用</span>
+            </div>
             <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()">切换到繁体</button>
             <div class="control-buttons">
                 <i class="fas fa-cog settings-icon" id="settingsIcon" title="设置"></i>
