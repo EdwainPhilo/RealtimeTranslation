@@ -182,8 +182,8 @@ class STTService:
             print("唤醒词超时")
             if self.socketio:
                 self.socketio.emit('wakeword_status', {
-                    'status': 'listening',
-                    'message': '等待'
+                    'status': 'timeout',
+                    'message': '超时'
                 })
                 # 同时发送录音状态变更为禁用
                 self.socketio.emit('recording_status', {

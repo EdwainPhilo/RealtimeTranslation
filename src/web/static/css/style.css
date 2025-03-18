@@ -907,7 +907,8 @@ body {
 }
 
 /* 唤醒词状态 - 样式2: 方形指示灯 */
-.wakeword-style-2 .wakeword-icon {
+.wakeword-style-2 .wakeword-icon,
+.wakeword-preview.wakeword-style-2 .wakeword-icon {
     border-radius: 3px;
 }
 
@@ -949,8 +950,19 @@ body {
 }
 
 /* 唤醒词状态 - 样式4: 呼吸灯效果 */
-.wakeword-style-4.activated .wakeword-icon {
+.wakeword-style-4 .wakeword-icon {
+    transition: all 0.3s ease;
+    background-color: #2ecc71;
+}
+
+/* 预览面板中的呼吸灯效果 */
+.wakeword-preview.wakeword-style-4 .wakeword-icon {
     animation: breathing 2s ease-in-out infinite;
+}
+
+/* 主界面中的呼吸灯效果 */
+.wakeword-status.wakeword-style-4.activated .wakeword-icon {
+    animation: breathing 2s ease-in-out infinite !important;
 }
 
 @keyframes breathing {
@@ -958,7 +970,7 @@ body {
         box-shadow: 0 0 3px rgba(46, 204, 113, 0.3);
         transform: scale(1);
     }
-    50% {
+    50% {   
         box-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
         transform: scale(1.2);
     }
@@ -1124,4 +1136,82 @@ body {
 
 .wakeword-status.timeout .wakeword-icon {
     animation: timeout-sound 0.3s ease;
+}
+
+/* 唤醒词状态 - 超时效果 */
+.wakeword-status.timeout .wakeword-icon {
+    animation: timeout-sound 0.3s ease;
+}
+
+/* 样式1超时效果 */
+.wakeword-style-1.timeout .wakeword-icon {
+    background-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+/* 样式2超时效果 */
+.wakeword-style-2.timeout .wakeword-icon {
+    background-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+/* 样式3超时效果 */
+.wakeword-style-3.timeout .wakeword-icon {
+    background-color: #e74c3c;
+}
+
+.wakeword-style-3.timeout .wakeword-icon::before,
+.wakeword-style-3.timeout .wakeword-icon::after {
+    border-color: #e74c3c;
+    animation: ripple-timeout 1.5s linear infinite;
+}
+
+.wakeword-style-3.timeout .wakeword-icon::after {
+    animation-delay: 0.75s;
+}
+
+@keyframes ripple-timeout {
+    0% {
+        width: 100%;
+        height: 100%;
+        opacity: 1;
+    }
+    100% {
+        width: 250%;
+        height: 250%;
+        opacity: 0;
+    }
+}
+
+/* 样式4超时效果 */
+.wakeword-style-4.timeout .wakeword-icon {
+    animation: breathing-timeout 2s ease-in-out infinite;
+}
+
+@keyframes breathing-timeout {
+    0%, 100% {
+        box-shadow: 0 0 3px rgba(231, 76, 60, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+        transform: scale(1.2);
+    }
+}
+
+/* 样式5超时效果 */
+.wakeword-style-5.timeout .wakeword-icon {
+    animation: pulse-timeout 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background-color: #e74c3c;
+}
+
+@keyframes pulse-timeout {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+    }
+    50% {
+        opacity: 0.5;
+        box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+    }
 } 
