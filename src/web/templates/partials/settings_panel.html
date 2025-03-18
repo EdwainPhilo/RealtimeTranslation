@@ -355,8 +355,8 @@
                         <div class="setting-item wake-word-common">
                             <label for="wake-word-buffer">唤醒词缓冲区长度 (秒):</label>
                             <div class="slider-container">
-                                <input type="range" id="wake-word-buffer" min="0" max="5" step="0.5" value="3">
-                                <span id="wake-word-buffer-value" class="slider-value">3</span>
+                                <input type="range" id="wake-word-buffer" min="0" max="1" step="0.1" value="0.2">
+                                <span id="wake-word-buffer-value" class="slider-value">0.2</span>
                             </div>
                             <small class="setting-help">唤醒词检测的音频缓冲区长度</small>
                         </div>
@@ -395,21 +395,37 @@
                         </div>
 
                         <div class="setting-item">
-                            <label for="debug-mode">调试模式:</label>
-                            <select id="debug-mode">
-                                <option value="false" selected>关闭</option>
-                                <option value="true">开启</option>
-                            </select>
-                            <small class="setting-help">是否启用详细调试信息</small>
-                        </div>
-
-                        <div class="setting-item">
                             <label for="handle-buffer-overflow">处理缓冲区溢出:</label>
                             <select id="handle-buffer-overflow">
                                 <option value="true" selected>开启</option>
                                 <option value="false">关闭</option>
                             </select>
                             <small class="setting-help">是否处理音频缓冲区溢出情况</small>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="setting-title">日志设置</div>
+
+                        <div class="setting-item">
+                            <label for="log-level">日志级别:</label>
+                            <select id="log-level">
+                                <option value="DEBUG">DEBUG (详细)</option>
+                                <option value="INFO">INFO (信息)</option>
+                                <option value="WARNING" selected>WARNING (警告)</option>
+                                <option value="ERROR">ERROR (错误)</option>
+                                <option value="CRITICAL">CRITICAL (严重)</option>
+                            </select>
+                            <small class="setting-help">设置日志记录的详细程度，DEBUG最详细，CRITICAL最少</small>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="debug-mode">调试模式:</label>
+                            <select id="debug-mode">
+                                <option value="false" selected>关闭</option>
+                                <option value="true">开启</option>
+                            </select>
+                            <small class="setting-help">是否启用详细调试信息</small>
                         </div>
 
                         <div class="setting-item">

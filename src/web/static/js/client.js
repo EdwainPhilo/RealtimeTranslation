@@ -387,6 +387,10 @@ function updateSettingsUI(config) {
     if (config.use_extended_logging !== undefined && document.getElementById('use-extended-logging')) {
         document.getElementById('use-extended-logging').value = config.use_extended_logging ? 'true' : 'false';
     }
+
+    if (config.log_level !== undefined && document.getElementById('log-level')) {
+        document.getElementById('log-level').value = config.log_level;
+    }
 }
 
 // 从UI获取当前配置
@@ -459,7 +463,8 @@ function getConfigFromUI() {
         'debug_mode': document.getElementById('debug-mode').value === 'true',
         'handle_buffer_overflow': document.getElementById('handle-buffer-overflow').value === 'true',
         'no_log_file': document.getElementById('no-log-file').value === 'true',
-        'use_extended_logging': document.getElementById('use-extended-logging').value === 'true'
+        'use_extended_logging': document.getElementById('use-extended-logging').value === 'true',
+        'log_level': document.getElementById('log-level').value
     };
 
     // 处理suppress-tokens

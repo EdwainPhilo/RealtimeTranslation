@@ -35,6 +35,60 @@ logging.getLogger('werkzeug').setLevel(logging.WARNING)  # 降低 Flask 开发�
 app_logger = logging.getLogger('app')
 app_logger.setLevel(logging.INFO)
 
+# 函数：更新应用日志设置
+def update_app_log_settings(stt_service):
+    """根据STT服务配置更新应用的日志设置"""
+    if not stt_service:
+        return
+    
+    try:
+        # 获取日志级别
+        config = stt_service.current_config
+        level_name = config.get('log_level', 'WARNING')
+        level = getattr(logging, level_name, logging.WARNING)
+        
+        # 设置应用日志记录器级别
+        app_logger.setLevel(level)
+        
+        # 如果启用调试模式，设置为DEBUG
+        if config.get('debug_mode', False) and level > logging.DEBUG:
+            app_logger.setLevel(logging.DEBUG)
+        
+        # 处理日志文件
+        no_log_file = config.get('no_log_file', True)
+        
+        # 找到当前的文件处理程序
+        handlers = app_logger.handlers[:]
+        root_handlers = logging.getLogger().handlers[:]
+        
+        # 合并处理程序列表
+        all_handlers = handlers + root_handlers
+        
+        # 处理日志文件选项
+        file_handlers = [h for h in all_handlers if isinstance(h, logging.FileHandler)]
+        
+        if no_log_file:
+            # 移除所有文件处理程序
+            for handler in file_handlers:
+                if handler in app_logger.handlers:
+                    app_logger.removeHandler(handler)
+                if handler in logging.getLogger().handlers:
+                    logging.getLogger().removeHandler(handler)
+        else:
+            # 如果没有文件处理程序且需要启用日志文件，添加一个
+            if not file_handlers:
+                log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+                os.makedirs(log_dir, exist_ok=True)
+                log_file = os.path.join(log_dir, 'app.log')
+                file_handler = logging.FileHandler(log_file, encoding='utf-8')
+                file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+                file_handler.setLevel(level)
+                app_logger.addHandler(file_handler)
+        
+        app_logger.info(f"已更新应用日志设置: 级别={level_name}, 文件日志={'禁用' if no_log_file else '启用'}")
+    except Exception as e:
+        print(f"更新应用日志设置时出错: {e}")
+
 # 创建 Flask 应用
 app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web', 'templates'),
@@ -131,6 +185,10 @@ def handle_update_config(data):
     try:
         # 保存当前配置到文件，以便重启后恢复
         stt_service.update_config(data)
+        
+        # 更新应用日志设置
+        if any(key in data for key in ['log_level', 'debug_mode', 'no_log_file', 'use_extended_logging']):
+            update_app_log_settings(stt_service)
 
         # 通知客户端我们即将重启，并重定向到重启页面
         emit('restart_required', {
@@ -638,6 +696,9 @@ def main():
 
         # 创建 STT 服务
         stt_service = create_stt_service()
+
+        # 在STT服务初始化后更新应用日志设置
+        update_app_log_settings(stt_service)
 
         # 启动各监控线程
         app_logger.info("启动监控线程...")

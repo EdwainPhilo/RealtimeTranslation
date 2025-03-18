@@ -44,6 +44,7 @@ default_config = {
     'ensure_sentence_ends_with_period': True,  # 确保句尾有句号
     'batch_size': 16,  # 批处理大小
     'level': logging.WARNING,  # 日志级别
+    'log_level': 'WARNING',  # 用户友好的日志级别名称
 
     # 实时转写设置
     'enable_realtime_transcription': True,  # 启用实时转写
@@ -74,7 +75,7 @@ default_config = {
     'wake_words_sensitivity': 0.5,  # 唤醒词敏感度
     'wake_word_activation_delay': 0.0,  # 唤醒词激活延迟
     'wake_word_timeout': 5.0,  # 唤醒词超时
-    'wake_word_buffer_duration': 3.0,  # 唤醒词缓冲区长度
+    'wake_word_buffer_duration': 0.2,  # 唤醒词缓冲区长度
     'on_wakeword_detected': None,  # 唤醒词检测回调
     'on_wakeword_timeout': None,  # 唤醒词超时回调
     'on_wakeword_detection_start': None,  # 唤醒词检测开始回调
@@ -148,7 +149,7 @@ class STTService:
         if self.recorder:
             config_copy = self.current_config.copy()
             # 设置唤醒词检测回调
-            config_copy['on_wakeword_detected'] = self.on_wakeword_detected
+            # config_copy['on_wakeword_detected'] = self.on_wakeword_detected
             config_copy['on_wakeword_timeout'] = self.on_wakeword_timeout
             config_copy['on_wakeword_detection_start'] = self.on_wakeword_detection_start
             config_copy['on_wakeword_detection_end'] = self.on_wakeword_detection_end
@@ -159,22 +160,22 @@ class STTService:
                     if key.startswith('on_') and hasattr(self.recorder, key):
                         setattr(self.recorder, key, value)
 
-    def on_wakeword_detected(self):
-        """唤醒词检测到的回调"""
-        try:
-            print("检测到唤醒词，超时时间为:", self.current_config.get('wake_word_timeout', 5.0), "秒")
-            if self.socketio:
-                self.socketio.emit('wakeword_status', {
-                    'status': 'activated',
-                    'message': '激活'
-                })
-                # 同时发送录音状态变更为激活
-                self.socketio.emit('recording_status', {
-                    'active': True,
-                    'message': '录音已启用'
-                })
-        except Exception as e:
-            print(f"发送唤醒词状态出错: {e}")
+    # def on_wakeword_detected(self):
+    #     """唤醒词检测到的回调"""
+    #     try:
+    #         print("检测到唤醒词，超时时间为:", self.current_config.get('wake_word_timeout', 5.0), "秒")
+    #         if self.socketio:
+    #             self.socketio.emit('wakeword_status', {
+    #                 'status': 'activated',
+    #                 'message': '激活'
+    #             })
+    #             # 同时发送录音状态变更为激活
+    #             self.socketio.emit('recording_status', {
+    #                 'active': True,
+    #                 'message': '录音已启用'
+    #             })
+    #     except Exception as e:
+    #         print(f"发送唤醒词状态出错: {e}")
 
     def on_wakeword_timeout(self):
         """唤醒词超时的回调"""
@@ -216,8 +217,8 @@ class STTService:
             print("停止检测唤醒词")
             if self.socketio:
                 self.socketio.emit('wakeword_status', {
-                    'status': 'disabled',
-                    'message': '禁用'
+                    'status': 'activated',
+                    'message': '激活'
                 })
                 # 同时发送录音状态变更为启用
                 self.socketio.emit('recording_status', {
@@ -270,6 +271,14 @@ class STTService:
             with self.config_lock:
                 config_copy = self.current_config.copy()
                 config_copy['on_realtime_transcription_stabilized'] = self.text_detected
+                
+                # 确保日志级别被正确传递
+                level_name = config_copy.get('log_level', 'WARNING')
+                level = getattr(logging, level_name, logging.WARNING)
+                config_copy['level'] = level
+                # 确保移除log_level参数，因为AudioToTextRecorder不接受此参数
+                if 'log_level' in config_copy:
+                    config_copy.pop('log_level')
 
             # 创建新录音机
             print("创建新录音机...")
@@ -295,8 +304,7 @@ class STTService:
                 # 检查是否是Porcupine相关错误
                 elif ('porcupine' in error_str.lower() or 'wake_words' in error_str.lower() or 
                      'wake word' in error_str.lower() or 'access_key' in error_str.lower() or
-                     'api key' in error_str.lower() or 'keyword' in error_str.lower() or
-                    'picovoice' in error_str.lower() or 'accesskey' in error_str.lower()or
+                     'api key' in error_str.lower()  or 'picovoice' in error_str.lower() or 'accesskey' in error_str.lower()or
                     'wakeword' in error_str.lower()):
                     
                     # 记录错误但继续尝试重置Porcupine设置
@@ -416,6 +424,58 @@ class STTService:
                 self.recorder_ready.clear()
             return False
 
+    def apply_log_settings(self):
+        """应用日志设置：级别、文件和扩展日志"""
+        try:
+            # 获取日志级别
+            level_name = self.current_config.get('log_level', 'WARNING')
+            level = getattr(logging, level_name, logging.WARNING)
+            
+            # 设置根日志级别
+            logging.getLogger().setLevel(level)
+            
+            # 设置STT服务日志级别
+            stt_logger.setLevel(level)
+            
+            # 根据debug_mode调整级别
+            if self.current_config.get('debug_mode', False):
+                # 调试模式下设置为DEBUG (除非用户明确选择了更详细的级别)
+                if level > logging.DEBUG:
+                    logging.getLogger().setLevel(logging.DEBUG)
+                    stt_logger.setLevel(logging.DEBUG)
+            
+            # 处理日志文件
+            no_log_file = self.current_config.get('no_log_file', True)
+            
+            # 管理根日志记录器的处理程序
+            handlers = logging.getLogger().handlers
+            # 移除所有文件处理程序
+            file_handlers = [h for h in handlers if isinstance(h, logging.FileHandler)]
+            for handler in file_handlers:
+                logging.getLogger().removeHandler(handler)
+            
+            # 如果启用日志文件，添加文件处理程序
+            if not no_log_file:
+                log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'logs')
+                os.makedirs(log_dir, exist_ok=True)
+                log_file = os.path.join(log_dir, 'app.log')
+                file_handler = logging.FileHandler(log_file, encoding='utf-8')
+                file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+                file_handler.setLevel(level)
+                logging.getLogger().addHandler(file_handler)
+            
+            # 扩展日志设置
+            use_extended_logging = self.current_config.get('use_extended_logging', False)
+            if use_extended_logging:
+                # 可以在这里添加扩展日志的自定义设置
+                pass
+            
+            stt_logger.info(f"日志设置已更新: 级别={level_name}, 文件日志={'禁用' if no_log_file else '启用'}, 扩展日志={'启用' if use_extended_logging else '禁用'}")
+            return True
+        except Exception as e:
+            print(f"应用日志设置时出错: {e}")
+            return False
+
     def save_config_to_file(self, new_config):
         """保存配置到文件"""
         try:
@@ -428,6 +488,11 @@ class STTService:
                         if str(self.current_config[key]) != str(value):
                             print(f"配置项 '{key}' 从 '{self.current_config[key]}' 更改为 '{value}'")
                         self.current_config[key] = value
+                    
+            # 如果日志设置有变化，应用新的日志设置
+            log_keys = ['log_level', 'debug_mode', 'no_log_file', 'use_extended_logging']
+            if any(key in new_config for key in log_keys):
+                self.apply_log_settings()
 
             # 保存可序列化的配置到文件
             config_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'last_config.json')
@@ -456,6 +521,9 @@ class STTService:
                     for key, value in saved_config.items():
                         if key in self.current_config:
                             self.current_config[key] = value
+                
+                # 应用日志设置
+                self.apply_log_settings()
 
                 print(f"从文件加载了配置: {config_file}")
                 return True
@@ -464,6 +532,8 @@ class STTService:
                 return False
         else:
             print("未找到配置文件，使用默认配置")
+            # 应用默认日志设置
+            self.apply_log_settings()
             return False
 
     def update_config(self, new_config):
