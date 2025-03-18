@@ -962,60 +962,49 @@ body {
     box-shadow: 0 0 8px rgba(46, 204, 113, 0.8);
 }
 
-/* 录音状态指示器 */
+/* 音频波形指示器 */
 .recording-status {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
     display: flex;
     align-items: center;
-    padding: 6px 10px;
-    border-radius: 20px;
-    margin-right: 10px;
-    font-size: 14px;
-    cursor: default;
-    transition: all 0.3s ease;
+    justify-content: center;
+    position: relative;
+    border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 状态圆圈 */
-.status-circle {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 6px;
-    display: inline-block;
+.recording-status .wave-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 22px; /* 增加宽度以容纳6个波形条 */
+    height: 18px;
 }
 
-.recording-status.recording-active .status-circle {
-    background-color: #e74c3c;
-    animation: circle-pulse 1.5s infinite;
+.recording-status .wave-bar {
+    width: 2px;
+    background-color: #3498db;
+    border-radius: 1px;
+    transition: background-color 0.2s ease;
 }
 
-.recording-status.recording-inactive .status-circle {
-    background-color: #aaa;
+/* 响亮声音的视觉增强效果 */
+.recording-status .wave-bar.loud-sound {
+    background-color: #2ecc71; /* 亮绿色 */
+    box-shadow: 0 0 4px rgba(46, 204, 113, 0.8); /* 发光效果 */
+    animation: loud-pulse 0.3s ease infinite alternate; /* 脉动效果 */
 }
 
-/* 圆圈脉冲动画 */
-@keyframes circle-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.6);
-        transform: scale(1);
-    }
-    50% {
-        box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
-        transform: scale(1.1);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
-        transform: scale(1);
-    }
+@keyframes loud-pulse {
+    from { transform: scaleY(1); }
+    to { transform: scaleY(1.1); }
 }
 
-.recording-status.recording-active {
-    color: #e74c3c;
-    background-color: rgba(231, 76, 60, 0.1);
-    border-color: rgba(231, 76, 60, 0.3);
-}
-
-.recording-status.recording-inactive {
-    color: #aaa;
+/* 波形条脉动动画 */
+@keyframes wave-anim {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
 } 

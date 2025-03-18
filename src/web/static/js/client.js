@@ -13,6 +13,15 @@ let lastRecorderStatusMessage = '';
 let lastRecorderStatusTime = 0;
 const RECORDER_STATUS_DEBOUNCE_TIME = 3000; // 3秒内不重复显示相同消息
 
+// 添加音频分析功能
+let audioContext;
+let audioAnalyser;
+let audioDataArray;
+let animationFrameId;
+
+let recorder = null;
+let isFirstConnection = true;
+
 // 处理文本转换的辅助函数
 function processText(text) {
     return useSimplifiedChinese ? window.ChineseConverter.convertToSimplified(text) : text;
@@ -62,25 +71,25 @@ function updateWakewordStatusIndicator(status, message) {
     switch (status) {
         case 'disabled':
             indicator.classList.add('disabled');
-            if (textElement) textElement.textContent = message || '未启用';
+            if (textElement) textElement.textContent = message || '禁用';
             break;
         case 'listening':
             indicator.classList.add('listening');
-            if (textElement) textElement.textContent = message || '等待唤醒';
+            if (textElement) textElement.textContent = message || '等待';
             break;
         case 'activated':
             indicator.classList.add('activated');
-            if (textElement) textElement.textContent = message || '已唤醒';
+            if (textElement) textElement.textContent = message || '激活';
             break;
     }
     
     // 同时更新录音状态
     if (status === 'disabled') {
-        updateRecordingStatusIndicator(true, '录音启用');
+        updateRecordingStatusIndicator(true, '聆听');
     } else if (status === 'listening') {
-        updateRecordingStatusIndicator(false, '录音禁用');
+        updateRecordingStatusIndicator(false, '休眠');
     } else if (status === 'activated') {
-        updateRecordingStatusIndicator(true, '录音启用');
+        updateRecordingStatusIndicator(true, '聆听');
     }
     
     console.log(`唤醒词状态更新为: ${status}`);
@@ -94,19 +103,16 @@ function updateRecordingStatusIndicator(isActive, message) {
     // 移除所有状态类
     indicator.classList.remove('recording-active', 'recording-inactive');
     
-    // 设置文本
-    const textElement = indicator.querySelector('span:not(.status-circle)');
-    
-    // 根据状态设置类和文本
+    // 根据状态设置类
     if (isActive) {
         indicator.classList.add('recording-active');
-        if (textElement) textElement.textContent = message || '录音启用';
+        indicator.title = message || '聆听';
     } else {
         indicator.classList.add('recording-inactive');
-        if (textElement) textElement.textContent = message || '录音禁用';
+        indicator.title = message || '休眠';
     }
     
-    console.log(`录音状态更新为: ${isActive ? '启用' : '禁用'}`);
+    console.log(`录音状态更新为: ${isActive ? '聆听' : '休眠'}`);
 }
 
 function displayRealtimeText(realtimeText, displayDiv) {
@@ -546,19 +552,19 @@ socket.on('config', function (config) {
     // 根据配置设置初始唤醒词状态
     if (config.wakeword_backend === 'pvporcupine' && (!config.wake_words || config.wake_words === '')) {
         // 唤醒词为空，视为未启用
-        updateWakewordStatusIndicator('disabled', '唤醒词未启用');
+        updateWakewordStatusIndicator('disabled', '禁用');
         // 唤醒词未启用时，录音是启用的
-        updateRecordingStatusIndicator(true, '录音启用');
+        updateRecordingStatusIndicator(true, '聆听');
     } else if (config.wakeword_backend === 'disabled') {
         // 明确禁用
-        updateWakewordStatusIndicator('disabled', '唤醒词未启用');
+        updateWakewordStatusIndicator('disabled', '禁用');
         // 唤醒词未启用时，录音是启用的
-        updateRecordingStatusIndicator(true, '录音启用');
+        updateRecordingStatusIndicator(true, '聆听');
     } else {
         // 唤醒词已配置，默认为监听状态
-        updateWakewordStatusIndicator('listening', '等待唤醒词');
+        updateWakewordStatusIndicator('listening', '等待');
         // 等待唤醒时，录音是禁用的
-        updateRecordingStatusIndicator(false, '录音禁用');
+        updateRecordingStatusIndicator(false, '休眠');
     }
 
     // 检查是否有启动错误信息
@@ -876,15 +882,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// 请求麦克风访问权限
+// 请求麦克风访问权限并设置音频处理
 navigator.mediaDevices.getUserMedia({audio: true})
     .then(stream => {
-        let audioContext = new AudioContext();
+        // 创建音频上下文和处理器
+        audioContext = new AudioContext();
         let source = audioContext.createMediaStreamSource(stream);
         let processor = audioContext.createScriptProcessor(256, 1, 1);
 
+        // 创建音频分析器并连接
+        audioAnalyser = audioContext.createAnalyser();
+        audioAnalyser.fftSize = 256; // 增大FFT大小以获取更详细的频率数据
+        const bufferLength = audioAnalyser.frequencyBinCount;
+        audioDataArray = new Uint8Array(bufferLength);
+        
+        // 连接音频节点
+        source.connect(audioAnalyser);
         source.connect(processor);
         processor.connect(audioContext.destination);
+        
+        // 开始音频可视化
+        updateAudioVisualization();
+        
         mic_available = true;
         start_msg();
 
@@ -1197,4 +1216,122 @@ function showStartupErrorDialog(errorData) {
     document.getElementById('closeErrorDialogBtn').addEventListener('click', function () {
         document.body.removeChild(overlay);
     });
+}
+
+// 更新音频可视化
+function updateAudioVisualization() {
+    if (!audioAnalyser) return;
+    
+    // 获取频域数据（而不是时域数据）
+    audioAnalyser.getByteFrequencyData(audioDataArray);
+    
+    // 更新波形条
+    updateWaveformBars(audioDataArray);
+    
+    // 请求下一帧更新
+    animationFrameId = requestAnimationFrame(updateAudioVisualization);
+}
+
+// 更新波形条，基于频率数据
+function updateWaveformBars(frequencyData) {
+    const bars = document.querySelectorAll('.wave-bar');
+    if (!bars.length) return;
+    
+    // 最小和最大高度（像素）
+    const minHeight = 3;
+    const maxHeight = 22;
+    
+    // 人声频率区间优化（基于48kHz采样率，6个波形条）
+    // FFT 256点，频率分辨率约为 48000/256 = 187.5 Hz/点
+    // 人声基本频率：成人男性约85-180Hz，女性约165-255Hz
+    // 人声主要共振频率：第一共振峰约500-800Hz，第二共振峰约1000-2000Hz，第三共振峰约2500-3500Hz
+    const frequencyBands = [
+        [0, 1],      // 次低频（0-187.5Hz）- 部分男声基频
+        [1, 3],      // 低频（187.5-562.5Hz）- 男女声基频
+        [3, 5],      // 中低频（562.5-937.5Hz）- 第一共振峰开始
+        [5, 8],      // 中频（937.5-1500Hz）- 第一共振峰和第二共振峰开始
+        [8, 12],     // 中高频（1500-2250Hz）- 第二共振峰核心区域
+        [12, 18]     // 高频（2250-3375Hz）- 辅音和齿音
+    ];
+    
+    // 波形参数
+    const noiseThreshold = 0.08; // 保持较低的噪声门限
+    const loudSoundThreshold = 0.99; // 保持高阈值，确保只有非常响亮的声音才会触发绿色效果
+    const smoothingFactor = 0.5; // 保持平滑因子
+    const globalSensitivityScale = 0.7; // 保持适中的全局灵敏度
+    // 优化频带权重，将2-5波的权重提高
+    const bandWeights = [0.7, 1.0, 1.0, 0.95, 0.9, 0.6];
+    
+    // 计算整体能量水平（用于判断是否有明显声音输入）
+    let totalEnergy = 0;
+    for (let i = 0; i < 25; i++) { // 只考虑0-4.6kHz范围内的频率
+        totalEnergy += frequencyData[i];
+    }
+    const avgEnergy = totalEnergy / 25 / 255;
+    
+    // 如果整体能量低于噪声门限，则将所有条设置为最小高度
+    if (avgEnergy < noiseThreshold) {
+        bars.forEach(bar => {
+            // 缓慢降到最小高度，而不是直接跳变
+            const currentHeight = parseFloat(bar.dataset.prevHeight || minHeight);
+            const newHeight = Math.max(minHeight, currentHeight * 0.8); // 每帧降低20%
+            bar.style.height = `${newHeight}px`;
+            bar.dataset.prevHeight = newHeight;
+            
+            // 移除任何强调效果
+            bar.classList.remove('loud-sound');
+        });
+        return;
+    }
+    
+    // 为每个波形条计算对应频段的加权平均能量
+    bars.forEach((bar, index) => {
+        const [start, end] = frequencyBands[index];
+        let sum = 0;
+        let count = 0;
+        
+        // 计算频段内的平均能量
+        for (let i = start; i < end; i++) {
+            sum += frequencyData[i];
+            count++;
+        }
+        
+        // 应用频段权重和全局灵敏度缩放
+        const average = (sum / count / 255) * bandWeights[index] * globalSensitivityScale;
+        
+        // 使用更平缓的指数曲线，让普通说话也能有明显变化
+        const scale = Math.min(1, Math.pow(average * 1.5, 1.8)); // 增加基数，降低指数值
+        
+        // 应用平滑滤波
+        if (!bar.dataset.prevHeight) {
+            bar.dataset.prevHeight = minHeight;
+        }
+        
+        // 平滑过渡，增加前一帧权重，使变化更平滑
+        const targetHeight = minHeight + (maxHeight - minHeight) * scale;
+        const smoothedHeight = parseFloat(bar.dataset.prevHeight) * smoothingFactor + targetHeight * (1 - smoothingFactor);
+        
+        // 更新高度
+        bar.style.height = `${smoothedHeight}px`;
+        bar.dataset.prevHeight = smoothedHeight;
+        
+        // 响亮声音视觉增强，只有非常大的声音才会触发
+        if (scale > loudSoundThreshold) {
+            bar.classList.add('loud-sound');
+        } else {
+            bar.classList.remove('loud-sound');
+        }
+    });
+}
+
+// 停止音频分析
+function stopAudioVisualization() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    
+    if (audioContext && audioContext.state !== 'closed') {
+        audioAnalyser = null;
+    }
 } 
