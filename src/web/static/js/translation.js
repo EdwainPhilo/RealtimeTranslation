@@ -74,6 +74,21 @@ function initTranslationSettings() {
         updateTranslationUI(data);
         // 更新设置面板UI
         updateTranslationSettingsUI(data);
+        // 更新服务状态
+        if (data.config && data.config.active_service) {
+            updateTranslationServiceStatus(data.config.active_service);
+        }
+    });
+    
+    // 监听标签页切换事件
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            if (tabName === 'translation') {
+                // 切换到翻译标签页时刷新服务状态
+                socket.emit('get_translation_config');
+            }
+        });
     });
     
     // 初始次加载翻译配置
@@ -166,31 +181,21 @@ function showMessage(message, type = 'info') {
  */
 function updateTranslationSettingsUI(data) {
     const config = data.config;
-    const availableServices = data.available_services;
     const languages = data.languages;
     
-    // 更新翻译服务选择器
+    // 更新服务选择
     const serviceSelect = document.getElementById('translation-service');
-    if (serviceSelect) {
-        serviceSelect.innerHTML = '';
-        
-        availableServices.forEach(service => {
-            const option = document.createElement('option');
-            option.value = service;
-            option.textContent = getServiceDisplayName(service);
-            option.selected = service === config.active_service;
-            serviceSelect.appendChild(option);
-        });
+    if (serviceSelect && config.active_service) {
+        serviceSelect.value = config.active_service;
     }
     
     // 获取当前服务配置
     const serviceConfig = config.services[config.active_service] || {};
     
-    // 更新API类型选择
+    // 更新API类型
     const apiTypeSelect = document.getElementById('translation-api-type');
     if (apiTypeSelect) {
-        apiTypeSelect.value = serviceConfig.use_official_api ? 'true' : 'false';
-        // 根据API类型显示或隐藏凭证区域
+        apiTypeSelect.value = String(serviceConfig.use_official_api || false);
         toggleCredentialsSection(serviceConfig.use_official_api);
     }
     
@@ -206,68 +211,35 @@ function updateTranslationSettingsUI(data) {
         proxyInput.value = serviceConfig.proxy || '';
     }
     
-    // 更新目标语言选择器
+    // 更新目标语言
     const targetLangSelect = document.getElementById('translation-target-language');
-    if (targetLangSelect) {
-        updateSettingsLanguageOptions(targetLangSelect, languages[config.active_service], 
-                                     serviceConfig.target_language || 'zh-CN');
+    if (targetLangSelect && languages[config.active_service]) {
+        // 保存当前选择
+        const currentValue = serviceConfig.target_language || 'zh-CN';
+        
+        // 清空选择器
+        targetLangSelect.innerHTML = '';
+        
+        // 添加语言选项
+        Object.keys(languages[config.active_service]).sort((a, b) => {
+            return languages[config.active_service][a].localeCompare(languages[config.active_service][b]);
+        }).forEach(langCode => {
+            const option = document.createElement('option');
+            option.value = langCode;
+            option.textContent = `${languages[config.active_service][langCode]} (${langCode})`;
+            option.selected = langCode === currentValue;
+            targetLangSelect.appendChild(option);
+        });
     }
     
-    // 更新源语言选择器
+    // 更新源语言
     const sourceLangSelect = document.getElementById('translation-source-language');
     if (sourceLangSelect) {
-        // 添加自动选项
-        updateSettingsLanguageOptions(sourceLangSelect, 
-                                     {'auto': '自动检测', ...languages[config.active_service]}, 
-                                     serviceConfig.source_language || 'auto');
+        sourceLangSelect.value = serviceConfig.source_language || 'auto';
     }
     
-    // 更新翻译服务状态
+    // 更新翻译服务状态部分
     updateTranslationServiceStatus(config.active_service);
-}
-
-/**
- * 更新设置面板中的语言选择器
- * @param {HTMLElement} selectElement - 选择器元素
- * @param {Object} languages - 语言对象
- * @param {string} selectedValue - 选中的值
- */
-function updateSettingsLanguageOptions(selectElement, languages, selectedValue) {
-    if (!languages) return;
-    
-    // 保存当前值
-    const currentValue = selectedValue || selectElement.value;
-    
-    // 清空选择器
-    selectElement.innerHTML = '';
-    
-    // 如果是源语言选择器，添加自动检测选项
-    if (selectElement.id === 'translation-source-language' && !languages['auto']) {
-        const autoOption = document.createElement('option');
-        autoOption.value = 'auto';
-        autoOption.textContent = '自动检测';
-        autoOption.selected = currentValue === 'auto';
-        selectElement.appendChild(autoOption);
-    }
-    
-    // 添加语言选项
-    Object.keys(languages).sort((a, b) => {
-        if (a === 'auto') return -1;
-        if (b === 'auto') return 1;
-        return languages[a].localeCompare(languages[b]);
-    }).forEach(langCode => {
-        if (langCode === 'auto' && selectElement.id !== 'translation-source-language') {
-            return; // 只在源语言选择器中显示自动选项
-        }
-        
-        const option = document.createElement('option');
-        option.value = langCode;
-        option.textContent = langCode === 'auto' ? 
-                            '自动检测' : 
-                            `${languages[langCode]} (${langCode})`;
-        option.selected = langCode === currentValue;
-        selectElement.appendChild(option);
-    });
 }
 
 /**
@@ -336,13 +308,46 @@ function saveTranslationSettings() {
 /**
  * 更新翻译服务状态
  * @param {string} service - 服务名称
+ * @param {number} retryCount - 重试计数
  */
-function updateTranslationServiceStatus(service) {
+function updateTranslationServiceStatus(service, retryCount = 0) {
+    if (!service) return;
+    
+    // 最大重试次数
+    const MAX_RETRIES = 3;
+    
+    // 清除之前的状态
+    const statusIndicator = document.getElementById('translation-status-indicator');
+    const requestsCount = document.getElementById('translation-requests-count');
+    const successRate = document.getElementById('translation-success-rate');
+    const avgTime = document.getElementById('translation-avg-time');
+    
+    if (statusIndicator) statusIndicator.textContent = retryCount > 0 ? `获取中...(重试 ${retryCount}/${MAX_RETRIES})` : '获取中...';
+    if (requestsCount) requestsCount.textContent = '0';
+    if (successRate) successRate.textContent = '0%';
+    if (avgTime) avgTime.textContent = '0ms';
+    
     // 发送获取服务状态请求
+    console.log(`获取服务状态: ${service}${retryCount > 0 ? ' (重试 ' + retryCount + ')' : ''}`);
     socket.emit('get_service_stats', { service: service });
     
-    // 临时更新状态指示器
-    document.getElementById('translation-status-indicator').textContent = '获取中...';
+    // 设置超时，如果5秒内没有收到响应，尝试重试或显示错误状态
+    const timeoutId = setTimeout(() => {
+        if (statusIndicator && statusIndicator.textContent.includes('获取中')) {
+            if (retryCount < MAX_RETRIES) {
+                // 尝试重试
+                console.warn(`获取服务状态超时，正在重试 (${retryCount + 1}/${MAX_RETRIES})...`);
+                updateTranslationServiceStatus(service, retryCount + 1);
+            } else {
+                // 超过最大重试次数，显示错误
+                console.error('获取翻译服务状态失败，已达到最大重试次数');
+                updateStatusUI('error', '连接超时');
+            }
+        }
+    }, 5000);
+    
+    // 存储超时ID，当收到响应时可以清除
+    window.currentStatusTimeoutId = timeoutId;
 }
 
 /**
@@ -366,30 +371,67 @@ function showTranslationMessage(message, type = 'info') {
 
 // 添加服务统计信息更新功能
 socket.on('service_stats', function(data) {
-    if (!data || !data.service) return;
+    console.log('收到服务统计信息:', data);
+    
+    // 清除当前的超时计时器
+    if (window.currentStatusTimeoutId) {
+        clearTimeout(window.currentStatusTimeoutId);
+        window.currentStatusTimeoutId = null;
+    }
+    
+    if (!data) {
+        console.error('服务统计信息为空');
+        updateStatusUI('error', '数据错误');
+        return;
+    }
     
     const statusIndicator = document.getElementById('translation-status-indicator');
     const requestsCount = document.getElementById('translation-requests-count');
     const successRate = document.getElementById('translation-success-rate');
     const avgTime = document.getElementById('translation-avg-time');
     
-    if (statusIndicator) {
-        statusIndicator.textContent = data.status === 'ok' ? '正常' : '异常';
-        statusIndicator.className = 'status-value ' + (data.status === 'ok' ? 'status-ok' : 'status-error');
+    if (!statusIndicator || !requestsCount || !successRate || !avgTime) {
+        console.warn('找不到服务状态UI元素，可能不在翻译标签页');
+        return;
     }
     
-    if (requestsCount) {
-        requestsCount.textContent = data.stats.total_requests || 0;
+    // 更新状态指示器
+    if (data.status === 'ok') {
+        statusIndicator.textContent = '正常';
+        statusIndicator.className = 'status-value status-ok';
+    } else if (data.status === 'inactive') {
+        statusIndicator.textContent = '未使用';
+        statusIndicator.className = 'status-value status-warning';
+    } else {
+        statusIndicator.textContent = data.error ? `错误: ${data.error}` : '异常';
+        statusIndicator.className = 'status-value status-error';
     }
     
-    if (successRate && data.stats.total_requests > 0) {
-        const rate = ((data.stats.successful_requests / data.stats.total_requests) * 100).toFixed(1);
+    // 确保stats对象存在
+    const stats = data.stats || {
+        total_requests: 0,
+        successful_requests: 0,
+        failed_requests: 0,
+        average_response_time: 0
+    };
+    
+    // 更新请求计数
+    requestsCount.textContent = stats.total_requests || 0;
+    
+    // 更新成功率
+    if (stats.total_requests > 0) {
+        const rate = ((stats.successful_requests / stats.total_requests) * 100).toFixed(1);
         successRate.textContent = rate + '%';
+    } else {
+        successRate.textContent = '0%';
     }
     
-    if (avgTime) {
-        const time = (data.stats.average_response_time * 1000).toFixed(0);
+    // 更新平均响应时间
+    if (stats.average_response_time) {
+        const time = (stats.average_response_time * 1000).toFixed(0);
         avgTime.textContent = time + 'ms';
+    } else {
+        avgTime.textContent = '0ms';
     }
 });
 
@@ -405,4 +447,17 @@ function getServiceDisplayName(serviceKey) {
     };
     
     return serviceNames[serviceKey] || serviceKey;
+}
+
+/**
+ * 更新状态UI显示
+ * @param {string} status - 状态类型: 'ok', 'error', 'warning'
+ * @param {string} message - 状态消息
+ */
+function updateStatusUI(status, message) {
+    const statusIndicator = document.getElementById('translation-status-indicator');
+    if (statusIndicator) {
+        statusIndicator.textContent = message || '未知状态';
+        statusIndicator.className = 'status-value status-' + status;
+    }
 } 

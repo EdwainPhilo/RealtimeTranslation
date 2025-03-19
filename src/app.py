@@ -790,30 +790,60 @@ def handle_get_service_stats(data):
     """获取服务统计信息"""
     try:
         if not translation_manager:
-            emit('error', {'message': '翻译服务未初始化'})
+            app_logger.error('翻译服务未初始化，无法获取服务状态')
+            emit('service_stats', {
+                'service': data.get('service', 'unknown'),
+                'status': 'error',
+                'stats': {
+                    'total_requests': 0,
+                    'successful_requests': 0,
+                    'failed_requests': 0,
+                    'average_response_time': 0
+                }
+            })
             return
         
         service = data.get('service')
         if not service:
-            service = translation_manager.config['active_service']
+            service = translation_manager.config.get('active_service', 'google')
+            app_logger.debug(f'未指定服务，使用活跃服务: {service}')
         
         # 获取服务统计信息
+        app_logger.debug(f'获取服务统计信息: {service}')
         stats = translation_manager.get_service_stats(service)
+        app_logger.debug(f'获取到统计信息: {stats}')
+        
+        # 确保有默认值，防止空数据
+        if not stats:
+            stats = {
+                'total_requests': 0,
+                'successful_requests': 0,
+                'failed_requests': 0,
+                'average_response_time': 0
+            }
         
         # 发送统计信息
-        emit('service_stats', {
+        response_data = {
             'service': service,
-            'status': 'ok' if stats else 'error',
-            'stats': stats or {}
-        })
+            'status': 'ok' if stats.get('total_requests', 0) > 0 else 'inactive',
+            'stats': stats
+        }
+        app_logger.debug(f'发送服务统计信息: {response_data}')
+        emit('service_stats', response_data)
         
     except Exception as e:
         app_logger.error(f"获取服务统计信息时出错: {str(e)}", exc_info=True)
+        # 即使出错也要发送响应，避免客户端超时等待
         emit('service_stats', {
-            'service': data.get('service', '未知'),
+            'service': data.get('service', 'unknown'),
             'status': 'error',
-            'stats': {},
-            'error': str(e)
+            'error': str(e),
+            'stats': {
+                'total_requests': 0,
+                'successful_requests': 0,
+                'failed_requests': 0,
+                'average_response_time': 0
+            }
         })
 
 def main():

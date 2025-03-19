@@ -3,7 +3,7 @@
     "services": {
         "google": {
             "use_official_api": false,
-            "target_language": "zh",
+            "target_language": "en",
             "source_language": "auto"
         }
     }
