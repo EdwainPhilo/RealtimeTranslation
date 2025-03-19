@@ -1,0 +1,10 @@
+{
+    "active_service": "google",
+    "services": {
+        "google": {
+            "use_official_api": false,
+            "target_language": "zh",
+            "source_language": "auto"
+        }
+    }
+}

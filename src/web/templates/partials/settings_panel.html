@@ -9,6 +9,7 @@
         <!-- 选项卡 -->
         <div class="tabs">
             <div class="tab active" data-tab="asr">ASR 语音识别</div>
+            <div class="tab" data-tab="translation">翻译</div>
             <div class="tab" data-tab="about">关于</div>
         </div>
 
@@ -445,6 +446,141 @@
                             </select>
                             <small class="setting-help">是否启用更详细的日志记录</small>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 翻译设置标签页 -->
+        <div id="translation-tab" class="tab-content">
+            <div class="setting-group">
+                <div class="setting-title">Google翻译设置</div>
+                
+                <div class="setting-item">
+                    <label for="translation-service">翻译服务:</label>
+                    <select id="translation-service">
+                        <option value="google" selected>Google 翻译</option>
+                        <!-- 未来可添加更多翻译服务 -->
+                    </select>
+                    <small class="setting-help">选择要使用的翻译服务</small>
+                </div>
+                
+                <div class="setting-item region-notice">
+                    <div class="region-warning">
+                        <h4><i class="fas fa-exclamation-triangle"></i> 中国大陆网络限制提示</h4>
+                        <p>由于中国大陆网络环境限制，Google翻译服务可能无法直接使用。以下是可能的解决方案：</p>
+                        <ol>
+                            <li>确保您的网络环境能够访问Google服务</li>
+                            <li>使用官方API并配置代理服务器（高级用户）</li>
+                            <li>等待未来版本支持国内可用的翻译服务</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="translation-api-type">API类型:</label>
+                    <select id="translation-api-type">
+                        <option value="false" selected>非官方API (免费，测试可用)</option>
+                        <option value="true">Google官方API (需凭证，未测试，请谨慎使用)</option>
+                    </select>
+                    <small class="setting-help">选择使用的API类型。官方API需要Google Cloud凭证。</small>
+                </div>
+                
+                <div class="setting-item credentials-section hidden">
+                    <label for="translation-credentials-file">凭证文件路径:</label>
+                    <input type="text" id="translation-credentials-file" placeholder="输入Google Cloud凭证JSON文件路径">
+                    <small class="setting-help">Google Cloud服务账号凭证文件的路径 (JSON格式)</small>
+                    
+                    <div class="setting-item">
+                        <label for="translation-proxy">代理服务器 (可选):</label>
+                        <input type="text" id="translation-proxy" placeholder="例如: http://127.0.0.1:7890 或 socks5://127.0.0.1:1080">
+                        <small class="setting-help">用于访问Google服务的HTTP/SOCKS5代理，中国大陆用户可能需要配置</small>
+                    </div>
+                    
+                    <div class="api-instructions">
+                        <h4>如何获取Google Cloud翻译API凭证:</h4>
+                        <ol>
+                            <li>访问 <a href="https://console.cloud.google.com/" target="_blank">Google Cloud控制台</a>（中国大陆用户可能需要代理）</li>
+                            <li>创建一个新项目或选择现有项目</li>
+                            <li>在左侧菜单中，选择"API和服务" > "库"</li>
+                            <li>搜索"Cloud Translation API"并启用它</li>
+                            <li>在左侧菜单中，选择"IAM和管理" > "服务账号"</li>
+                            <li>点击"创建服务账号"，填写名称和描述</li>
+                            <li>分配"Cloud Translation API用户"角色</li>
+                            <li>创建完成后，点击新创建的服务账号</li>
+                            <li>选择"密钥"标签页，点击"添加密钥" > "创建新密钥"</li>
+                            <li>选择JSON格式，点击"创建"，浏览器会自动下载凭证文件</li>
+                            <li>将下载的JSON文件保存到安全位置，并在上方输入完整路径</li>
+                            <li>（中国大陆用户须知）确保在上方填写代理服务器信息，否则API无法连接</li>
+                        </ol>
+                        <div class="note">
+                            <p><strong>注意:</strong> 使用官方API需要启用结算功能，但每月有免费额度（约50万字符）。详情请参阅 
+                            <a href="https://cloud.google.com/translate/pricing" target="_blank">Google Cloud翻译API定价</a>。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="translation-target-language">默认目标语言:</label>
+                    <select id="translation-target-language">
+                        <option value="zh-CN" selected>中文 (简体)</option>
+                        <option value="zh-TW">中文 (繁体)</option>
+                        <option value="en">英语</option>
+                        <option value="ja">日语</option>
+                        <option value="ko">韩语</option>
+                        <option value="fr">法语</option>
+                        <option value="de">德语</option>
+                        <option value="es">西班牙语</option>
+                        <option value="ru">俄语</option>
+                        <!-- 其他语言选项将动态加载 -->
+                    </select>
+                    <small class="setting-help">设置默认的翻译目标语言</small>
+                </div>
+                
+                <div class="setting-item">
+                    <label for="translation-source-language">默认源语言:</label>
+                    <select id="translation-source-language">
+                        <option value="auto" selected>自动检测</option>
+                        <option value="zh-CN">中文 (简体)</option>
+                        <option value="zh-TW">中文 (繁体)</option>
+                        <option value="en">英语</option>
+                        <option value="ja">日语</option>
+                        <option value="ko">韩语</option>
+                        <option value="fr">法语</option>
+                        <option value="de">德语</option>
+                        <option value="es">西班牙语</option>
+                        <option value="ru">俄语</option>
+                        <!-- 其他语言选项将动态加载 -->
+                    </select>
+                    <small class="setting-help">设置默认的翻译源语言，通常保持自动检测即可</small>
+                </div>
+            </div>
+            
+            <div class="setting-item action-buttons">
+                <button id="save-translation-settings" class="button primary">保存翻译设置</button>
+                <button id="refresh-translation-languages" class="button secondary">刷新可用语言</button>
+            </div>
+            
+            <div id="translation-message" class="message hidden"></div>
+            
+            <div class="setting-group">
+                <div class="setting-title">翻译服务状态</div>
+                <div id="translation-service-status" class="service-status">
+                    <div class="status-item">
+                        <span>服务状态:</span>
+                        <span id="translation-status-indicator" class="status-value">未检查</span>
+                    </div>
+                    <div class="status-item">
+                        <span>已处理请求:</span>
+                        <span id="translation-requests-count" class="status-value">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span>成功率:</span>
+                        <span id="translation-success-rate" class="status-value">0%</span>
+                    </div>
+                    <div class="status-item">
+                        <span>平均响应时间:</span>
+                        <span id="translation-avg-time" class="status-value">0ms</span>
                     </div>
                 </div>
             </div>

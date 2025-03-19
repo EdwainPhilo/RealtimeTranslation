@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="{{ url_for('static', filename='js/chineseConverter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/translation.js') }}"></script>
 </head>
 <body>
     <!-- 音效元素 -->
@@ -36,6 +37,7 @@
                 </div>
                 <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()" title="点击切换简繁中文">简</button>
                 <div class="control-buttons">
+                    <i class="fas fa-language translation-icon" id="translationIcon" title="翻译"></i>
                     <i class="fas fa-cog settings-icon" id="settingsIcon" title="设置"></i>
                     <i class="fas fa-power-off shutdown-icon" id="shutdownIcon" title="关闭服务"></i>
                 </div>
@@ -44,6 +46,56 @@
 
         <div class="content">
             <div id="textDisplay" class="text-display"></div>
+            
+            <!-- 翻译功能面板 -->
+            <div id="translationPanel" class="panel translation-panel hidden">
+                <div class="panel-header">
+                    <h2><i class="fas fa-language"></i> 文本翻译</h2>
+                    <i class="fas fa-times close-panel" id="closeTranslationPanel"></i>
+                </div>
+                <div class="panel-content">
+                    <div class="translation-controls">
+                        <div class="control-group">
+                            <label for="translationService">翻译服务:</label>
+                            <select id="translationService" class="select-input">
+                                <option value="google">Google 翻译</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="targetLanguage">目标语言:</label>
+                            <select id="targetLanguage" class="select-input">
+                                <option value="en">英语 (en)</option>
+                                <option value="zh-CN" selected>中文 (zh-CN)</option>
+                                <option value="ja">日语 (ja)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="translation-content">
+                        <div class="source-text-container">
+                            <label for="sourceText">源文本:</label>
+                            <textarea id="sourceText" placeholder="输入要翻译的文本或从转写结果中选择文本"></textarea>
+                            <div id="sourceLanguageInfo" class="language-info"></div>
+                        </div>
+                        
+                        <div class="translation-actions">
+                            <button id="translateBtn" class="action-button">
+                                <i class="fas fa-language"></i> 翻译
+                            </button>
+                            <button id="copySourceBtn" class="action-button">
+                                <i class="fas fa-clipboard"></i> 使用当前转写
+                            </button>
+                        </div>
+                        
+                        <div class="translation-result-container">
+                            <label>翻译结果:</label>
+                            <div id="translationResult" class="translation-result"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="message" class="message hidden"></div>
+                </div>
+            </div>
         </div>
         
         <!-- 确认关闭对话框 -->

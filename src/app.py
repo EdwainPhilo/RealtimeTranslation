@@ -1,11 +1,12 @@
 import sys
 import os
 from multiprocessing import freeze_support
+import json
 
 # 将当前目录添加到 Python 路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import threading
 import base64
@@ -105,7 +106,11 @@ socketio = SocketIO(
 
 # 导入 STT 服务
 from src.services.stt import STTService
+from src.services import TranslationManager
 
+# 全局变量
+stt_service = None
+translation_manager = None
 
 # STT 服务回调函数
 def realtime_text_callback(text):
@@ -127,24 +132,42 @@ def full_sentence_callback(text):
 
 
 def create_stt_service():
-    """创建 STT 服务的函数"""
-    app_logger.info("初始化 STT 服务...")
-    try:
-        service = STTService(
-            realtime_callback=realtime_text_callback,
-            full_sentence_callback=full_sentence_callback,
-            socketio=socketio
-        )
-        app_logger.info("STT 服务初始化成功")
-        return service
-    except Exception as e:
-        app_logger.error(f"STT 服务初始化失败: {e}", exc_info=True)
-        raise
+    """创建并初始化STT服务"""
+    global stt_service
+    if stt_service is None:
+        app_logger.info("初始化STT服务...")
+        stt_service = STTService(full_sentence_callback=full_sentence_callback, 
+                                realtime_callback=realtime_text_callback)
+    return stt_service
 
-
-# 全局 STT 服务实例
-stt_service = None
-
+def create_translation_manager():
+    """创建并初始化翻译服务管理器"""
+    global translation_manager
+    if translation_manager is None:
+        app_logger.info("初始化翻译服务管理器...")
+        # 配置文件路径
+        config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
+        os.makedirs(config_dir, exist_ok=True)
+        config_path = os.path.join(config_dir, 'translation_config.json')
+        
+        # 创建配置文件（如果不存在）
+        if not os.path.exists(config_path):
+            default_config = {
+                'active_service': 'google',
+                'services': {
+                    'google': {
+                        'use_official_api': False,
+                        'target_language': 'zh-CN',
+                        'source_language': 'auto'
+                    }
+                }
+            }
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(default_config, f, indent=4, ensure_ascii=False)
+        
+        # 初始化翻译管理器
+        translation_manager = TranslationManager(config_path=config_path)
+    return translation_manager
 
 # 主页路由
 @app.route('/')
@@ -678,82 +701,151 @@ def handle_validate_file_path(data):
     emit('file_path_validation_result', result)
 
 
+@socketio.on('translate_text')
+def handle_translate_text(data):
+    """处理文本翻译请求"""
+    try:
+        if not translation_manager:
+            emit('error', {'message': '翻译服务未初始化'})
+            return
+        
+        # 获取请求参数
+        text = data.get('text', '')
+        target_language = data.get('target_language')
+        source_language = data.get('source_language')
+        service = data.get('service')
+        
+        if not text:
+            emit('error', {'message': '未提供要翻译的文本'})
+            return
+        
+        # 执行翻译
+        result = translation_manager.translate(
+            text=text,
+            target_language=target_language,
+            source_language=source_language,
+            service=service
+        )
+        
+        # 发送翻译结果
+        emit('translation_result', result)
+        
+    except Exception as e:
+        app_logger.error(f"翻译文本时出错: {str(e)}", exc_info=True)
+        emit('error', {'message': f'翻译失败: {str(e)}'})
+
+@socketio.on('get_translation_config')
+def handle_get_translation_config():
+    """获取翻译服务配置"""
+    try:
+        if not translation_manager:
+            emit('error', {'message': '翻译服务未初始化'})
+            return
+        
+        # 获取配置和可用服务
+        config = translation_manager.get_config()
+        available_services = translation_manager.get_available_services()
+        
+        # 对于每个可用的服务，获取可用的语言
+        languages = {}
+        for service in available_services:
+            languages[service] = translation_manager.get_available_languages(service)
+        
+        # 发送配置
+        emit('translation_config', {
+            'config': config,
+            'available_services': available_services,
+            'languages': languages
+        })
+        
+    except Exception as e:
+        app_logger.error(f"获取翻译配置时出错: {str(e)}", exc_info=True)
+        emit('error', {'message': f'获取翻译配置失败: {str(e)}'})
+
+@socketio.on('update_translation_config')
+def handle_update_translation_config(data):
+    """更新翻译服务配置"""
+    try:
+        if not translation_manager:
+            emit('error', {'message': '翻译服务未初始化'})
+            return
+        
+        # 配置文件路径
+        config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
+        config_path = os.path.join(config_dir, 'translation_config.json')
+        
+        # 更新配置
+        translation_manager.update_config(data, save_path=config_path)
+        
+        # 返回更新后的配置
+        config = translation_manager.get_config()
+        emit('translation_config_updated', {'config': config})
+        
+    except Exception as e:
+        app_logger.error(f"更新翻译配置时出错: {str(e)}", exc_info=True)
+        emit('error', {'message': f'更新翻译配置失败: {str(e)}'})
+
+@socketio.on('get_service_stats')
+def handle_get_service_stats(data):
+    """获取服务统计信息"""
+    try:
+        if not translation_manager:
+            emit('error', {'message': '翻译服务未初始化'})
+            return
+        
+        service = data.get('service')
+        if not service:
+            service = translation_manager.config['active_service']
+        
+        # 获取服务统计信息
+        stats = translation_manager.get_service_stats(service)
+        
+        # 发送统计信息
+        emit('service_stats', {
+            'service': service,
+            'status': 'ok' if stats else 'error',
+            'stats': stats or {}
+        })
+        
+    except Exception as e:
+        app_logger.error(f"获取服务统计信息时出错: {str(e)}", exc_info=True)
+        emit('service_stats', {
+            'service': data.get('service', '未知'),
+            'status': 'error',
+            'stats': {},
+            'error': str(e)
+        })
+
 def main():
     """主函数"""
-    global stt_service
+    # 标准库
+    import argparse
+    global stt_service, translation_manager
+    
+    parser = argparse.ArgumentParser(description='启动实时STT服务')
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='监听的主机地址')
+    parser.add_argument('--port', type=int, default=5000, help='监听的端口')
+    args = parser.parse_args()
+    
+    # 初始化STT服务
+    stt_service = create_stt_service()
+    
+    # 初始化翻译服务管理器
+    translation_manager = create_translation_manager()
+    
+    # 启动资源监控线程
+    resource_monitor_thread = threading.Thread(target=monitor_resources)
+    resource_monitor_thread.daemon = True
+    resource_monitor_thread.start()
+    
+    # 启动服务健康检查线程
+    health_check_thread = threading.Thread(target=check_service_health)
+    health_check_thread.daemon = True
+    health_check_thread.start()
+    
+    app_logger.info(f"服务已启动，监听地址: {args.host}:{args.port}")
+    socketio.run(app, host=args.host, port=args.port, debug=False, allow_unsafe_werkzeug=True)
 
-    try:
-        app_logger.info("启动应用程序...")
-
-        # 设置进程优先级（仅在 Windows 上）
-        if sys.platform == 'win32':
-            try:
-                process = psutil.Process()
-                process.nice(psutil.HIGH_PRIORITY_CLASS)
-                app_logger.info("已设置高进程优先级")
-            except Exception as e:
-                app_logger.warning(f"设置进程优先级失败: {e}")
-
-        # 创建 STT 服务
-        stt_service = create_stt_service()
-
-        # 在STT服务初始化后更新应用日志设置
-        update_app_log_settings(stt_service)
-
-        # 启动各监控线程
-        app_logger.info("启动监控线程...")
-
-        # 资源监控线程
-        monitor_thread = threading.Thread(target=monitor_resources, daemon=True)
-        monitor_thread.start()
-
-        # 性能指标发送线程
-        metrics_thread = threading.Thread(target=send_performance_metrics, daemon=True)
-        metrics_thread.start()
-
-        # 健康检查线程
-        health_thread = threading.Thread(target=check_service_health, daemon=True)
-        health_thread.start()
-
-        # 等待 STT 服务就绪
-        app_logger.info("等待 STT 服务就绪...")
-        ready_timeout = time.time() + 30  # 30秒超时
-
-        while time.time() < ready_timeout:
-            if stt_service.is_ready():
-                app_logger.info("STT 服务已就绪")
-                break
-            time.sleep(1)
-
-        if not stt_service.is_ready():
-            app_logger.warning("STT 服务未在预期时间内就绪，但仍将继续启动应用...")
-
-        # 启动 Flask 应用
-        app_logger.info("启动 Flask 应用...")
-        socketio.run(
-            app,
-            host='0.0.0.0',
-            port=5000,
-            debug=False,
-            use_reloader=False,  # 禁用重载器以提高性能
-            log_output=False  # 禁用 socketio 的日志输出
-        )
-    except KeyboardInterrupt:
-        app_logger.info("收到用户中断，正在关闭应用...")
-    except Exception as e:
-        app_logger.error(f"应用运行时错误: {e}", exc_info=True)
-    finally:
-        # 清理资源
-        app_logger.info("清理资源...")
-        if stt_service:
-            try:
-                stt_service.shutdown()
-                app_logger.info("STT 服务已关闭")
-            except Exception as e:
-                app_logger.error(f"关闭 STT 服务时出错: {e}")
-        app_logger.info("应用程序已退出")
-
-
-if __name__ == '__main__':
-    freeze_support()  # 添加 Windows 多进程支持
+if __name__ == "__main__":
+    freeze_support()
     main()

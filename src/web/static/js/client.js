@@ -967,6 +967,39 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // 翻译面板相关逻辑
+    const translationIcon = document.getElementById('translationIcon');
+    const translationPanel = document.getElementById('translationPanel');
+    const closeTranslationPanel = document.getElementById('closeTranslationPanel');
+    const copySourceBtn = document.getElementById('copySourceBtn');
+
+    // 打开翻译面板
+    translationIcon.addEventListener('click', function() {
+        translationPanel.classList.remove('hidden');
+    });
+
+    // 关闭翻译面板
+    closeTranslationPanel.addEventListener('click', function() {
+        translationPanel.classList.add('hidden');
+    });
+
+    // 使用当前转写结果
+    copySourceBtn.addEventListener('click', function() {
+        const textDisplay = document.getElementById('textDisplay');
+        const sourceText = document.getElementById('sourceText');
+        sourceText.value = textDisplay.textContent.trim();
+    });
+
+    // 监听转写文本选择
+    document.addEventListener('mouseup', function() {
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        
+        if (selectedText && !translationPanel.classList.contains('hidden')) {
+            document.getElementById('sourceText').value = selectedText;
+        }
+    });
 });
 
 // 请求麦克风访问权限并设置音频处理
