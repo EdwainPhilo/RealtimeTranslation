@@ -38,18 +38,6 @@ function initTranslation() {
     
     // 添加事件监听器
     document.getElementById('translateBtn').addEventListener('click', translateText);
-    
-    // 语言选择变更时保存配置
-    document.getElementById('targetLanguage').addEventListener('change', function() {
-        updateTranslationConfig();
-    });
-    
-    // 翻译服务变更时保存配置
-    document.getElementById('translationService').addEventListener('change', function() {
-        updateTranslationConfig();
-        // 更新语言选择列表
-        updateLanguageOptions();
-    });
 }
 
 /**
@@ -98,77 +86,15 @@ function initTranslationSettings() {
  */
 function updateTranslationUI(data) {
     const config = data.config;
-    const availableServices = data.available_services;
     const languages = data.languages;
     
-    // 更新翻译服务选择器
-    const serviceSelect = document.getElementById('translationService');
-    serviceSelect.innerHTML = '';
-    
-    availableServices.forEach(service => {
-        const option = document.createElement('option');
-        option.value = service;
-        option.textContent = getServiceDisplayName(service);
-        option.selected = service === config.active_service;
-        serviceSelect.appendChild(option);
-    });
-    
-    // 更新语言选择器
-    updateLanguageOptions(config.active_service, languages, config);
-}
-
-/**
- * 更新语言选择器选项
- * @param {string} service - 当前选择的翻译服务
- * @param {Object} allLanguages - 所有语言的映射
- * @param {Object} config - 当前配置
- */
-function updateLanguageOptions(service, allLanguages, config) {
-    if (!service) {
-        service = document.getElementById('translationService').value;
+    // 更新语言信息显示
+    if (config.services.google && languages.google) {
+        const targetLang = config.services.google.target_language;
+        const langName = languages.google[targetLang] || targetLang;
+        document.getElementById('sourceLanguageInfo').textContent = 
+            `目标语言: ${langName} (${targetLang})`;
     }
-    if (!allLanguages) {
-        return;
-    }
-    if (!config) {
-        return;
-    }
-    
-    const languages = allLanguages[service] || {};
-    const targetLanguageSelect = document.getElementById('targetLanguage');
-    
-    // 保存当前选择的值
-    const currentValue = targetLanguageSelect.value || 
-                         config.services[service].target_language || 
-                         'zh-CN';
-    
-    // 清空选择器
-    targetLanguageSelect.innerHTML = '';
-    
-    // 添加语言选项
-    Object.keys(languages).sort((a, b) => {
-        return languages[a].localeCompare(languages[b]);
-    }).forEach(langCode => {
-        const option = document.createElement('option');
-        option.value = langCode;
-        option.textContent = `${languages[langCode]} (${langCode})`;
-        option.selected = langCode === currentValue;
-        targetLanguageSelect.appendChild(option);
-    });
-}
-
-/**
- * 获取翻译服务的显示名称
- * @param {string} serviceKey - 服务键名
- * @returns {string} 服务显示名称
- */
-function getServiceDisplayName(serviceKey) {
-    const serviceNames = {
-        'google': 'Google 翻译',
-        // 可以添加更多服务的显示名称
-    };
-    
-    return serviceNames[serviceKey] || serviceKey;
 }
 
 /**
@@ -182,18 +108,12 @@ function translateText() {
         return;
     }
     
-    // 获取翻译参数
-    const targetLanguage = document.getElementById('targetLanguage').value;
-    const service = document.getElementById('translationService').value;
-    
     // 显示加载状态
     document.getElementById('translationResult').textContent = '翻译中...';
     
     // 发送翻译请求
     socket.emit('translate_text', {
-        text: textToTranslate,
-        target_language: targetLanguage,
-        service: service
+        text: textToTranslate
     });
 }
 
@@ -224,41 +144,19 @@ function displayTranslationResult(result) {
 }
 
 /**
- * 更新翻译配置
- */
-function updateTranslationConfig() {
-    const service = document.getElementById('translationService').value;
-    const targetLanguage = document.getElementById('targetLanguage').value;
-    
-    const config = {
-        active_service: service,
-        services: {
-            [service]: {
-                target_language: targetLanguage
-            }
-        }
-    };
-    
-    // 发送配置更新请求
-    socket.emit('update_translation_config', config);
-}
-
-/**
  * 显示消息提示
  * @param {string} message - 消息内容
  * @param {string} type - 消息类型（info, success, warning, error）
  */
 function showMessage(message, type = 'info') {
     const messageElement = document.getElementById('message');
-    if (!messageElement) return;
-    
     messageElement.textContent = message;
     messageElement.className = `message ${type}`;
-    messageElement.style.display = 'block';
+    messageElement.classList.remove('hidden');
     
-    // 自动隐藏
+    // 3秒后自动隐藏
     setTimeout(() => {
-        messageElement.style.display = 'none';
+        messageElement.classList.add('hidden');
     }, 3000);
 }
 
@@ -493,4 +391,18 @@ socket.on('service_stats', function(data) {
         const time = (data.stats.average_response_time * 1000).toFixed(0);
         avgTime.textContent = time + 'ms';
     }
-}); 
+});
+
+/**
+ * 获取翻译服务的显示名称
+ * @param {string} serviceKey - 服务键名
+ * @returns {string} 服务显示名称
+ */
+function getServiceDisplayName(serviceKey) {
+    const serviceNames = {
+        'google': 'Google 翻译',
+        // 可以添加更多服务的显示名称
+    };
+    
+    return serviceNames[serviceKey] || serviceKey;
+} 

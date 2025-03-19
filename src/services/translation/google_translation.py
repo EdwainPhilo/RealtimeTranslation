@@ -7,6 +7,8 @@ Google翻译服务模块。
 import logging
 import time
 import os
+import asyncio
+import concurrent.futures
 from typing import Dict, Any, Optional, Union
 
 # 尝试导入Google官方翻译API
@@ -30,6 +32,25 @@ except ImportError:
 
 # 创建日志记录器
 logger = logging.getLogger(__name__)
+
+# 辅助函数：在新的事件循环中运行异步函数
+def run_async_in_new_loop(async_func, *args, **kwargs):
+    """
+    在新事件循环中运行异步函数
+    
+    Args:
+        async_func: 要运行的异步函数
+        *args, **kwargs: 传递给函数的参数
+    
+    Returns:
+        异步函数的结果
+    """
+    new_loop = asyncio.new_event_loop()
+    try:
+        asyncio.set_event_loop(new_loop)
+        return new_loop.run_until_complete(async_func(*args, **kwargs))
+    finally:
+        new_loop.close()
 
 class GoogleTranslationService:
     """Google翻译服务类，支持官方API和非官方库"""
@@ -128,8 +149,6 @@ class GoogleTranslationService:
                 try:
                     if version.startswith('3.') or version.startswith('4.'):
                         # 异步版本测试
-                        import asyncio
-                        
                         async def test_translate():
                             return await self.unofficial_client.translate('hello', dest='zh-CN')
                         
@@ -147,16 +166,15 @@ class GoogleTranslationService:
                             # 不关闭循环，让它可以在后续的翻译操作中重用
                             if loop.is_running():
                                 # 如果循环正在运行，使用线程
-                                import concurrent.futures
                                 with concurrent.futures.ThreadPoolExecutor() as executor:
-                                    future = executor.submit(lambda: asyncio.run(test_translate()))
+                                    future = executor.submit(lambda: run_async_in_new_loop(test_translate))
                                     test_result = future.result()
                             else:
                                 test_result = loop.run_until_complete(test_translate())
                         except Exception as e:
-                            # 测试失败时，尝试使用asyncio.run
-                            logger.warning(f"常规事件循环测试失败: {e}, 尝试使用asyncio.run")
-                            test_result = asyncio.run(test_translate())
+                            # 测试失败时，尝试使用新事件循环
+                            logger.warning(f"常规事件循环测试失败: {e}, 尝试使用新事件循环")
+                            test_result = run_async_in_new_loop(test_translate)
                     else:
                         # 同步版本测试
                         test_result = self.unofficial_client.translate('hello', dest='zh-CN')
@@ -237,22 +255,7 @@ class GoogleTranslationService:
         except Exception as e:
             logger.error(f"翻译失败: {str(e)}")
             result['error'] = str(e)
-            
-            # 尝试使用备选翻译库
-            try:
-                logger.info("尝试使用备选翻译库...")
-                fallback_result = self._try_fallback_translators(text, target, source)
-                if fallback_result:
-                    result.update(fallback_result)
-                    result['success'] = True
-                    self.stats['successful_requests'] += 1
-                    logger.info("备选翻译成功")
-                else:
-                    self.stats['failed_requests'] += 1
-            except Exception as fallback_e:
-                logger.error(f"备选翻译失败: {str(fallback_e)}")
-                result['error'] = f"{str(e)}（备选翻译也失败: {str(fallback_e)}）"
-                self.stats['failed_requests'] += 1
+            self.stats['failed_requests'] += 1
         
         # 更新响应时间统计
         end_time = time.time()
@@ -294,8 +297,6 @@ class GoogleTranslationService:
             
             if version.startswith('3.') or version.startswith('4.'):
                 # 新版本可能是异步API
-                import asyncio
-                
                 async def async_translate():
                     if source == 'auto':
                         # 自动检测源语言
@@ -325,9 +326,8 @@ class GoogleTranslationService:
                     if loop.is_running():
                         # 如果循环正在运行，在已有的循环中运行协程
                         # 为了同步运行结果，我们使用线程来封装异步调用
-                        import concurrent.futures
                         with concurrent.futures.ThreadPoolExecutor() as executor:
-                            future = executor.submit(lambda: asyncio.run(async_translate()))
+                            future = executor.submit(lambda: run_async_in_new_loop(async_translate))
                             result = future.result()
                     else:
                         # 如果循环没有运行，直接运行协程
@@ -340,11 +340,10 @@ class GoogleTranslationService:
                 except Exception as e:
                     logger.error(f"异步翻译失败: {str(e)}")
                     
-                    # 尝试使用asyncio.run作为后备方案
+                    # 尝试使用新事件循环作为后备方案
                     try:
-                        logger.info("尝试使用asyncio.run作为后备方案")
-                        # 这将创建新的事件循环并在完成后关闭它
-                        result = asyncio.run(async_translate())
+                        logger.info("尝试使用新事件循环作为后备方案")
+                        result = run_async_in_new_loop(async_translate)
                         return {
                             'translated_text': result.text,
                             'detected_language': result.src
@@ -367,49 +366,6 @@ class GoogleTranslationService:
         except Exception as e:
             logger.error(f"非官方API翻译失败: {str(e)}")
             raise Exception(f"翻译失败: {str(e)}")
-    
-    def _try_fallback_translators(self, text, target, source):
-        """尝试使用备选翻译库"""
-        # 尝试使用deep-translator
-        try:
-            import importlib
-            
-            # 尝试deep-translator
-            try:
-                deep_translator = importlib.import_module('deep_translator')
-                google_translator = getattr(deep_translator, 'GoogleTranslator')
-                
-                # 调整源语言和目标语言格式以适应deep-translator
-                src = 'auto' if source == 'auto' else source.split('-')[0]
-                tgt = target.split('-')[0]
-                
-                translator = google_translator(source=src, target=tgt)
-                result = translator.translate(text)
-                
-                return {
-                    'translated_text': result,
-                    'detected_language': src if src != 'auto' else 'auto-detected'
-                }
-            except (ImportError, AttributeError, Exception) as e:
-                logger.warning(f"deep-translator失败: {str(e)}")
-            
-            # 尝试translate库
-            try:
-                translate = importlib.import_module('translate')
-                translator = translate.Translator(to_lang=target.split('-')[0])
-                result = translator.translate(text)
-                
-                return {
-                    'translated_text': result,
-                    'detected_language': 'auto-detected'
-                }
-            except (ImportError, AttributeError, Exception) as e:
-                logger.warning(f"translate库失败: {str(e)}")
-                
-        except Exception as e:
-            logger.error(f"所有备选翻译库均失败: {str(e)}")
-            
-        return None
     
     def get_available_languages(self) -> Dict[str, str]:
         """
