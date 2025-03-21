@@ -6,8 +6,13 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/translation.css') }}">
     <script src="{{ url_for('static', filename='js/chineseConverter.js') }}"></script>
+    <!-- 首先加载 client.js 创建 socket 连接 -->
+    <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+    <!-- 然后加载依赖 socket 的脚本 -->
     <script src="{{ url_for('static', filename='js/translation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/realtime_translation.js') }}"></script>
 </head>
 <body>
     <!-- 音效元素 -->
@@ -19,7 +24,14 @@
     </audio>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-microphone-alt"></i> 实时语音转写</h1>
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-page="transcription">
+                    <i class="fas fa-microphone-alt"></i> 实时语音转录
+                </div>
+                <div class="nav-tab" data-page="translation">
+                    <i class="fas fa-language"></i> 实时翻译
+                </div>
+            </div>
             <div class="header-controls">
                 <div id="recording-status-indicator" class="recording-status recording-active" title="录音状态">
                     <div class="wave-container">
@@ -37,7 +49,6 @@
                 </div>
                 <button id="toggle-chinese-mode" class="toggle-button" onclick="toggleChineseMode()" title="点击切换简繁中文">简</button>
                 <div class="control-buttons">
-                    <i class="fas fa-language translation-icon" id="translationIcon" title="翻译"></i>
                     <i class="fas fa-cog settings-icon" id="settingsIcon" title="设置"></i>
                     <i class="fas fa-power-off shutdown-icon" id="shutdownIcon" title="关闭服务"></i>
                 </div>
@@ -45,38 +56,35 @@
         </div>
 
         <div class="content">
-            <div id="textDisplay" class="text-display"></div>
+            <!-- 转录模式 -->
+            <div id="transcription-page" class="page active">
+                <div id="textDisplay" class="text-display"></div>
+            </div>
             
-            <!-- 翻译功能面板 -->
-            <div id="translationPanel" class="panel translation-panel hidden">
-                <div class="panel-header">
-                    <h2><i class="fas fa-language"></i> 文本翻译</h2>
-                    <i class="fas fa-times close-panel" id="closeTranslationPanel"></i>
-                </div>
-                <div class="panel-content">
-                    <div class="translation-content">
-                        <div class="source-text-container">
-                            <label for="sourceText">源文本:</label>
-                            <textarea id="sourceText" placeholder="输入要翻译的文本或从转写结果中选择文本"></textarea>
-                            <div id="sourceLanguageInfo" class="language-info"></div>
-                        </div>
-                        
-                        <div class="translation-actions">
-                            <button id="translateBtn" class="action-button">
-                                <i class="fas fa-language"></i> 翻译
-                            </button>
-                            <button id="copySourceBtn" class="action-button">
-                                <i class="fas fa-clipboard"></i> 使用当前转写
-                            </button>
-                        </div>
-                        
-                        <div class="translation-result-container">
-                            <label>翻译结果:</label>
-                            <div id="translationResult" class="translation-result"></div>
-                        </div>
+            <!-- 翻译模式 -->
+            <div id="translation-page" class="page hidden">
+                <div class="dual-display">
+                    <div class="display-panel">
+                        <h2>原文</h2>
+                        <div id="original-text-display" class="text-display"></div>
+                    </div>
+                    <div class="display-panel">
+                        <h2>翻译</h2>
+                        <div id="translated-text-display" class="text-display"></div>
                     </div>
                     
-                    <div id="message" class="message hidden"></div>
+                    <!-- 控制按钮区域 -->
+                    <div class="control-panel">
+                        <button id="start-translation-btn" class="control-button start-button">
+                            <i class="fas fa-play"></i> 开始翻译
+                        </button>
+                        <button id="stop-translation-btn" class="control-button stop-button" disabled>
+                            <i class="fas fa-stop"></i> 停止翻译
+                        </button>
+                        <button id="clear-display-btn" class="control-button clear-button" onclick="realtimeTranslationController.clearDisplay()">
+                            <i class="fas fa-trash"></i> 清空显示
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,7 +147,7 @@
         {% include 'partials/settings_panel.html' %}
     </div>
 
-    <script src="{{ url_for('static', filename='js/client.js') }}"></script>
+    <!-- 移除这里重复的 client.js 和 settings.js 加载 -->
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 </body>
 </html> 

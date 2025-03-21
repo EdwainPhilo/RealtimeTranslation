@@ -1,5 +1,6 @@
 let socket = io();
-let displayDiv = document.getElementById('textDisplay');
+// 推迟 displayDiv 的初始化，保证在DOM加载完成后获取
+let displayDiv = null;
 let server_available = false;
 let mic_available = false;
 let fullSentences = [];
@@ -144,6 +145,12 @@ function updateRecordingStatusIndicator(isActive, message) {
 }
 
 function displayRealtimeText(realtimeText, displayDiv) {
+    // 确保 displayDiv 存在
+    if (!displayDiv) {
+        console.warn('显示区域不存在，无法显示文本');
+        return;
+    }
+    
     let displayedText = fullSentences.map((sentence, index) => {
         let span = document.createElement('span');
         span.textContent = sentence + " ";
@@ -163,6 +170,19 @@ function displayRealtimeText(realtimeText, displayDiv) {
 }
 
 function start_msg() {
+    // 确保 displayDiv 已经初始化
+    if (!displayDiv) {
+        displayDiv = document.getElementById('textDisplay');
+        if (!displayDiv) {
+            console.warn('无法找到显示区域元素，可能是DOM尚未加载完成');
+            // 等待DOM加载完成后再重试
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', start_msg);
+                return;
+            }
+        }
+    }
+    
     if (!mic_available)
         displayRealtimeText("🎤  请允许麦克风访问  🎤", displayDiv);
     else if (!server_available)
@@ -485,7 +505,15 @@ function getConfigFromUI() {
 // 初始化Socket.IO连接
 socket.on('connect', function () {
     server_available = true;
-    start_msg();
+    
+    // 确保 DOM 已加载完成再调用 start_msg
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+    } else {
+        initApp();
+    }
 
     // 连接后请求当前配置
     socket.emit('get_config');
@@ -493,7 +521,15 @@ socket.on('connect', function () {
 
 socket.on('disconnect', function () {
     server_available = false;
-    start_msg();
+    
+    // 确保 DOM 已加载完成再调用 start_msg
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+    } else {
+        initApp();
+    }
 });
 
 // 处理模型路径重置事件
@@ -685,8 +721,6 @@ socket.on('restart_required', function (data) {
         window.location.reload();
     }, 5000);
 });
-
-start_msg();
 
 // 当DOM加载完成，设置按钮事件
 document.addEventListener('DOMContentLoaded', function () {
@@ -968,39 +1002,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 翻译面板相关逻辑
-    const translationIcon = document.getElementById('translationIcon');
-    const translationPanel = document.getElementById('translationPanel');
-    const closeTranslationPanel = document.getElementById('closeTranslationPanel');
-    const copySourceBtn = document.getElementById('copySourceBtn');
-
-    // 打开翻译面板
-    translationIcon.addEventListener('click', function() {
-        translationPanel.classList.remove('hidden');
-    });
-
-    // 关闭翻译面板
-    closeTranslationPanel.addEventListener('click', function() {
-        translationPanel.classList.add('hidden');
-    });
-
-    // 使用当前转写结果
-    copySourceBtn.addEventListener('click', function() {
-        const textDisplay = document.getElementById('textDisplay');
-        const sourceText = document.getElementById('sourceText');
-        sourceText.value = textDisplay.textContent.trim();
-    });
-
-    // 监听转写文本选择
-    document.addEventListener('mouseup', function() {
-        const selection = window.getSelection();
-        const selectedText = selection.toString().trim();
-        
-        if (selectedText && !translationPanel.classList.contains('hidden')) {
-            document.getElementById('sourceText').value = selectedText;
-        }
+    // 处理标签页切换
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 获取目标页面ID
+            const targetPage = this.getAttribute('data-page');
+            
+            // 如果当前选项卡已经激活，不做任何操作
+            if (this.classList.contains('active')) {
+                return;
+            }
+            
+            // 移除所有选项卡和页面的active类
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // 激活当前选项卡和对应页面
+            this.classList.add('active');
+            document.getElementById(`${targetPage}-page`).classList.add('active');
+            
+            // 如果切换到翻译页面，初始化翻译控制器
+            if (targetPage === 'translation' && window.realtimeTranslationController) {
+                // 确保翻译控制器已初始化
+                if (!window.realtimeTranslationControllerInitialized) {
+                    window.realtimeTranslationController.initSettings();
+                    window.realtimeTranslationControllerInitialized = true;
+                }
+            }
+        });
     });
 });
+
+// 在文档加载完成后初始化 displayDiv
+document.addEventListener('DOMContentLoaded', function() {
+    displayDiv = document.getElementById('textDisplay');
+    if (!displayDiv) {
+        console.error('无法找到文本显示区域元素，页面可能存在结构问题');
+    }
+    
+    // 初始化应用程序，确保 displayDiv 已初始化后再调用 start_msg
+    initApp();
+});
+
+// 应用初始化函数，确保在 DOM 加载完成后调用
+function initApp() {
+    // 初始消息显示
+    start_msg();
+}
 
 // 请求麦克风访问权限并设置音频处理
 navigator.mediaDevices.getUserMedia({audio: true})
@@ -1025,8 +1073,17 @@ navigator.mediaDevices.getUserMedia({audio: true})
         updateAudioVisualization();
         
         mic_available = true;
-        start_msg();
-
+        
+        // 更新应用状态
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initApp();
+            });
+        } else {
+            initApp();
+        }
+        
+        // 添加音频处理函数
         processor.onaudioprocess = function (e) {
             let inputData = e.inputBuffer.getChannelData(0);
             let outputData = new Int16Array(inputData.length);
@@ -1056,7 +1113,18 @@ navigator.mediaDevices.getUserMedia({audio: true})
     })
     .catch(e => {
         console.error('麦克风访问错误:', e);
-        displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
+        
+        if (document.readyState !== 'loading' && displayDiv) {
+            displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
+        } else {
+            // 等待 DOM 加载完成再显示错误
+            document.addEventListener('DOMContentLoaded', function() {
+                displayDiv = document.getElementById('textDisplay');
+                if (displayDiv) {
+                    displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
+                }
+            });
+        }
     });
 
 /**
@@ -1504,4 +1572,56 @@ function updateSelectedStyle() {
     if (currentOption) {
         currentOption.classList.add('selected');
     }
-} 
+}
+
+// 导航选项卡切换功能
+function initNavigationTabs() {
+    // 获取所有导航选项卡
+    const navTabs = document.querySelectorAll('.nav-tab');
+    
+    // 为每个选项卡添加点击事件
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 获取目标页面ID
+            const targetPage = this.getAttribute('data-page');
+            
+            // 如果当前选项卡已经激活，不做任何操作
+            if (this.classList.contains('active')) {
+                return;
+            }
+            
+            // 移除所有选项卡和页面的active类
+            navTabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // 激活当前选项卡和对应页面
+            this.classList.add('active');
+            document.getElementById(`${targetPage}-page`).classList.add('active');
+            
+            // 如果切换到翻译页面，初始化翻译控制器
+            if (targetPage === 'translation' && window.realtimeTranslationController) {
+                // 确保翻译控制器已初始化
+                if (!window.realtimeTranslationControllerInitialized) {
+                    window.realtimeTranslationController.initSettings();
+                    window.realtimeTranslationControllerInitialized = true;
+                }
+            }
+        });
+    });
+}
+
+// 在文档加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化导航选项卡
+    initNavigationTabs();
+    
+    // 检查URL参数，看是否需要激活特定页面
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get('page');
+    if (page) {
+        const tab = document.querySelector(`.nav-tab[data-page="${page}"]`);
+        if (tab) {
+            tab.click();
+        }
+    }
+}); 

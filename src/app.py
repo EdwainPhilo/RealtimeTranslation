@@ -104,13 +104,16 @@ socketio = SocketIO(
     async_mode='threading'  # 使用线程模式
 )
 
-# 导入 STT 服务
-from src.services.stt import STTService
-from src.services import TranslationManager
+# 导入STT服务和翻译服务
+from src.services.stt.stt_service import STTService
+from src.services.translation.translation_manager import TranslationManager
+from src.services.realtime_handler import RealtimeHandler  # 导入实时处理器
+from src.api.translation_routes import init_routes as init_translation_routes  # 导入翻译API路由初始化函数
 
 # 全局变量
 stt_service = None
 translation_manager = None
+realtime_handler = None  # 添加实时处理器实例
 
 # STT 服务回调函数
 def realtime_text_callback(text):
@@ -168,6 +171,23 @@ def create_translation_manager():
         # 初始化翻译管理器
         translation_manager = TranslationManager(config_path=config_path)
     return translation_manager
+
+def create_realtime_handler():
+    """创建并初始化实时处理器"""
+    global realtime_handler, stt_service, translation_manager
+    
+    if realtime_handler is None:
+        # 确保STT服务和翻译管理器已初始化
+        if stt_service is None:
+            stt_service = create_stt_service()
+        
+        if translation_manager is None:
+            translation_manager = create_translation_manager()
+        
+        app_logger.info("初始化实时处理器...")
+        realtime_handler = RealtimeHandler(stt_service, translation_manager)
+    
+    return realtime_handler
 
 # 主页路由
 @app.route('/')
@@ -847,35 +867,43 @@ def handle_get_service_stats(data):
         })
 
 def main():
-    """主函数"""
-    # 标准库
-    import argparse
-    global stt_service, translation_manager
+    """主函数入口点"""
+    # 处理冻结多进程应用程序的兼容性
+    freeze_support()
     
-    parser = argparse.ArgumentParser(description='启动实时STT服务')
-    parser.add_argument('--host', type=str, default='127.0.0.1', help='监听的主机地址')
-    parser.add_argument('--port', type=int, default=5000, help='监听的端口')
-    args = parser.parse_args()
-    
-    # 初始化STT服务
-    stt_service = create_stt_service()
-    
-    # 初始化翻译服务管理器
-    translation_manager = create_translation_manager()
-    
-    # 启动资源监控线程
-    resource_monitor_thread = threading.Thread(target=monitor_resources)
-    resource_monitor_thread.daemon = True
-    resource_monitor_thread.start()
-    
-    # 启动服务健康检查线程
-    health_check_thread = threading.Thread(target=check_service_health)
-    health_check_thread.daemon = True
-    health_check_thread.start()
-    
-    app_logger.info(f"服务已启动，监听地址: {args.host}:{args.port}")
-    socketio.run(app, host=args.host, port=args.port, debug=False, allow_unsafe_werkzeug=True)
+    try:
+        # 创建必要的目录
+        os.makedirs(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs'), exist_ok=True)
+        
+        # 初始化服务
+        global stt_service, translation_manager, realtime_handler
+        stt_service = create_stt_service()
+        translation_manager = create_translation_manager()
+        realtime_handler = create_realtime_handler()  # 初始化实时处理器
+        
+        # 更新日志配置
+        update_app_log_settings(stt_service)
+        
+        # 初始化API路由
+        init_translation_routes(app, realtime_handler)  # 注册翻译API路由
+        
+        # 启动资源监控
+        resource_monitor_thread = threading.Thread(target=monitor_resources, daemon=True)
+        resource_monitor_thread.start()
+        
+        # 启动健康检查
+        health_check_thread = threading.Thread(target=check_service_health, daemon=True)
+        health_check_thread.start()
+        
+        # 启动Web服务器
+        port = 5000
+        app_logger.info(f"启动Web服务器，端口: {port}")
+        socketio.run(app, host='0.0.0.0', port=port, debug=False, allow_unsafe_werkzeug=True)
+    except Exception as e:
+        app_logger.error(f"启动时出错: {e}")
+        import traceback
+        app_logger.error(traceback.format_exc())
+        sys.exit(1)
 
 if __name__ == "__main__":
-    freeze_support()
     main()

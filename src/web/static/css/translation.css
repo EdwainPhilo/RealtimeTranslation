@@ -1,0 +1,177 @@
+/* 实时翻译页面样式 */
+
+/* 双面板显示区域 */
+.dual-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.display-panel {
+    flex: 1;
+    min-width: 45%;
+    max-width: 49%;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.display-panel h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+    color: #ccc;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #333;
+}
+
+/* 移动设备上的显示调整 */
+@media (max-width: 768px) {
+    .display-panel {
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* 控制按钮区域 */
+.control-panel {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.control-button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+.control-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.control-button i {
+    font-size: 0.9rem;
+}
+
+.start-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.start-button:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+.stop-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.stop-button:hover:not(:disabled) {
+    background-color: #d32f2f;
+}
+
+.clear-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.clear-button:hover:not(:disabled) {
+    background-color: #0b7dda;
+}
+
+/* 翻译状态指示器 */
+.translation-status {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.translation-active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.translation-inactive {
+    background-color: #f44336;
+    color: white;
+}
+
+.status-connected {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status-error {
+    background-color: #f44336;
+    color: white;
+}
+
+/* 文本显示区 */
+.text-display {
+    height: 300px;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #1e1e1e;
+    border-radius: 5px;
+    border: 1px solid #333;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #ddd;
+}
+
+/* 实时文本和最终文本的区分 */
+.interim-text {
+    color: #999;
+    font-style: italic;
+}
+
+.final-text {
+    color: #eee;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #444;
+}
+
+/* 错误信息显示 */
+.translation-error {
+    color: #ff6b6b;
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: rgba(255, 0, 0, 0.1);
+    border-radius: 3px;
+    font-size: 0.9rem;
+}
+
+/* 翻译设置面板样式 */
+.translation-settings-panel {
+    max-width: 500px;
+}
+
+/* 导航图标 */
+.nav-icon {
+    color: inherit;
+    text-decoration: none;
+    font-size: 1.2rem;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.nav-icon:hover {
+    color: #2196F3;
+} 
