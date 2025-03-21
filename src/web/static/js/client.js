@@ -1052,22 +1052,105 @@ function initApp() {
 
 // 请求麦克风访问权限并设置音频处理
 navigator.mediaDevices.getUserMedia({audio: true})
-    .then(stream => {
-        // 创建音频上下文和处理器
+    .then(async stream => {
+        // 创建音频上下文
         audioContext = new AudioContext();
         let source = audioContext.createMediaStreamSource(stream);
-        let processor = audioContext.createScriptProcessor(256, 1, 1);
-
+        
         // 创建音频分析器并连接
         audioAnalyser = audioContext.createAnalyser();
         audioAnalyser.fftSize = 256; // 增大FFT大小以获取更详细的频率数据
         const bufferLength = audioAnalyser.frequencyBinCount;
         audioDataArray = new Uint8Array(bufferLength);
         
-        // 连接音频节点
+        // 连接音频分析器
         source.connect(audioAnalyser);
-        source.connect(processor);
-        processor.connect(audioContext.destination);
+        
+        // 使用 AudioWorklet 或回退到 ScriptProcessorNode
+        let processor;
+        let isUsingWorklet = false;
+        
+        try {
+            // 检查浏览器是否支持 AudioWorklet
+            if (audioContext.audioWorklet) {
+                // 加载音频处理器
+                await audioContext.audioWorklet.addModule('/static/js/audio-processor.js');
+                
+                // 创建 AudioWorkletNode 
+                const workletNode = new AudioWorkletNode(audioContext, 'audio-processor');
+                
+                // 监听从处理器发来的消息
+                workletNode.port.onmessage = (event) => {
+                    const { audioData, sampleRate } = event.data;
+                    
+                    // 将音频数据转换为 Base64 编码并发送到服务器
+                    if (socket.connected) {
+                        const audioBlob = new Blob([audioData.buffer], { type: 'application/octet-stream' });
+                        const reader = new FileReader();
+                        
+                        reader.onloadend = () => {
+                            const base64data = reader.result.split(',')[1];
+                            
+                            socket.emit('audio_data', {
+                                audio: base64data,
+                                sampleRate: sampleRate
+                            });
+                        };
+                        
+                        reader.readAsDataURL(audioBlob);
+                    }
+                };
+                
+                // 连接节点
+                source.connect(workletNode);
+                workletNode.connect(audioContext.destination);
+                isUsingWorklet = true;
+                
+                console.log('使用 AudioWorklet 处理音频 - 更高性能、更低延迟');
+            }
+        } catch (err) {
+            console.error('设置 AudioWorklet 失败，回退到 ScriptProcessorNode:', err);
+        }
+        
+        // 如果 AudioWorklet 不可用或设置失败，回退到 ScriptProcessorNode
+        if (!isUsingWorklet) {
+            console.warn('当前浏览器不支持 AudioWorklet 或设置失败，使用 ScriptProcessorNode (已弃用)');
+            
+            // 创建 ScriptProcessorNode
+            processor = audioContext.createScriptProcessor(256, 1, 1);
+            
+            // 连接音频节点
+            source.connect(processor);
+            processor.connect(audioContext.destination);
+            
+            // 添加音频处理函数
+            processor.onaudioprocess = function (e) {
+                let inputData = e.inputBuffer.getChannelData(0);
+                let outputData = new Int16Array(inputData.length);
+
+                // Convert to 16-bit PCM
+                for (let i = 0; i < inputData.length; i++) {
+                    outputData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
+                }
+
+                // 将音频数据转换为 Base64 编码并发送到服务器
+                if (socket.connected) {
+                    const audioBlob = new Blob([outputData.buffer], {type: 'application/octet-stream'});
+                    const reader = new FileReader();
+
+                    reader.onloadend = () => {
+                        const base64data = reader.result.split(',')[1];
+
+                        socket.emit('audio_data', {
+                            audio: base64data,
+                            sampleRate: audioContext.sampleRate
+                        });
+                    };
+
+                    reader.readAsDataURL(audioBlob);
+                }
+            };
+        }
         
         // 开始音频可视化
         updateAudioVisualization();
@@ -1082,34 +1165,6 @@ navigator.mediaDevices.getUserMedia({audio: true})
         } else {
             initApp();
         }
-        
-        // 添加音频处理函数
-        processor.onaudioprocess = function (e) {
-            let inputData = e.inputBuffer.getChannelData(0);
-            let outputData = new Int16Array(inputData.length);
-
-            // Convert to 16-bit PCM
-            for (let i = 0; i < inputData.length; i++) {
-                outputData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
-            }
-
-            // 将音频数据转换为 Base64 编码并发送到服务器
-            if (socket.connected) {
-                const audioBlob = new Blob([outputData.buffer], {type: 'application/octet-stream'});
-                const reader = new FileReader();
-
-                reader.onloadend = () => {
-                    const base64data = reader.result.split(',')[1];
-
-                    socket.emit('audio_data', {
-                        audio: base64data,
-                        sampleRate: audioContext.sampleRate
-                    });
-                };
-
-                reader.readAsDataURL(audioBlob);
-            }
-        };
     })
     .catch(e => {
         console.error('麦克风访问错误:', e);
