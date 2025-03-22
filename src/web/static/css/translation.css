@@ -209,12 +209,56 @@
 
 /* 错误信息显示 */
 .translation-error {
-    color: #ff6b6b;
-    margin-top: 10px;
-    padding: 5px 10px;
     background-color: rgba(255, 0, 0, 0.1);
-    border-radius: 3px;
-    font-size: 0.9rem;
+    border-left: 3px solid #f44336;
+    padding: 10px;
+    margin: 10px 0;
+    color: #f44336;
+    font-size: 0.95rem;
+}
+
+.translation-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid #ffc107;
+    padding: 10px;
+    margin: 10px 0;
+    color: #ff9800;
+    font-size: 0.95rem;
+}
+
+/* 检测到的语言标识 */
+.detected-language {
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
+    margin-right: 5px;
+}
+
+/* 异常模式文本样式 */
+.anomaly-text {
+    color: #f44336;
+    text-decoration: line-through;
+    font-style: italic;
+}
+
+/* 错误信息中的原文 */
+.error-message {
+    color: #f44336;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.original-text {
+    color: #888;
+    font-style: italic;
+}
+
+/* 连续重复字符样式 */
+.repeated-chars {
+    color: #f44336;
+    font-style: italic;
+    text-decoration: wavy underline;
 }
 
 /* 翻译设置面板样式 */
@@ -251,4 +295,27 @@
     background-color: #fff3cd;
     border-left: 4px solid #ffc107;
     color: #856404;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    .text-display {
+        height: 200px;
+    }
+    
+    .control-panel {
+        flex-direction: column;
+    }
+    
+    .control-group {
+        margin-bottom: 10px;
+    }
 } 

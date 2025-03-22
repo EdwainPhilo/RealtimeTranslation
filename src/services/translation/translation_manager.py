@@ -102,10 +102,23 @@ class TranslationManager:
         # 确定使用的翻译服务
         service_name = service or self.config['active_service']
         
+        # 防御性编程：处理极端情况
+        if not text or text.strip() == '':
+            return {
+                'translated_text': '',
+                'detected_language': '',
+                'success': True,
+                'service': service_name
+            }
+        
+        # 检查文本长度，过长可能会导致API问题
+        if len(text) > 10000:  # 10k字符的安全上限
+            logger.warning(f"文本过长({len(text)}字符)，可能影响翻译质量")
+        
         # 检查服务是否存在
         if service_name not in self.services:
             return {
-                'translated_text': text,
+                'translated_text': text,  # 返回原文而不是空字符串
                 'detected_language': '',
                 'success': False,
                 'error': f"翻译服务'{service_name}'不可用",
@@ -113,14 +126,32 @@ class TranslationManager:
             }
         
         # 调用翻译服务
-        result = self.services[service_name].translate(
-            text, target_language, source_language
-        )
-        
-        # 添加服务信息
-        result['service'] = service_name
-        
-        return result
+        try:
+            result = self.services[service_name].translate(
+                text, target_language, source_language
+            )
+            
+            # 添加服务信息
+            result['service'] = service_name
+            
+            # 确保翻译结果不为空，如果为空则使用原文
+            if not result.get('translated_text') and not result.get('error'):
+                result['translated_text'] = text
+                result['error'] = "翻译结果为空，保留原文"
+                result['success'] = False
+                logger.warning(f"翻译服务返回空结果，使用原文")
+                
+            return result
+        except Exception as e:
+            logger.error(f"翻译过程发生异常: {str(e)}")
+            # 即使发生异常，也返回一个有效的结果
+            return {
+                'translated_text': text,  # 返回原文而不是空字符串
+                'detected_language': '',
+                'success': False,
+                'error': f"翻译过程发生异常: {str(e)}",
+                'service': service_name
+            }
     
     def get_available_languages(self, service: Optional[str] = None) -> Dict[str, str]:
         """

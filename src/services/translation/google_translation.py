@@ -9,6 +9,7 @@ import time
 import os
 import asyncio
 import concurrent.futures
+import re  # 添加正则表达式支持
 from typing import Dict, Any, Optional, Union
 
 # 尝试导入Google官方翻译API
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 # 辅助函数：在新的事件循环中运行异步函数
 def run_async_in_new_loop(async_func, *args, **kwargs):
     """
-    在新事件循环中运行异步函数
+    在新事件循环中运行异步函数，带有超时控制和完整的资源清理
     
     Args:
         async_func: 要运行的异步函数
@@ -45,58 +46,104 @@ def run_async_in_new_loop(async_func, *args, **kwargs):
     Returns:
         异步函数的结果
     """
+    # 获取超时时间，默认10秒
+    timeout = kwargs.pop('_timeout', 10.0)
+    
+    # 创建新的事件循环
     new_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(new_loop)
+    
+    # 创建一个任务
+    task = None
+    
     try:
-        asyncio.set_event_loop(new_loop)
-        return new_loop.run_until_complete(async_func(*args, **kwargs))
+        # 带超时的协程
+        async def run_with_timeout():
+            # 添加超时控制
+            return await asyncio.wait_for(async_func(*args, **kwargs), timeout=timeout)
+        
+        # 运行任务
+        task = new_loop.create_task(run_with_timeout())
+        return new_loop.run_until_complete(task)
+    
+    except asyncio.TimeoutError as e:
+        logger.error(f"异步任务超时（{timeout}秒）: {str(e)}")
+        if task and not task.done():
+            task.cancel()
+        raise Exception(f"翻译超时，请稍后重试")
+    
+    except Exception as e:
+        logger.error(f"在新事件循环中运行异步函数失败: {str(e)}")
+        if task and not task.done():
+            task.cancel()
+        raise
+    
     finally:
-        new_loop.close()
+        # 正确清理资源
+        try:
+            # 取消所有未完成的任务
+            pending = asyncio.all_tasks(new_loop) if hasattr(asyncio, 'all_tasks') else []
+            for pending_task in pending:
+                pending_task.cancel()
+            
+            # 给任务一个机会完成取消
+            if pending:
+                new_loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            
+            # 停止事件循环
+            new_loop.run_until_complete(new_loop.shutdown_asyncgens())
+            new_loop.close()
+        except Exception as cleanup_error:
+            logger.warning(f"清理事件循环资源时发生错误: {str(cleanup_error)}")
 
 class GoogleTranslationService:
     """Google翻译服务类，支持官方API和非官方库"""
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config=None):
         """
         初始化Google翻译服务
         
         Args:
-            config: 配置字典，包括:
-                - api_key: Google API密钥（官方API方式）
-                - credentials_file: Google凭证文件路径（官方API方式）
-                - use_official_api: 是否使用官方API，默认False
-                - target_language: 目标语言，默认'zh-CN'
-                - source_language: 源语言，默认'auto'（自动检测）
-                - proxy: HTTP代理设置，格式为"http://host:port"或"socks5://host:port"
+            config: 配置字典，可包含:
+                - use_official_api: 是否使用官方API
+                - api_key: API密钥（官方API需要）
+                - credentials_file: 凭据文件路径（官方API需要）
+                - project_id: 项目ID（官方API需要）
+                - proxy: 代理设置
         """
-        self.config = config or {}
-        self.use_official_api = self.config.get('use_official_api', False)
-        self.target_language = self.config.get('target_language', 'zh-CN')
-        self.source_language = self.config.get('source_language', 'auto')
-        self.proxy = self.config.get('proxy', None)
+        # 默认配置
+        self.config = {
+            'use_official_api': False,
+            'api_key': None,
+            'credentials_file': None,
+            'project_id': None,
+            'proxy': None,
+            'max_text_length': 5000,  # 添加最大文本长度限制，避免API崩溃
+            'max_repeated_chars': 10  # 添加最大重复字符数限制
+        }
         
-        # 如果指定了代理，设置环境变量
-        self._setup_proxy()
+        # 更新配置
+        if config:
+            self.config.update(config)
         
-        # 翻译客户端
+        # 初始化客户端
         self.official_client = None
         self.unofficial_client = None
         
-        # 初始化翻译客户端
-        self._initialize_client()
-        
         # 统计信息
         self.stats = {
-            'total_requests': 0,
             'successful_requests': 0,
             'failed_requests': 0,
-            'total_chars_translated': 0,
             'last_request_time': 0,
             'average_response_time': 0
         }
+        
+        # 初始化翻译客户端
+        self._initialize_client()
     
     def _setup_proxy(self):
         """设置HTTP代理"""
-        proxy = self.proxy
+        proxy = self.config.get('proxy', None)
         if not proxy:
             # 检查环境变量中是否有代理设置
             proxy = os.environ.get('HTTP_PROXY') or os.environ.get('HTTPS_PROXY')
@@ -109,13 +156,13 @@ class GoogleTranslationService:
             os.environ['HTTPS_PROXY'] = proxy
             
             # 如果使用的是官方API，需要额外设置
-            if self.use_official_api and GOOGLE_OFFICIAL_API_AVAILABLE:
+            if self.config['use_official_api'] and GOOGLE_OFFICIAL_API_AVAILABLE:
                 # Google Cloud库使用环境变量: HTTPS_PROXY
                 pass
     
     def _initialize_client(self):
         """初始化翻译客户端"""
-        if self.use_official_api and GOOGLE_OFFICIAL_API_AVAILABLE:
+        if self.config['use_official_api'] and GOOGLE_OFFICIAL_API_AVAILABLE:
             try:
                 # 使用官方API
                 credentials_file = self.config.get('credentials_file')
@@ -132,10 +179,10 @@ class GoogleTranslationService:
                 logger.info("已初始化Google官方翻译API客户端")
             except Exception as e:
                 logger.error(f"初始化Google官方翻译API客户端失败: {str(e)}")
-                self.use_official_api = False
+                self.config['use_official_api'] = False
         
         # 如果官方API不可用或未配置，尝试使用非官方库
-        if (not self.use_official_api or not self.official_client) and GOOGLETRANS_AVAILABLE:
+        if (not self.config['use_official_api'] or not self.official_client) and GOOGLETRANS_AVAILABLE:
             try:
                 # 检查googletrans版本
                 version = getattr(googletrans, '__version__', '3.0.0')
@@ -191,40 +238,22 @@ class GoogleTranslationService:
                 logger.error(f"初始化Google非官方翻译API客户端失败: {str(e)}")
                 self.unofficial_client = None
     
-    def translate(self, text: str, target_language: Optional[str] = None, 
-                 source_language: Optional[str] = None) -> Dict[str, Any]:
+    def translate(self, text, target_language=None, source_language=None):
         """
         翻译文本
         
         Args:
             text: 要翻译的文本
-            target_language: 目标语言，默认使用初始化时的设置
-            source_language: 源语言，默认使用初始化时的设置或自动检测
-        
-        Returns:
-            字典，包含:
-                - translated_text: 翻译后的文本
-                - detected_language: 检测到的源语言（如果源语言为auto）
-                - success: 是否成功
-                - error: 错误信息（如果有）
-        """
-        if not text:
-            return {
-                'translated_text': '',
-                'detected_language': '',
-                'success': True,
-                'error': None
-            }
+            target_language: 目标语言
+            source_language: 源语言，默认为auto（自动检测）
             
-        # 更新统计信息
-        self.stats['total_requests'] += 1
-        self.stats['total_chars_translated'] += len(text)
+        Returns:
+            翻译结果字典
+        """
+        # 记录开始时间，用于计算响应时间
         start_time = time.time()
         
-        # 使用指定的语言或默认语言
-        target = target_language or self.target_language
-        source = source_language or self.source_language
-        
+        # 初始化结果字典
         result = {
             'translated_text': '',
             'detected_language': '',
@@ -232,18 +261,32 @@ class GoogleTranslationService:
             'error': None
         }
         
+        # 如果文本为空，直接返回空结果
+        if not text or text.strip() == '':
+            result['success'] = True
+            return result
+            
+        # 预处理文本，处理异常模式
+        processed_text, was_processed = self._preprocess_text(text)
+        if was_processed:
+            logger.info(f"文本已预处理: 原始长度={len(text)}，处理后长度={len(processed_text)}")
+        
+        # 使用服务配置中的目标语言和源语言（如果未提供）
+        target = target_language or self.config.get('target_language', 'en')
+        source = source_language or self.config.get('source_language', 'auto')
+        
         try:
             # 检查是否有可用的翻译客户端
             if not self._has_available_client():
                 raise Exception("没有可用的翻译客户端，请确保已安装相关依赖。运行 python install/install_translation_deps.py 安装依赖。")
                 
             # 使用官方API
-            if self.use_official_api and self.official_client:
-                translation = self._translate_with_official_api(text, target, source)
+            if self.config['use_official_api'] and self.official_client:
+                translation = self._translate_with_official_api(processed_text, target, source)
                 result.update(translation)
             # 使用非官方库
             elif self.unofficial_client:
-                translation = self._translate_with_unofficial_api(text, target, source)
+                translation = self._translate_with_unofficial_api(processed_text, target, source)
                 result.update(translation)
             else:
                 raise Exception("没有可用的翻译客户端")
@@ -272,6 +315,43 @@ class GoogleTranslationService:
         
         return result
     
+    def _preprocess_text(self, text):
+        """
+        预处理文本，处理异常模式如大量重复字符
+        
+        Args:
+            text: 原始文本
+            
+        Returns:
+            (处理后的文本, 是否进行了处理)
+        """
+        original_text = text
+        was_processed = False
+        
+        # 检查文本长度，如果超过最大长度则截断
+        max_length = self.config.get('max_text_length', 5000)
+        if len(text) > max_length:
+            text = text[:max_length]
+            was_processed = True
+            logger.warning(f"文本过长，已截断至{max_length}字符")
+        
+        # 处理重复字符模式 (如 "小小小小小小小小小...")
+        max_repeats = self.config.get('max_repeated_chars', 10)
+        
+        # 检测连续相同字符
+        repeated_char_pattern = re.compile(r'(.)\1{' + str(max_repeats) + ',}')
+        match = repeated_char_pattern.search(text)
+        
+        if match:
+            # 找到重复字符，将其限制为最大允许重复次数
+            char = match.group(1)
+            text = re.sub(r'(' + re.escape(char) + r')\1{' + str(max_repeats) + ',}', 
+                         char * max_repeats, text)
+            was_processed = True
+            logger.warning(f"检测到异常重复字符模式，已处理")
+        
+        return text, was_processed
+    
     def _translate_with_official_api(self, text, target, source):
         """使用官方API翻译"""
         if source == 'auto':
@@ -290,67 +370,73 @@ class GoogleTranslationService:
         }
     
     def _translate_with_unofficial_api(self, text, target, source):
-        """使用非官方库翻译"""
+        """使用非官方库翻译，具有多重后备机制"""
         try:
             # 获取googletrans的版本
             version = getattr(googletrans, '__version__', '3.0.0')
             
             if version.startswith('3.') or version.startswith('4.'):
-                # 新版本可能是异步API
-                async def async_translate():
-                    if source == 'auto':
-                        # 自动检测源语言
-                        result = await self.unofficial_client.translate(text, dest=target)
-                    else:
-                        result = await self.unofficial_client.translate(text, src=source, dest=target)
-                    return result
-                
-                # 使用更安全的方式运行异步任务
+                # 直接使用同步HTTP请求作为首选方法，这是最稳定的
                 try:
-                    # 安全地获取或创建事件循环
-                    try:
-                        # 尝试获取当前事件循环
-                        loop = asyncio.get_event_loop()
-                    except RuntimeError:
-                        # 如果没有当前事件循环，创建一个新的
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
+                    logger.info("使用直接HTTP请求进行翻译")
                     
-                    # 检查循环是否已关闭
-                    if loop.is_closed():
-                        logger.warning("原事件循环已关闭，创建新循环")
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
+                    # 使用httpx直接请求谷歌翻译API
+                    import httpx
+                    import urllib.parse
                     
-                    # 直接在当前循环中运行协程，不关闭循环
-                    if loop.is_running():
-                        # 如果循环正在运行，在已有的循环中运行协程
-                        # 为了同步运行结果，我们使用线程来封装异步调用
-                        with concurrent.futures.ThreadPoolExecutor() as executor:
-                            future = executor.submit(lambda: run_async_in_new_loop(async_translate))
-                            result = future.result()
-                    else:
-                        # 如果循环没有运行，直接运行协程
-                        result = loop.run_until_complete(async_translate())
+                    # 转义文本
+                    escaped_text = urllib.parse.quote(text)
                     
+                    # 构建URL
+                    url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={source}&tl={target}&dt=t&q={escaped_text}"
+                    
+                    # 使用同步请求
+                    with httpx.Client() as client:
+                        response = client.get(url, timeout=10.0)
+                        
+                        if response.status_code == 200:
+                            data = response.json()
+                            if data and len(data) > 0 and len(data[0]) > 0:
+                                # 提取翻译结果
+                                translated_text = ''.join([item[0] for item in data[0] if item and item[0]])
+                                detected_language = data[2] if len(data) > 2 else source
+                                
+                                return {
+                                    'translated_text': translated_text,
+                                    'detected_language': detected_language
+                                }
+                        
+                        logger.warning(f"HTTP请求返回非200状态码或无效数据: {response.status_code}")
+                except Exception as http_err:
+                    logger.warning(f"直接HTTP请求失败，尝试异步API: {str(http_err)}")
+                
+                # 如果直接HTTP请求失败，尝试使用异步API
+                try:
+                    logger.info("尝试使用异步API作为后备方案")
+                    
+                    # 定义异步翻译函数
+                    async def async_translate():
+                        if source == 'auto':
+                            # 自动检测源语言
+                            result = await self.unofficial_client.translate(text, dest=target)
+                        else:
+                            result = await self.unofficial_client.translate(text, src=source, dest=target)
+                        return result
+                    
+                    # 使用改进的run_async_in_new_loop函数（带超时控制）
+                    result = run_async_in_new_loop(async_translate, _timeout=15.0)
                     return {
                         'translated_text': result.text,
                         'detected_language': result.src
                     }
                 except Exception as e:
-                    logger.error(f"异步翻译失败: {str(e)}")
-                    
-                    # 尝试使用新事件循环作为后备方案
-                    try:
-                        logger.info("尝试使用新事件循环作为后备方案")
-                        result = run_async_in_new_loop(async_translate)
-                        return {
-                            'translated_text': result.text,
-                            'detected_language': result.src
-                        }
-                    except Exception as e2:
-                        logger.error(f"后备翻译方案失败: {str(e2)}")
-                        raise Exception(f"所有翻译尝试均失败: {str(e)} -> {str(e2)}")
+                    logger.error(f"异步API翻译后备方案失败: {str(e)}")
+                    # 所有方法都失败，返回原文
+                    return {
+                        'translated_text': text,
+                        'detected_language': 'unknown',
+                        'error': f"翻译失败: {str(e)}"
+                    }
             else:
                 # 老版本是同步API
                 if source == 'auto':
@@ -365,7 +451,12 @@ class GoogleTranslationService:
                 }
         except Exception as e:
             logger.error(f"非官方API翻译失败: {str(e)}")
-            raise Exception(f"翻译失败: {str(e)}")
+            # 始终返回有效响应，即使是错误情况
+            return {
+                'translated_text': text,
+                'detected_language': 'unknown',
+                'error': f"翻译失败: {str(e)}"
+            }
     
     def get_available_languages(self) -> Dict[str, str]:
         """
@@ -377,7 +468,7 @@ class GoogleTranslationService:
         languages = {}
         
         try:
-            if self.use_official_api and self.official_client:
+            if self.config['use_official_api'] and self.official_client:
                 # 使用官方API获取语言列表
                 results = self.official_client.get_languages()
                 for language in results:
@@ -406,16 +497,6 @@ class GoogleTranslationService:
         # 更新配置
         self.config.update(config)
         
-        # 更新核心设置
-        if 'use_official_api' in config:
-            self.use_official_api = config['use_official_api']
-        if 'target_language' in config:
-            self.target_language = config['target_language']
-        if 'source_language' in config:
-            self.source_language = config['source_language']
-        if 'proxy' in config:
-            self.proxy = config['proxy']
-            
         # 重新初始化客户端
         self._initialize_client()
         

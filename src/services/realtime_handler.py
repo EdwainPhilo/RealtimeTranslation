@@ -153,14 +153,24 @@ class RealtimeHandler:
                 service=active_service
             )
             
+            # 检查翻译是否成功
+            if not translation_result.get('success', False) and translation_result.get('error'):
+                logger.warning(f"实时翻译失败: {translation_result.get('error')}")
+                # 使用原文作为翻译结果
+                translated_text = text
+            else:
+                translated_text = translation_result.get('translated_text', '')
+            
             # 构建翻译数据并触发回调
             translation_data = {
                 'original_text': text,
-                'translated_text': translation_result.get('translated_text', ''),
+                'translated_text': translated_text,
                 'source_language': translation_result.get('detected_language', ''),
                 'target_language': service_config.get('target_language', 'zh-CN'),
                 'is_final': False,
-                'service': translation_result.get('service', active_service)
+                'service': translation_result.get('service', active_service),
+                'success': translation_result.get('success', True),
+                'error': translation_result.get('error')
             }
             
             # 触发回调
@@ -210,8 +220,15 @@ class RealtimeHandler:
                 service=active_service
             )
             
-            translated_text = translation_result.get('translated_text', '')
-            detected_language = translation_result.get('detected_language', '')
+            # 检查翻译是否成功
+            if not translation_result.get('success', False) and translation_result.get('error'):
+                logger.warning(f"最终翻译失败: {translation_result.get('error')}")
+                # 使用原文作为翻译结果
+                translated_text = text
+                detected_language = 'unknown'
+            else:
+                translated_text = translation_result.get('translated_text', '')
+                detected_language = translation_result.get('detected_language', '')
             
             logger.info(f"翻译完成: 检测到源语言: {detected_language}")
             logger.info(f"翻译结果: '{translated_text}'")
@@ -223,7 +240,9 @@ class RealtimeHandler:
                 'source_language': detected_language,
                 'target_language': service_config.get('target_language', 'zh-CN'),
                 'is_final': True,
-                'service': translation_result.get('service', active_service)
+                'service': translation_result.get('service', active_service),
+                'success': translation_result.get('success', True),
+                'error': translation_result.get('error')
             }
             
             # 触发回调

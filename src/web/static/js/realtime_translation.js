@@ -782,34 +782,42 @@ class RealtimeTranslationController {
     
     /**
      * 处理最终翻译结果
+     * @param {Object} data - 翻译数据对象
      * @private
-     * @param {Object} data - 翻译数据
      */
     _handleFinalTranslation(data) {
         try {
             console.log('收到最终翻译结果:', data);
             
-            // 如果数据无效，则返回
-            if (!data) {
-                console.warn('收到无效的翻译数据 (data为空)');
-                return;
-            }
-            
-            // 获取翻译页面文本显示区域，无论当前页面是什么
-            const translatedTextDisplay = document.getElementById('translated-text');
+            // 检查是否有必要的DOM元素
+            const translatedTextDisplay = this.translatedTextDisplay;
             if (!translatedTextDisplay) {
-                console.error('找不到翻译文本显示区域');
+                console.error('未找到翻译显示元素，取消显示翻译结果');
                 return;
             }
             
-            // 处理翻译失败的情况，显示错误信息
-            if (data.success === false || data.error) {
-                console.warn('翻译失败:', data.error || '未知错误');
+            // 如果翻译服务返回失败，检查是否有错误信息
+            if (data.error || data.success === false) {
+                console.warn('翻译服务返回错误:', data.error || '未知错误');
                 
-                // 创建翻译错误元素
+                // 创建错误提示元素
                 const errorElement = document.createElement('div');
                 errorElement.className = 'translation-segment translation-error';
-                errorElement.textContent = data.error ? `翻译失败: ${data.error}` : '翻译失败';
+                
+                // 显示错误信息和原文
+                if (data.error) {
+                    const errorMsgSpan = document.createElement('span');
+                    errorMsgSpan.className = 'error-message';
+                    errorMsgSpan.textContent = `错误: ${data.error}`;
+                    errorElement.appendChild(errorMsgSpan);
+                    errorElement.appendChild(document.createElement('br'));
+                }
+                
+                // 显示原文
+                const originalTextSpan = document.createElement('span');
+                originalTextSpan.className = 'original-text';
+                originalTextSpan.textContent = data.original_text;
+                errorElement.appendChild(originalTextSpan);
                 
                 // 添加到翻译显示区域
                 translatedTextDisplay.appendChild(errorElement);
@@ -826,7 +834,7 @@ class RealtimeTranslationController {
                 // 创建翻译警告元素
                 const warningElement = document.createElement('div');
                 warningElement.className = 'translation-segment translation-warning';
-                warningElement.textContent = '翻译结果为空';
+                warningElement.textContent = '翻译结果为空，显示原文: ' + data.original_text;
                 
                 // 添加到翻译显示区域
                 translatedTextDisplay.appendChild(warningElement);
@@ -836,13 +844,26 @@ class RealtimeTranslationController {
                 return;
             }
             
+            // 检查是否存在大量重复字符的模式（可能是错误的转录结果）
+            const repeatedCharPattern = /(.)\1{15,}/;  // 连续16个或更多相同字符
+            if (repeatedCharPattern.test(data.translated_text)) {
+                console.warn('检测到异常重复字符模式，可能是错误的转录结果');
+                // 在视觉上区分这种情况
+                const warningElement = document.createElement('div');
+                warningElement.className = 'translation-segment translation-warning';
+                warningElement.textContent = '检测到异常转录模式，结果可能不准确';
+                
+                // 添加到翻译显示区域
+                translatedTextDisplay.appendChild(warningElement);
+            }
+            
             // 处理成功的翻译结果
             // 创建翻译结果元素
             const translationElement = document.createElement('div');
             translationElement.className = 'translation-segment';
             
             // 如果有检测到的语言，显示语言信息
-            if (data.detected_language && data.detected_language !== 'auto') {
+            if (data.detected_language && data.detected_language !== 'auto' && data.detected_language !== 'unknown') {
                 const detectedLang = document.createElement('span');
                 detectedLang.className = 'detected-language';
                 detectedLang.textContent = `[${data.detected_language}] `;
@@ -859,37 +880,9 @@ class RealtimeTranslationController {
             
             // 滚动到底部
             translatedTextDisplay.scrollTop = translatedTextDisplay.scrollHeight;
-            
-            // 更新内部状态
-            this.translatedText = data.translated_text;
-            this.sourceLanguage = data.detected_language || '';
-            
-            // 触发 socket.io 翻译结果事件，兼容其他依赖此事件的代码
-            if (socket && socket.connected) {
-                socket.emit('translation_result', {
-                    success: true,
-                    original_text: data.original_text,
-                    translated_text: data.translated_text,
-                    detected_language: data.detected_language || '',
-                    detected_language_name: data.detected_language_name || ''
-                });
-            }
-        } catch (error) {
-            console.error('处理最终翻译结果时出错:', error);
-            
-            try {
-                // 尝试在UI上显示错误
-                const translatedTextDisplay = document.getElementById('translated-text');
-                if (translatedTextDisplay) {
-                    const errorElement = document.createElement('div');
-                    errorElement.className = 'translation-segment translation-error';
-                    errorElement.textContent = `处理翻译结果时出错: ${error.message || '未知错误'}`;
-                    translatedTextDisplay.appendChild(errorElement);
-                    translatedTextDisplay.scrollTop = translatedTextDisplay.scrollHeight;
-                }
-            } catch (uiError) {
-                console.error('显示翻译错误时出错:', uiError);
-            }
+        } catch (e) {
+            console.error('处理最终翻译结果时出错:', e);
+            this._handleError(e);
         }
     }
     
@@ -916,6 +909,17 @@ class RealtimeTranslationController {
                 } catch (parseError) {
                     errorMessage = String(error.data);
                 }
+            }
+            
+            // 检查是否为重复字符错误
+            if (errorMessage.includes('异常重复字符') || 
+                (typeof error === 'object' && error.original_text && /(.)\1{15,}/.test(error.original_text))) {
+                errorMessage = '检测到异常重复模式，可能是麦克风或转录问题';
+            }
+            
+            // 检查是否为翻译API错误
+            if (errorMessage.includes('httpx') || errorMessage.includes('translate.googleapis.com')) {
+                errorMessage = '翻译服务暂时不可用，请稍后再试';
             }
             
             // 更新UI显示错误
