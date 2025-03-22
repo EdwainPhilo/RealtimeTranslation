@@ -7,6 +7,7 @@ class AudioProcessor extends AudioWorkletProcessor {
         super();
         this._bufferSize = 256;
         this._buffer = new Float32Array(this._bufferSize);
+        console.log('AudioProcessor 构造函数执行'); // 调试日志
     }
     
     process(inputs, outputs, parameters) {
@@ -32,4 +33,10 @@ class AudioProcessor extends AudioWorkletProcessor {
     }
 }
 
-registerProcessor('audio-processor', AudioProcessor); 
+// 确保正确注册处理器
+try {
+    console.log('注册 audio-processor 处理器'); // 调试日志
+    registerProcessor('audio-processor', AudioProcessor);
+} catch (e) {
+    console.error('注册 AudioProcessor 失败:', e);
+} 

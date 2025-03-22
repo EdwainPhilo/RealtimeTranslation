@@ -63,29 +63,7 @@
             
             <!-- 翻译模式 -->
             <div id="translation-page" class="page hidden">
-                <div class="dual-display">
-                    <div class="display-panel">
-                        <h2>原文</h2>
-                        <div id="original-text-display" class="text-display"></div>
-                    </div>
-                    <div class="display-panel">
-                        <h2>翻译</h2>
-                        <div id="translated-text-display" class="text-display"></div>
-                    </div>
-                    
-                    <!-- 控制按钮区域 -->
-                    <div class="control-panel">
-                        <button id="start-translation-btn" class="control-button start-button">
-                            <i class="fas fa-play"></i> 开始翻译
-                        </button>
-                        <button id="stop-translation-btn" class="control-button stop-button" disabled>
-                            <i class="fas fa-stop"></i> 停止翻译
-                        </button>
-                        <button id="clear-display-btn" class="control-button clear-button" onclick="realtimeTranslationController.clearDisplay()">
-                            <i class="fas fa-trash"></i> 清空显示
-                        </button>
-                    </div>
-                </div>
+                <div id="translated-text" class="text-display"></div>
             </div>
         </div>
         
@@ -149,5 +127,62 @@
 
     <!-- 移除这里重复的 client.js 和 settings.js 加载 -->
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+
+    <!-- 内联AudioWorklet处理器代码 -->
+    <script>
+    // 创建内联的AudioWorklet处理器代码
+    const audioProcessorCode = `
+        /**
+         * AudioWorklet 处理器
+         * 用于高性能音频处理，替代被弃用的 ScriptProcessorNode
+         */
+        class AudioProcessor extends AudioWorkletProcessor {
+            constructor() {
+                super();
+                this._bufferSize = 256;
+                this._buffer = new Float32Array(this._bufferSize);
+                console.log('AudioProcessor 构造函数执行');
+            }
+            
+            process(inputs, outputs, parameters) {
+                const input = inputs[0][0];
+                if (!input) return true;
+                
+                // 将输入复制到缓冲区
+                this._buffer.set(input);
+                
+                // 将Float32Array转换为Int16Array
+                const outputData = new Int16Array(input.length);
+                for (let i = 0; i < input.length; i++) {
+                    outputData[i] = Math.max(-32768, Math.min(32767, input[i] * 32768));
+                }
+                
+                // 发送消息给主线程
+                this.port.postMessage({
+                    audioData: outputData,
+                    sampleRate: sampleRate
+                });
+                
+                return true;
+            }
+        }
+
+        // 注册处理器
+        try {
+            console.log('注册 audio-processor 处理器');
+            registerProcessor('audio-processor', AudioProcessor);
+        } catch (e) {
+            console.error('注册 AudioProcessor 失败:', e);
+        }
+    `;
+
+    // 创建Blob URL
+    const blob = new Blob([audioProcessorCode], { type: 'application/javascript' });
+    const audioProcessorBlobURL = URL.createObjectURL(blob);
+    
+    // 将URL存储在全局变量中供client.js使用
+    window.audioProcessorBlobURL = audioProcessorBlobURL;
+    console.log('创建的音频处理器Blob URL:', audioProcessorBlobURL);
+    </script>
 </body>
 </html> 
