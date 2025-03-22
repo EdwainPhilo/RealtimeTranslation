@@ -1,6 +1,5 @@
 {
     "active_service": "google",
-    "use_streaming_translation": false,
     "services": {
         "google": {
             "use_official_api": false,

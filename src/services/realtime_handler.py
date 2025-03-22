@@ -36,12 +36,15 @@ class RealtimeHandler:
         # STT回调注册标志
         self._stt_callbacks_registered = False
         
-        # 当前会话状态 - 始终为活跃状态
-        self.session_active = True
+        # 翻译设置
+        self.translation_config = {
+            'target_language': 'zh-CN',  # 默认目标语言
+            'source_language': 'auto',   # 默认源语言
+            'service': None              # 使用默认翻译服务
+        }
         
-        # 初始化时自动注册STT回调
-        self._register_stt_callbacks()
-        logger.info("实时翻译处理器已初始化，并自动注册STT回调")
+        # 当前会话状态
+        self.session_active = False
         
     def register_callback(self, event_type: str, callback: Callable) -> bool:
         """
@@ -87,7 +90,7 @@ class RealtimeHandler:
             # 注册实时转录回调
             self.stt_service.register_callback(
                 'on_interim_result', 
-                self._handle_realtime_transcript
+                self._handle_interim_transcript
             )
             
             # 注册最终转录回调
@@ -105,7 +108,7 @@ class RealtimeHandler:
             # 取消注册实时转录回调
             self.stt_service.unregister_callback(
                 'on_interim_result', 
-                self._handle_realtime_transcript
+                self._handle_interim_transcript
             )
             
             # 取消注册最终转录回调
@@ -117,7 +120,7 @@ class RealtimeHandler:
             self._stt_callbacks_registered = False
             logger.info("已取消注册STT回调函数")
     
-    def _handle_realtime_transcript(self, transcript_data: Dict[str, Any]):
+    def _handle_interim_transcript(self, transcript_data: Dict[str, Any]):
         """
         处理实时转录结果
         
@@ -131,42 +134,29 @@ class RealtimeHandler:
             # 如果文本为空，直接返回
             if not text:
                 return
-
-            # 直接从翻译管理器获取最新的配置
-            config = self.translation_manager.get_config()
-            
-            # 检查是否启用流式翻译
-            if not config.get('use_streaming_translation', False):
-                logger.debug(f"已收到实时转录，但未启用逐字翻译: {text}")
-                return
                 
-            # 获取当前活动的服务
-            active_service = config.get('active_service', 'google')
-            # 获取服务特定配置
-            service_config = config.get('services', {}).get(active_service, {})
-            
-            # 进行逐字翻译
+            # 翻译文本
             translation_result = self.translation_manager.translate(
                 text=text,
-                target_language=service_config.get('target_language', 'zh-CN'),
-                source_language=service_config.get('source_language', 'auto'),
-                service=active_service
+                target_language=self.translation_config['target_language'],
+                source_language=self.translation_config['source_language'],
+                service=self.translation_config['service']
             )
             
-            # 构建翻译数据并触发回调
-            translation_data = {
+            # 准备回调数据
+            callback_data = {
                 'original_text': text,
                 'translated_text': translation_result.get('translated_text', ''),
                 'source_language': translation_result.get('detected_language', ''),
-                'target_language': service_config.get('target_language', 'zh-CN'),
+                'target_language': self.translation_config['target_language'],
                 'is_final': False,
-                'service': translation_result.get('service', active_service)
+                'service': translation_result.get('service', '')
             }
             
             # 触发回调
             for callback in self.callbacks['on_realtime_translation']:
                 try:
-                    callback(translation_data)
+                    callback(callback_data)
                 except Exception as e:
                     logger.error(f"执行实时翻译回调时出错: {str(e)}")
                     
@@ -189,52 +179,28 @@ class RealtimeHandler:
             if not text:
                 return
                 
-            # 记录详细日志
-            logger.info(f"处理最终转录: '{text}'")
-                
-            # 直接从翻译管理器获取最新的配置
-            config = self.translation_manager.get_config()
-            
-            # 获取当前活动的服务
-            active_service = config.get('active_service', 'google')
-            # 获取服务特定配置
-            service_config = config.get('services', {}).get(active_service, {})
-            
-            logger.info(f"使用翻译服务: {active_service}, 目标语言: {service_config.get('target_language', 'zh-CN')}")
-            
-            # 进行翻译
+            # 翻译文本
             translation_result = self.translation_manager.translate(
                 text=text,
-                target_language=service_config.get('target_language', 'zh-CN'),
-                source_language=service_config.get('source_language', 'auto'),
-                service=active_service
+                target_language=self.translation_config['target_language'],
+                source_language=self.translation_config['source_language'],
+                service=self.translation_config['service']
             )
             
-            translated_text = translation_result.get('translated_text', '')
-            detected_language = translation_result.get('detected_language', '')
-            
-            logger.info(f"翻译完成: 检测到源语言: {detected_language}")
-            logger.info(f"翻译结果: '{translated_text}'")
-            
-            # 构建翻译数据并触发回调
-            translation_data = {
+            # 准备回调数据
+            callback_data = {
                 'original_text': text,
-                'translated_text': translated_text,
-                'source_language': detected_language,
-                'target_language': service_config.get('target_language', 'zh-CN'),
+                'translated_text': translation_result.get('translated_text', ''),
+                'source_language': translation_result.get('detected_language', ''),
+                'target_language': self.translation_config['target_language'],
                 'is_final': True,
-                'service': translation_result.get('service', active_service)
+                'service': translation_result.get('service', '')
             }
             
             # 触发回调
-            logger.debug("准备触发最终翻译回调")
-            callbacks_count = len(self.callbacks['on_final_translation'])
-            logger.debug(f"已注册的最终翻译回调数量: {callbacks_count}")
-            
             for callback in self.callbacks['on_final_translation']:
                 try:
-                    callback(translation_data)
-                    logger.debug("成功执行最终翻译回调")
+                    callback(callback_data)
                 except Exception as e:
                     logger.error(f"执行最终翻译回调时出错: {str(e)}")
                     
@@ -254,31 +220,27 @@ class RealtimeHandler:
             'timestamp': time.time()
         }
         
-        # 触发回调
         for callback in self.callbacks['on_error']:
             try:
                 callback(error_data)
             except Exception as e:
                 logger.error(f"执行错误回调时出错: {str(e)}")
     
-    def start_session(self) -> bool:
+    def start_session(self):
         """
         开始实时翻译会话
-        注册STT回调
-        
-        Returns:
-            是否成功启动
+        注册STT回调，准备接收转录数据
         """
         if not self.session_active:
             self._register_stt_callbacks()
             self.session_active = True
-            logger.info("已启动实时翻译会话")
+            logger.info("已开始实时翻译会话")
             return True
         else:
             logger.warning("实时翻译会话已经在运行中")
             return False
     
-    def stop_session(self) -> bool:
+    def stop_session(self):
         """
         停止实时翻译会话
         取消注册STT回调
@@ -292,12 +254,22 @@ class RealtimeHandler:
             logger.warning("没有运行中的实时翻译会话")
             return False
     
+    def update_translation_config(self, config: Dict[str, Any]):
+        """
+        更新翻译配置
+        
+        Args:
+            config: 新配置，可包含'target_language', 'source_language', 'service'
+        """
+        self.translation_config.update(config)
+        logger.info(f"已更新翻译配置: {config}")
+        
     def get_translation_config(self) -> Dict[str, Any]:
         """获取当前翻译配置"""
-        return self.translation_manager.get_config()
+        return self.translation_config.copy()
     
     def is_session_active(self) -> bool:
-        """检查会话是否活跃 - 始终返回True"""
-        return True  # 始终返回True，表示翻译始终处于活跃状态
+        """检查会话是否活跃"""
+        return self.session_active
         
 import time  # 为_trigger_error函数导入time模块 

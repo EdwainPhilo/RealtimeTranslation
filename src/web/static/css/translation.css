@@ -39,47 +39,6 @@
     justify-content: center;
     margin: 20px 0;
     gap: 15px;
-    align-items: center;
-    position: relative;
-}
-
-/* 翻译状态指示器 */
-#translation-status-indicator {
-    position: absolute;
-    left: 0;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#translation-status-indicator::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 5px;
-}
-
-#translation-status-indicator.active {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
-}
-
-#translation-status-indicator.active::before {
-    background-color: #4CAF50;
-}
-
-#translation-status-indicator.inactive {
-    background-color: rgba(158, 158, 158, 0.2);
-    color: #9e9e9e;
-}
-
-#translation-status-indicator.inactive::before {
-    background-color: #9e9e9e;
 }
 
 .control-button {
@@ -130,15 +89,6 @@
 
 .clear-button:hover:not(:disabled) {
     background-color: #0b7dda;
-}
-
-.reset-button {
-    background-color: #ff9800;
-    color: white;
-}
-
-.reset-button:hover:not(:disabled) {
-    background-color: #e68a00;
 }
 
 /* 翻译状态指示器 */
@@ -198,15 +148,6 @@
     border-bottom: 1px dashed #444;
 }
 
-/* 来源语言信息 */
-.language-info {
-    font-size: 0.8rem;
-    color: #888;
-    padding: 5px;
-    margin-top: 5px;
-    font-style: italic;
-}
-
 /* 错误信息显示 */
 .translation-error {
     color: #ff6b6b;
@@ -233,22 +174,4 @@
 
 .nav-icon:hover {
     color: #2196F3;
-}
-
-/* 翻译通知样式 */
-.translation-notice {
-    background-color: #f8f9fa;
-    border-left: 4px solid #17a2b8;
-    padding: 10px;
-    margin-top: 10px;
-    font-size: 14px;
-    color: #495057;
-    border-radius: 0 4px 4px 0;
-}
-
-/* 流式翻译启用时的通知样式 */
-.translation-notice.streaming-enabled {
-    background-color: #fff3cd;
-    border-left: 4px solid #ffc107;
-    color: #856404;
 } 

@@ -2,9 +2,6 @@ import sys
 import os
 from multiprocessing import freeze_support
 import json
-import logging
-import time
-import psutil
 
 # 将当前目录添加到 Python 路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -13,10 +10,9 @@ from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import threading
 import base64
-import random
-import re
-import shutil
-import signal
+import logging
+import time
+import psutil
 
 # 配置日志
 logging.basicConfig(
@@ -161,7 +157,6 @@ def create_translation_manager():
         if not os.path.exists(config_path):
             default_config = {
                 'active_service': 'google',
-                'use_streaming_translation': False,
                 'services': {
                     'google': {
                         'use_official_api': False,
@@ -760,161 +755,32 @@ def handle_translate_text(data):
         emit('error', {'message': f'翻译失败: {str(e)}'})
 
 @socketio.on('get_translation_config')
-def handle_get_translation_config(data=None):
+def handle_get_translation_config():
     """获取翻译服务配置"""
-    # 添加请求信息日志
-    if isinstance(data, dict):
-        app_logger.info(f"收到配置请求，包含参数: {data}")
-    else:
-        app_logger.info(f"收到配置请求，数据类型: {type(data).__name__}")
-    
     try:
-        # 准备默认响应数据
-        default_response = {
-            'config': {
-                'active_service': 'google',
-                'use_streaming_translation': False,
-                'services': {
-                    'google': {
-                        'use_official_api': False,
-                        'target_language': 'zh-CN',
-                        'source_language': 'auto'
-                    }
-                }
-            },
-            'available_services': ['google'],
-            'languages': {
-                'google': {
-                    'en': '英语',
-                    'zh-CN': '中文（简体）',
-                    'zh-TW': '中文（繁体）',
-                    'ja': '日语',
-                    'ko': '韩语',
-                    'fr': '法语',
-                    'de': '德语',
-                    'es': '西班牙语',
-                    'it': '意大利语',
-                    'ru': '俄语'
-                }
-            },
-            'time': int(time.time()) # 添加时间戳
-        }
-        
         if not translation_manager:
-            app_logger.warning('翻译服务未初始化，返回默认配置')
-            response_data = default_response
-            
-            # 如果客户端提供了回调，直接通过回调返回数据
-            if callable(data):
-                app_logger.info("通过回调返回默认配置")
-                data(response_data)
-            else:
-                app_logger.info("通过事件返回默认配置")
-                emit('translation_config', response_data)
+            emit('error', {'message': '翻译服务未初始化'})
             return
         
         # 获取配置和可用服务
-        app_logger.debug("从translation_manager获取配置")
         config = translation_manager.get_config()
-        if not config:
-            app_logger.warning("translation_manager返回的配置为空，使用默认配置")
-            config = default_response['config']
-            
-        app_logger.debug("获取可用翻译服务")
         available_services = translation_manager.get_available_services()
-        if not available_services:
-            app_logger.warning("未找到可用的翻译服务，使用默认服务")
-            available_services = ['google']
         
         # 对于每个可用的服务，获取可用的语言
         languages = {}
-        app_logger.debug(f"获取 {len(available_services)} 个翻译服务的语言列表")
-        
-        # 检查是否有强制刷新标志
-        force_refresh = False
-        if isinstance(data, dict) and data.get('_t', False):
-            force_refresh = True
-            app_logger.info("检测到强制刷新请求")
-            
         for service in available_services:
-            try:
-                service_languages = translation_manager.get_available_languages(service)
-                if service_languages:
-                    languages[service] = service_languages
-                    app_logger.debug(f"服务 {service} 有 {len(service_languages)} 种可用语言")
-                else:
-                    app_logger.warning(f"服务 {service} 返回的语言列表为空，使用默认语言")
-                    languages[service] = default_response['languages'].get(service, default_response['languages']['google'])
-            except Exception as e:
-                app_logger.error(f"获取服务 {service} 语言列表时出错: {str(e)}")
-                languages[service] = default_response['languages'].get(service, default_response['languages']['google'])
-        
-        # 确保至少有一个服务有语言数据
-        if not languages or not any(languages.values()):
-            app_logger.warning("所有服务的语言列表均为空，使用默认语言列表")
-            languages = default_response['languages']
+            languages[service] = translation_manager.get_available_languages(service)
         
         # 发送配置
-        response_data = {
+        emit('translation_config', {
             'config': config,
             'available_services': available_services,
-            'languages': languages,
-            'time': int(time.time()) # 添加时间戳
-        }
-        
-        app_logger.info(f"准备返回配置，语言列表包含 {len(languages)} 个服务")
-        
-        # 如果客户端提供了回调，直接通过回调返回数据
-        # 否则通过事件返回数据
-        if callable(data):
-            app_logger.info("通过回调返回翻译配置")
-            data(response_data)  # 返回完整的response_data而不仅是config
-        else:
-            app_logger.info("通过事件返回翻译配置")
-            emit('translation_config', response_data)
+            'languages': languages
+        })
         
     except Exception as e:
         app_logger.error(f"获取翻译配置时出错: {str(e)}", exc_info=True)
-        
-        # 出错时也返回默认配置而不是错误信息
-        default_response = {
-            'config': {
-                'active_service': 'google',
-                'use_streaming_translation': False,
-                'services': {
-                    'google': {
-                        'use_official_api': False,
-                        'target_language': 'zh-CN',
-                        'source_language': 'auto'
-                    }
-                }
-            },
-            'languages': {
-                'google': {
-                    'en': '英语',
-                    'zh-CN': '中文（简体）',
-                    'zh-TW': '中文（繁体）',
-                    'ja': '日语',
-                    'ko': '韩语',
-                    'fr': '法语',
-                    'de': '德语',
-                    'es': '西班牙语',
-                    'it': '意大利语',
-                    'ru': '俄语'
-                }
-            },
-            'time': int(time.time()) # 添加时间戳
-        }
-        
-        app_logger.warning("由于错误返回默认配置")
-        
-        if callable(data):
-            app_logger.info("通过回调返回默认配置")
-            data(default_response)
-        else:
-            app_logger.info("通过事件返回默认配置")
-            emit('translation_config', default_response)
-            emit('error', {'message': f'获取翻译配置出错，已使用默认配置: {str(e)}'})
+        emit('error', {'message': f'获取翻译配置失败: {str(e)}'})
 
 @socketio.on('update_translation_config')
 def handle_update_translation_config(data):
@@ -1000,133 +866,6 @@ def handle_get_service_stats(data):
             }
         })
 
-@socketio.on('start_translation')
-def handle_start_translation():
-    """确认实时翻译会话状态"""
-    app_logger.debug("收到翻译状态查询请求")
-    try:
-        if not realtime_handler:
-            app_logger.error("实时处理器未初始化")
-            emit('error', {'message': '实时处理器未初始化'})
-            return
-            
-        # 始终返回活跃状态
-        emit('translation_status', {
-            'active': True,
-            'message': '实时翻译已启动'
-        })
-    except Exception as e:
-        app_logger.error(f"查询翻译状态时出错: {str(e)}", exc_info=True)
-        emit('error', {'message': f'查询翻译状态失败: {str(e)}'})
-
-@socketio.on('get_translation_status')
-def handle_get_translation_status(data=None):
-    """获取实时翻译会话状态"""
-    app_logger.debug("收到获取翻译会话状态请求")
-    
-    try:
-        if not realtime_handler:
-            status = {
-                'active': False,
-                'error': '实时处理器未初始化'
-            }
-        else:
-            is_active = realtime_handler.is_session_active()
-            status = {
-                'active': is_active,
-                'message': '翻译会话正在运行' if is_active else '翻译会话未启动'
-            }
-            
-        # 如果提供了回调函数，通过回调返回
-        if callable(data):
-            data(status)
-        else:
-            # 否则通过事件发送
-            emit('translation_status', status)
-            
-    except Exception as e:
-        app_logger.error(f"获取翻译会话状态时出错: {str(e)}", exc_info=True)
-        error_status = {
-            'active': False,
-            'error': f'获取翻译会话状态失败: {str(e)}'
-        }
-        
-        if callable(data):
-            data(error_status)
-        else:
-            emit('error', {'message': error_status['error']})
-
-@socketio.on('stop_translation')
-def handle_stop_translation():
-    """处理停止翻译请求 - 现在仅清空显示"""
-    app_logger.debug("收到停止实时翻译请求 - 仅清空显示")
-    try:
-        # 返回仍处于活跃状态的消息
-        emit('translation_status', {
-            'active': True,
-            'message': '翻译会话已重置'
-        })
-    except Exception as e:
-        app_logger.error(f"停止翻译处理时出错: {str(e)}", exc_info=True)
-        emit('error', {'message': f'处理请求失败: {str(e)}'})
-
-@socketio.on('reset_translation_session')
-def handle_reset_translation_session():
-    """重置实时翻译会话状态(清除缓冲区并重新连接回调)"""
-    app_logger.info("收到重置翻译会话状态请求")
-    try:
-        if not realtime_handler:
-            app_logger.error("实时处理器未初始化，无法重置会话")
-            emit('error', {'message': '实时处理器未初始化'})
-            return
-            
-        # 首先取消注册回调
-        realtime_handler._unregister_stt_callbacks()
-        
-        # 然后重新注册回调
-        realtime_handler._register_stt_callbacks()
-        
-        app_logger.info("翻译会话已重置")
-        
-        emit('translation_status', {
-            'active': True,
-            'message': '会话已重置并保持活跃状态'
-        })
-    except Exception as e:
-        app_logger.error(f"重置翻译会话时出错: {str(e)}", exc_info=True)
-        emit('error', {'message': f'重置翻译会话失败: {str(e)}'})
-
-@socketio.on('test_translation')
-def handle_test_translation(data):
-    """处理测试翻译请求"""
-    app_logger.info("收到测试翻译请求")
-    try:
-        if not realtime_handler:
-            app_logger.error("实时处理器未初始化，无法测试翻译")
-            emit('error', {'message': '实时处理器未初始化'})
-            return
-            
-        # 发送一个测试消息，确认实时翻译功能正常
-        test_message = data.get('message', '这是一条测试消息')
-        
-        # 模拟一个转录数据结构
-        transcript_data = {
-            'text': test_message,
-            'is_final': True
-        }
-        
-        # 调用实时处理器的处理方法
-        realtime_handler._handle_interim_transcript(transcript_data)
-        
-        # 发送确认消息
-        emit('test_translation_result', {
-            'success': True,
-            'message': '测试翻译请求已处理'
-        })
-    except Exception as e:
-        app_logger.error(f"处理测试翻译请求时出错: {str(e)}", exc_info=True)
-        emit('error', {'message': f'测试翻译失败: {str(e)}'})
-
 def main():
     """主函数入口点"""
     # 处理冻结多进程应用程序的兼容性
@@ -1146,7 +885,7 @@ def main():
         update_app_log_settings(stt_service)
         
         # 初始化API路由
-        init_translation_routes(app, realtime_handler, socketio)  # 注册翻译API路由，传递socketio实例
+        init_translation_routes(app, realtime_handler)  # 注册翻译API路由
         
         # 启动资源监控
         resource_monitor_thread = threading.Thread(target=monitor_resources, daemon=True)

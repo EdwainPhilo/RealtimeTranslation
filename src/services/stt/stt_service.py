@@ -12,7 +12,6 @@ from src.utils.stt.audio_recorder import AudioToTextRecorder
 import importlib
 import subprocess
 from typing import Dict, Any, Optional, List, Union
-import gc
 
 # 配置日志
 logging.basicConfig(
@@ -118,12 +117,6 @@ class STTService:
         self.realtime_callback = realtime_callback
         self.full_sentence_callback = full_sentence_callback
         
-        # 添加回调函数字典
-        self.callbacks = {
-            'on_interim_result': [],  # 实时转录回调
-            'on_final_result': [],    # 最终转录回调
-        }
-        
         # 从文件加载上次保存的配置
         self.load_config_from_file()
         
@@ -150,44 +143,6 @@ class STTService:
             print("录音机监控线程已启动")
         else:
             print("录音机创建失败，不启动监控线程")
-
-    def register_callback(self, event_type, callback):
-        """
-        注册回调函数
-        
-        Args:
-            event_type: 事件类型，可以是'on_interim_result', 'on_final_result'
-            callback: 回调函数
-            
-        Returns:
-            是否成功注册
-        """
-        if event_type in self.callbacks:
-            self.callbacks[event_type].append(callback)
-            print(f"已注册STT {event_type}回调函数")
-            return True
-        else:
-            print(f"未知STT事件类型: {event_type}")
-            return False
-    
-    def unregister_callback(self, event_type, callback):
-        """
-        取消注册回调函数
-        
-        Args:
-            event_type: 事件类型
-            callback: 回调函数
-            
-        Returns:
-            是否成功取消注册
-        """
-        if event_type in self.callbacks and callback in self.callbacks[event_type]:
-            self.callbacks[event_type].remove(callback)
-            print(f"已取消注册STT {event_type}回调函数")
-            return True
-        else:
-            print(f"无法取消注册STT回调: 回调函数未找到")
-            return False
 
     def setup_wakeword_callbacks(self):
         """设置唤醒词回调函数"""
@@ -275,17 +230,8 @@ class STTService:
 
     def text_detected(self, text):
         """当实时转录稳定时调用的回调函数"""
-        # 调用直接注册的回调函数
         if self.realtime_callback:
             self.realtime_callback(text)
-            
-        # 调用通过register_callback注册的回调函数
-        for callback in self.callbacks['on_interim_result']:
-            try:
-                callback({'text': text, 'is_final': False})
-            except Exception as e:
-                print(f"执行实时转录回调时出错: {str(e)}")
-                
         print(f"\r{text}", end='', flush=True)
 
     def get_serializable_config(self):
@@ -336,55 +282,58 @@ class STTService:
 
             # 创建新录音机
             print("创建新录音机...")
-            
-            # 放弃所有旧的资源，尝试触发垃圾回收
-            gc.collect()
-            
-            # 设置就绪事件
-            self.recorder_ready.clear()
-            
             try:
                 self.recorder = AudioToTextRecorder(**config_copy)
-                self.recorder_ready.set()
-                print("录音机初始化成功")
-                return True, None
             except Exception as e:
-                error_message = f"初始化录音机失败: {e}"
-                print(error_message)
-                
-                # 记录启动错误
-                self.record_startup_error("初始化录音机", str(e))
-                
-                # 特定错误处理
-                if "Access is denied" in str(e) or "InvalidAccessKeyException" in str(e):
-                    pass  # 这些错误需要用户干预，如提供正确的API密钥
-                elif "No backend available" in str(e):
-                    pass  # 缺少后端，可能需要安装某些库
-                elif "No such file or directory" in str(e) and "openwakeword" in str(e):
-                    self.reset_openwakeword_model_paths(e)
-                elif "pvcobra" in str(e) or "pvporcupine" in str(e):
-                    self.reset_porcupine_settings(e)
+                error_str = str(e)
+                # 检查是否是OpenWakeWord模型加载错误
+                if ('openwakeword' in error_str.lower() or 'onnx' in error_str.lower() or 
+                    'protobuf' in error_str.lower() or 'model' in error_str.lower()):
+                    
+                    # 记录错误但继续尝试重置模型路径
+                    print(f"OpenWakeWord模型加载失败: {e}")
+                    logging.error(f"OpenWakeWord模型加载失败，将自动重置模型路径", exc_info=True)
+                    
+                    # 使用专门的方法重置模型路径
+                    if self.reset_openwakeword_model_paths(e):
+                        # 重置成功，尝试继续创建录音机
+                        return self.recorder
+                    else:
+                        # 重置失败，抛出原始异常
+                        raise e
+                # 检查是否是Porcupine相关错误
+                elif ('porcupine' in error_str.lower() or 'wake_words' in error_str.lower() or 
+                     'wake word' in error_str.lower() or 'access_key' in error_str.lower() or
+                     'api key' in error_str.lower()  or 'picovoice' in error_str.lower() or 'accesskey' in error_str.lower()or
+                    'wakeword' in error_str.lower()):
+                    
+                    # 记录错误但继续尝试重置Porcupine设置
+                    print(f"Porcupine初始化失败: {e}")
+                    logging.error(f"Porcupine初始化失败，将自动重置相关设置", exc_info=True)
+                    
+                    # 使用专门的方法重置Porcupine设置
+                    if self.reset_porcupine_settings(e):
+                        # 重置成功，尝试继续创建录音机
+                        return self.recorder
+                    else:
+                        # 重置失败，抛出原始异常
+                        raise e
                 else:
-                    # 对于其他错误，尝试使用最小配置创建录音机
-                    try:
-                        print("尝试使用最小配置创建录音机...")
-                        min_config = {
-                            'level': level,
-                            'debug_mode': True
-                        }
-                        self.recorder = AudioToTextRecorder(**min_config)
-                        self.recorder_ready.set()
-                        print("使用最小配置初始化录音机成功")
-                        return True, None
-                    except Exception as min_e:
-                        error_message = f"使用最小配置初始化录音机也失败: {min_e}"
-                        print(error_message)
-                
-                return False, error_message
+                    # 其他类型的错误，直接抛出
+                    raise e
+
+            # 设置为就绪状态
+            self.recorder_ready.set()
+            
+            # 设置唤醒词回调函数
+            self.setup_wakeword_callbacks()
+            
+            return True, None
         except Exception as e:
-            error_message = f"创建录音机过程中出错: {e}"
-            print(error_message)
-            return False, error_message
+            print(f"创建录音机过程中出现异常: {e}")
+            logging.error(f"创建录音机过程中出现异常", exc_info=True)
+            # 不设置recorder_ready标志，保持为未就绪状态
+            return False, str(e)
 
     def run_recorder(self):
         """运行录音机的线程函数"""
@@ -406,18 +355,8 @@ class STTService:
                     # 获取完整文本
                     full_sentence = self.recorder.text()
 
-                    if full_sentence:
-                        # 调用直接注册的回调
-                        if self.full_sentence_callback:
-                            self.full_sentence_callback(full_sentence)
-                            
-                        # 调用通过register_callback注册的回调
-                        for callback in self.callbacks['on_final_result']:
-                            try:
-                                callback({'text': full_sentence, 'is_final': True})
-                            except Exception as e:
-                                print(f"执行完整句子回调时出错: {str(e)}")
-                                
+                    if full_sentence and self.full_sentence_callback:
+                        self.full_sentence_callback(full_sentence)
                         print(f"\rSentence: {full_sentence}")
 
                     retry_count = 0  # 成功操作后重置重试计数

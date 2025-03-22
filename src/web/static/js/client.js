@@ -10,9 +10,6 @@ let useSimplifiedChinese = true; // 是否使用简体中文
 let originalFullSentences = []; // 保存原始句子（未转换前）
 let currentWakewordStyle = 1; // 当前唤醒灯样式
 
-// 全局变量，用于跟踪当前激活的导航标签
-let currentNavTab = 'transcription'; // 默认为转录页面
-
 // 音效播放函数
 function playWakeSound() {
     const wakeSound = document.getElementById('wakeSound');
@@ -44,166 +41,9 @@ let animationFrameId;
 let recorder = null;
 let isFirstConnection = true;
 
-// 防抖变量
-let lastTranslatedText = '';
-let translationDebounceTimer = null;
-const TRANSLATION_DEBOUNCE_TIME = 1000; // 1秒内不重复翻译相同文本
-
 // 处理文本转换的辅助函数
 function processText(text) {
-    // 执行简繁中文转换
-    const processedText = useSimplifiedChinese ? window.ChineseConverter.convertToSimplified(text) : text;
-
-    // 显示转录文本 - 先显示文本，再处理翻译请求
-    displayRealtimeText(processedText, displayDiv);
-    
-    // 异步处理翻译请求，不阻塞主线程
-    setTimeout(() => {
-        // 将转录文本同步发送给翻译服务
-        if (window.realtimeTranslationController) {
-            // 直接处理转录文本进行翻译
-            
-            // 防抖逻辑：如果与上次翻译的文本相同，且在防抖时间内，则不重复发送请求
-            if (processedText === lastTranslatedText && translationDebounceTimer) {
-                console.log('跳过重复翻译请求:', processedText);
-                return;
-            }
-            
-            // 更新上次翻译的文本
-            lastTranslatedText = processedText;
-            
-            // 清除之前的定时器
-            if (translationDebounceTimer) {
-                clearTimeout(translationDebounceTimer);
-            }
-            
-            // 设置新的定时器
-            translationDebounceTimer = setTimeout(() => {
-                translationDebounceTimer = null;
-            }, TRANSLATION_DEBOUNCE_TIME);
-            
-            console.log('将转录文本发送到翻译服务:', processedText);
-        }
-        
-        // 检查socket连接状态并发送translate_text事件
-        if (socket && socket.connected) {
-            // 首先尝试从TranslationConfigManager获取配置
-            let translationRequest;
-            if (typeof TranslationConfigManager !== 'undefined' && TranslationConfigManager.getConfig()) {
-                const config = TranslationConfigManager.getConfig();
-                const service = config.active_service || config.service || 'google';
-                const serviceConfig = config.services && config.services[service] || {};
-                
-                translationRequest = {
-                    text: processedText,
-                    source_language: serviceConfig.source_language || 'auto',
-                    target_language: serviceConfig.target_language || 'en',
-                    service: service,
-                    original_text: processedText // 添加原始文本字段
-                };
-                
-                console.log('使用TranslationConfigManager配置发送翻译请求:', translationRequest);
-            } else {
-                // 如果没有TranslationConfigManager配置，使用默认配置
-                translationRequest = {
-                    text: processedText,
-                    source_language: 'auto',
-                    target_language: 'en',
-                    service: 'google',
-                    original_text: processedText // 添加原始文本字段
-                };
-                
-                console.log('使用默认配置发送翻译请求:', translationRequest);
-            }
-            
-            socket.emit('translate_text', translationRequest);
-            
-            // 获取翻译配置 - 如果还没有完整配置，尝试获取
-            if (typeof TranslationConfigManager === 'undefined' || !TranslationConfigManager.getConfig()) {
-                console.log('尝试获取完整翻译配置');
-                socket.emit('get_translation_config', {}, (data) => {
-                    // 添加安全检查，确保data存在
-                    if (!data) {
-                        console.warn('翻译配置不可用 (data为空)，已使用默认配置');
-                        // 使用默认配置
-                        const defaultConfig = {
-                            config: {
-                                active_service: 'google',
-                                use_streaming_translation: false,
-                                services: {
-                                    google: {
-                                        use_official_api: false,
-                                        target_language: 'zh-CN',
-                                        source_language: 'auto'
-                                    }
-                                }
-                            },
-                            languages: {
-                                google: {
-                                    'en': '英语',
-                                    'zh-CN': '中文（简体）',
-                                    'zh-TW': '中文（繁体）',
-                                    'ja': '日语',
-                                    'ko': '韩语'
-                                }
-                            }
-                        };
-                        
-                        // 如果存在全局TranslationConfigManager，更新配置
-                        if (typeof TranslationConfigManager !== 'undefined') {
-                            console.log('使用默认配置更新TranslationConfigManager');
-                            TranslationConfigManager.setConfig(defaultConfig.config);
-                        }
-                        
-                        return;
-                    }
-                    
-                    // 检查是否为错误响应
-                    if (data.error) {
-                        console.warn('翻译配置返回错误:', data.error, '已使用默认配置');
-                        return;
-                    }
-                    
-                    try {
-                        // 获取配置，既支持新的response_data格式也支持旧的仅config格式
-                        const config = data.config || data;
-                        
-                        // 确保config对象存在且有services属性
-                        if (config && config.services) {
-                            // 获取活跃的服务和相关配置
-                            const service = config.active_service || config.service || 'google';
-                            const serviceConfig = config.services[service] || {};
-                            
-                            // 如果存在全局TranslationConfigManager，更新配置
-                            if (typeof TranslationConfigManager !== 'undefined') {
-                                console.log('使用服务器配置更新TranslationConfigManager');
-                                TranslationConfigManager.setConfig(config);
-                            }
-                            
-                            // 如果配置有效且与之前发送的请求配置不同，使用新配置发送第二次翻译请求
-                            if (service !== translationRequest.service ||
-                                serviceConfig.source_language !== translationRequest.source_language ||
-                                serviceConfig.target_language !== translationRequest.target_language) {
-                                
-                                console.log('使用获取到的翻译配置发送第二次翻译请求');
-                                socket.emit('translate_text', {
-                                    text: processedText,
-                                    source_language: serviceConfig.source_language || 'auto',
-                                    target_language: serviceConfig.target_language || 'en',
-                                    service: service,
-                                    original_text: processedText // 添加原始文本字段
-                                });
-                            }
-                        }
-                    } catch (err) {
-                        console.error('处理翻译配置时出错:', err);
-                    }
-                });
-            }
-        }
-    }, 0); // 使用0延迟的setTimeout确保异步执行
-    
-    return processedText;
+    return useSimplifiedChinese ? window.ChineseConverter.convertToSimplified(text) : text;
 }
 
 // 更新显示文本（考虑繁简转换）
@@ -342,8 +182,6 @@ function start_msg() {
             }
         }
     }
-    
-    console.log('显示初始消息，麦克风状态:', mic_available, '服务器状态:', server_available);
     
     if (!mic_available)
         displayRealtimeText("🎤  请允许麦克风访问  🎤", displayDiv);
@@ -668,18 +506,7 @@ function getConfigFromUI() {
 socket.on('connect', function () {
     server_available = true;
     
-    // 更新显示状态
-    if (displayDiv) {
-        if (mic_available) {
-            // 如果麦克风和服务器都可用，显示开始说话的提示
-            displayRealtimeText("👄  开始说话  👄", displayDiv);
-        } else {
-            // 服务器可用但麦克风未就绪，提示允许麦克风访问
-            displayRealtimeText("🎤  请允许麦克风访问  🎤", displayDiv);
-        }
-    }
-    
-    // 确保 DOM 已加载完成再调用 initApp
+    // 确保 DOM 已加载完成再调用 start_msg
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
@@ -695,13 +522,7 @@ socket.on('connect', function () {
 socket.on('disconnect', function () {
     server_available = false;
     
-    // 更新显示状态
-    if (displayDiv) {
-        // 服务器断开连接，显示服务器不可用的提示
-        displayRealtimeText("🖥️  请启动服务器  🖥️", displayDiv);
-    }
-    
-    // 确保 DOM 已加载完成再调用 initApp
+    // 确保 DOM 已加载完成再调用 start_msg
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             initApp();
@@ -1182,589 +1003,184 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 处理标签页切换
-    initNavigationTabs();
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 获取目标页面ID
+            const targetPage = this.getAttribute('data-page');
+            
+            // 如果当前选项卡已经激活，不做任何操作
+            if (this.classList.contains('active')) {
+                return;
+            }
+            
+            // 移除所有选项卡和页面的active类
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // 激活当前选项卡和对应页面
+            this.classList.add('active');
+            document.getElementById(`${targetPage}-page`).classList.add('active');
+            
+            // 如果切换到翻译页面，初始化翻译控制器
+            if (targetPage === 'translation' && window.realtimeTranslationController) {
+                // 确保翻译控制器已初始化
+                if (!window.realtimeTranslationControllerInitialized) {
+                    window.realtimeTranslationController.initSettings();
+                    window.realtimeTranslationControllerInitialized = true;
+                }
+            }
+        });
+    });
 });
 
 // 在文档加载完成后初始化 displayDiv
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化导航选项卡
-    initNavigationTabs();
-    
-    // 检查URL参数，看是否需要激活特定页面
-    const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page');
-    if (page) {
-        const tab = document.querySelector(`.nav-tab[data-page="${page}"]`);
-        if (tab) {
-            tab.click();
-        }
+    displayDiv = document.getElementById('textDisplay');
+    if (!displayDiv) {
+        console.error('无法找到文本显示区域元素，页面可能存在结构问题');
     }
+    
+    // 初始化应用程序，确保 displayDiv 已初始化后再调用 start_msg
+    initApp();
 });
 
-/**
- * 初始化应用程序
- */
+// 应用初始化函数，确保在 DOM 加载完成后调用
 function initApp() {
-    console.log('初始化应用程序...');
-    
-    // 初始化显示元素
-    displayDiv = document.getElementById('textDisplay');
-    
-    // 如果页面上已经有TranslationConfigManager，确保初始化
-    if (typeof TranslationConfigManager !== 'undefined') {
-        // 初始化默认配置
-        TranslationConfigManager.initialize({
-            active_service: 'google',
-            use_streaming_translation: false,
-            services: {
-                google: {
-                    use_official_api: false,
-                    target_language: 'zh-CN',
-                    source_language: 'auto'
-                }
-            }
-        });
-        console.log('初始化TranslationConfigManager默认配置');
-    }
-
-    // 初始化录音状态指示器
-    updateRecordingStatusIndicator(false, '准备中');
-
-    // 初始化唤醒词状态指示器
-    updateWakewordStatusIndicator('disabled', '禁用');
-
-    // 连接到服务器
-    socket.on('connect', function () {
-        server_available = true;
-        
-        // 更新显示状态
-        if (displayDiv) {
-            if (mic_available) {
-                // 如果麦克风和服务器都可用，显示开始说话的提示
-                displayRealtimeText("👄  开始说话  👄", displayDiv);
-            } else {
-                // 服务器可用但麦克风未就绪，提示允许麦克风访问
-                displayRealtimeText("🎤  请允许麦克风访问  🎤", displayDiv);
-            }
-        }
-        
-        // 确保 DOM 已加载完成再调用 initApp
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                initApp();
-            });
-        } else {
-            initApp();
-        }
-
-        // 连接后请求当前配置
-        socket.emit('get_config');
-    });
-
-    socket.on('disconnect', function () {
-        server_available = false;
-        
-        // 更新显示状态
-        if (displayDiv) {
-            // 服务器断开连接，显示服务器不可用的提示
-            displayRealtimeText("🖥️  请启动服务器  🖥️", displayDiv);
-        }
-        
-        // 确保 DOM 已加载完成再调用 initApp
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                initApp();
-            });
-        } else {
-            initApp();
-        }
-    });
-
-    // 处理模型路径重置事件
-    socket.on('model_path_reset', function (data) {
-        console.warn('配置重置:', data);
-
-        // 显示简短通知
-        showStatusMessage(data.message || '检测到配置错误，已自动重置相关设置', false);
-
-        // 检测错误类型并更新相应UI
-        if (data.error && data.error.toLowerCase().includes('porcupine')) {
-            // Porcupine相关错误
-            
-            // 清空唤醒词输入框
-            const wakeWordsInput = document.getElementById('wake-words');
-            if (wakeWordsInput) {
-                wakeWordsInput.value = '';
-                wakeWordsInput.classList.add('validation-error');
-                showValidationError('wake-words', '检测到无效的唤醒词，已自动重置');
-            }
-            
-            // 如果是access_key错误，也清空access_key输入框
-            if (data.error.toLowerCase().includes('access_key') || 
-                data.error.toLowerCase().includes('api key')) {
-                const accessKeyInput = document.getElementById('porcupine-access-key');
-                if (accessKeyInput) {
-                    accessKeyInput.value = '';
-                    accessKeyInput.classList.add('validation-error');
-                    showValidationError('porcupine-access-key', '检测到无效的访问密钥，已自动重置');
-                }
-            }
-        } else {
-            // OpenWakeWord模型路径错误
-            const modelPathInput = document.getElementById('openwakeword-models');
-            if (modelPathInput) {
-                // 清空输入框
-                modelPathInput.value = '';
-
-                // 添加错误样式
-                modelPathInput.classList.add('validation-error');
-
-                // 显示错误消息
-                showValidationError('openwakeword-models', '检测到无效的模型文件，已自动重置为默认值');
-            }
-        }
-
-        // 不需要额外的倒计时和刷新逻辑，重启页面会处理这些
-    });
-
-    socket.on('realtime', function (data) {
-        if (data.type === 'realtime') {
-            // 使用辅助函数处理文本
-            const processedText = processText(data.text);
-            displayRealtimeText(processedText, displayDiv);
-        }
-    });
-
-    socket.on('fullSentence', function (data) {
-        if (data.type === 'fullSentence') {
-            // 保存原始句子（未转换）
-            originalFullSentences.push(data.text);
-            // 使用辅助函数处理文本
-            const processedText = processText(data.text);
-            fullSentences.push(processedText);
-
-            // 更新显示
-            updateDisplay();
-        }
-    });
-
-    // 处理唤醒词状态事件
-    socket.on('wakeword_status', function (data) {
-        console.log('唤醒词状态更新:', data);
-        updateWakewordStatusIndicator(data.status, data.message);
-    });
-
-    // 处理录音状态事件
-    socket.on('recording_status', function (data) {
-        console.log('录音状态更新:', data);
-        updateRecordingStatusIndicator(data.active, data.message);
-    });
-
-    // 接收服务器配置
-    socket.on('config', function (config) {
-        currentConfig = config;
-        updateSettingsUI(config);
-        console.log('收到服务器配置:', config);
-
-        // 根据配置设置初始唤醒词状态
-        if (config.wakeword_backend === 'pvporcupine' && (!config.wake_words || config.wake_words === '')) {
-            // 唤醒词为空，视为未启用
-            updateWakewordStatusIndicator('disabled', '禁用');
-            // 唤醒词未启用时，录音是启用的
-            updateRecordingStatusIndicator(true, '聆听');
-        } else if (config.wakeword_backend === 'disabled') {
-            // 明确禁用
-            updateWakewordStatusIndicator('disabled', '禁用');
-            // 唤醒词未启用时，录音是启用的
-            updateRecordingStatusIndicator(true, '聆听');
-        } else {
-            // 唤醒词已配置，默认为监听状态
-            updateWakewordStatusIndicator('listening', '等待');
-            // 等待唤醒时，录音是禁用的
-            updateRecordingStatusIndicator(false, '休眠');
-        }
-
-        // 检查是否有启动错误信息
-        if (config.startup_error) {
-            showStartupErrorDialog(config.startup_error);
-        }
-    });
-
-    // 配置更新响应
-    socket.on('config_updated', function (response) {
-        if (response.success) {
-            currentConfig = response.config;
-            updateSettingsUI(response.config);
-            showStatusMessage('设置已成功应用，等待录音机就绪...', true);
-            // 记录正在等待录音机就绪
-            waitingForConfigUpdate = true;
-        } else {
-            showStatusMessage('设置应用失败: ' + response.error, false);
-            // 配置更新失败，重置等待状态
-            waitingForConfigUpdate = false;
-        }
-    });
-
-    // 设置录音机状态
-    socket.on('recorder_status', function (data) {
-        const currentTime = Date.now();
-        const message = data.ready ? '录音机已准备就绪' : '录音机未就绪';
-        
-        // 如果是相同消息且时间间隔小于防抖时间，则不显示
-        if (message === lastRecorderStatusMessage && 
-            (currentTime - lastRecorderStatusTime) < RECORDER_STATUS_DEBOUNCE_TIME) {
-            return;
-        }
-        
-        // 更新最后显示的消息和时间
-        lastRecorderStatusMessage = message;
-        lastRecorderStatusTime = currentTime;
-        
-        if (data.ready) {
-            if (waitingForConfigUpdate) {
-                // 如果是配置更新后的状态变更，则关闭设置面板
-                waitingForConfigUpdate = false;
-                showStatusMessage('录音机已准备就绪', true);
-
-                // 延迟一秒关闭设置面板，让用户看到成功消息
-                setTimeout(() => {
-                    const settingsOverlay = document.getElementById('settingsOverlay');
-                    if (settingsOverlay) {
-                        settingsOverlay.style.display = 'none';
-                    }
-                }, 1000);
-            } else {
-                showStatusMessage('录音机已准备就绪', true);
-            }
-        } else {
-            showStatusMessage('录音机未就绪', false);
-        }
-    });
-
-    // 处理应用重启消息
-    socket.on('restart_required', function (data) {
-        console.log('应用即将重启:', data);
-
-        // 如果提供了重定向URL，则在倒计时结束后重定向
-        if (data.redirect_to) {
-            // 显示简单的重启消息
-            displayDiv.innerHTML = `<span class="restart-message">应用正在重启，${data.countdown || 3}秒后将跳转到重启页面...</span>`;
-
-            // 倒计时结束后重定向
-            setTimeout(function () {
-                window.location.href = data.redirect_to;
-            }, (data.countdown || 3) * 1000);
-
-            return; // 不显示对话框，直接返回
-        }
-
-        // 旧的处理逻辑已被移除，现在所有重启都应该使用重定向
-        console.warn('收到没有重定向URL的重启请求，将刷新页面');
-
-        // 显示简单的重启消息
-        displayDiv.innerHTML = `<span class="restart-message">应用正在重启，页面将在5秒后刷新...</span>`;
-
-        // 5秒后刷新页面（兼容旧版本）
-        setTimeout(function () {
-            window.location.reload();
-        }, 5000);
-    });
-
-    // 设置重置按钮事件处理
-    const resetButton = document.getElementById('resetButton');
-    if (resetButton) {
-        resetButton.onclick = function() {
-            fullSentences = [];
-            originalFullSentences = [];
-            if (displayDiv) {
-                displayDiv.innerHTML = '';
-            }
-            start_msg();
-        };
-    }
-    
-    // 设置清空按钮事件处理
-    const clearButton = document.getElementById('clearButton');
-    if (clearButton) {
-        clearButton.onclick = function() {
-            if (displayDiv) {
-                displayDiv.innerHTML = '';
-            }
-        };
-    }
-    
-    // 设置设置图标点击事件
-    const settingsIcon = document.getElementById('settingsIcon');
-    if (settingsIcon) {
-        settingsIcon.onclick = function() {
-            // 直接显示设置面板
-            const settingsOverlay = document.getElementById('settingsOverlay');
-            if (settingsOverlay) {
-                settingsOverlay.style.display = 'flex';
-            } else {
-                console.error('未找到设置面板元素');
-            }
-        };
-    }
-    
-    // 设置关闭图标点击事件
-    const shutdownIcon = document.getElementById('shutdownIcon');
-    if (shutdownIcon) {
-        shutdownIcon.onclick = function() {
-            openDialog('shutdownConfirmDialog');
-        };
-    }
-    
-    // 初始化导航标签页
-    initNavigationTabs();
-    
-    // 初始化并启动实时翻译控制器
-    window.realtimeTranslationController = new RealtimeTranslationController({
-        translatedTextDisplay: document.getElementById('translated-text'),
-        statusIndicator: document.getElementById('translation-status-indicator'),
-        forceInit: true
-    });
-    
-    // 立即连接翻译服务并开始翻译，无论当前是哪个标签页
-    window.realtimeTranslationController._connectEventSource();
-    window.realtimeTranslationControllerInitialized = true;
-    console.log('实时翻译控制器已初始化并启动');
-
-    // 添加标签页变更事件监听
-    document.addEventListener('tabChanged', function(event) {
-        const tabName = event.detail.tabName;
-        console.log(`标签页已切换到 ${tabName}`);
-        
-        // 无需在切换到翻译页面时重新初始化翻译控制器，因为它已经在应用启动时初始化
-    });
-    
-    // 监听配置变更
-    socket.on('config_updated', function(data) {
-        console.log('收到配置更新:', data);
-        updateSettingsUI(data.config);
-        waitingForConfigUpdate = false;
-    });
-    
-    // 监听录音状态
-    socket.on('recorder_status', function(data) {
-        if (!data) return;
-        console.log('收到录音状态更新:', data);
-        
-        // 状态变更通知
-        if (data.status) {
-            // 应用防抖逻辑
-            const now = Date.now();
-            const isDuplicate = (
-                data.message === lastRecorderStatusMessage && 
-                (now - lastRecorderStatusTime) < RECORDER_STATUS_DEBOUNCE_TIME
-            );
-            
-            if (!isDuplicate) {
-                showStatusMessage(data.message, data.status === 'success');
-                lastRecorderStatusMessage = data.message;
-                lastRecorderStatusTime = now;
-            }
-            
-            // 若收到录音成功的消息，说明服务器已就绪
-            if (data.status === 'success') {
-                // 确认麦克风已准备就绪，显示录音激活状态
-                mic_available = true;
-                updateRecordingStatusIndicator(true, data.message || '录音中');
-            } else if (data.status === 'error') {
-                // 麦克风故障或录音错误，显示错误状态
-                mic_available = false;
-                updateRecordingStatusIndicator(false, data.message || '录音错误');
-            }
-        }
-        
-        // 收到关于唤醒词状态的消息
-        if (data.wakeword_detection) {
-            if (data.wakeword_detection.status === 'active') {
-                updateWakewordStatusIndicator('listening', '聆听中');
-            } else if (data.wakeword_detection.status === 'detected') {
-                updateWakewordStatusIndicator('active', '已唤醒');
-                playWakeSound();
-            } else if (data.wakeword_detection.status === 'timeout') {
-                updateWakewordStatusIndicator('listening', '聆听中');
-                playTimeoutSound();
-            } else if (data.wakeword_detection.status === 'error') {
-                updateWakewordStatusIndicator('error', '错误');
-            } else {
-                // reset to default state
-                updateWakewordStatusIndicator('disabled', '禁用');
-            }
-        }
-    });
-    
     // 初始消息显示
     start_msg();
+}
 
 // 请求麦克风访问权限并设置音频处理
 navigator.mediaDevices.getUserMedia({audio: true})
-        .then(async stream => {
-            // 创建音频上下文
+    .then(async stream => {
+        // 创建音频上下文
         audioContext = new AudioContext();
         let source = audioContext.createMediaStreamSource(stream);
-
+        
         // 创建音频分析器并连接
         audioAnalyser = audioContext.createAnalyser();
         audioAnalyser.fftSize = 256; // 增大FFT大小以获取更详细的频率数据
         const bufferLength = audioAnalyser.frequencyBinCount;
         audioDataArray = new Uint8Array(bufferLength);
         
-            // 连接音频分析器
+        // 连接音频分析器
         source.connect(audioAnalyser);
-            
-            // 使用 AudioWorklet 或回退到 ScriptProcessorNode
-            let processor;
-            let isUsingWorklet = false;
-            
-            try {
-                // 检查浏览器是否支持 AudioWorklet
-                if (audioContext.audioWorklet) {
-                    // 加载音频处理器 - 使用Blob URL方式
-                    console.log('尝试加载AudioWorklet处理器...');
+        
+        // 使用 AudioWorklet 或回退到 ScriptProcessorNode
+        let processor;
+        let isUsingWorklet = false;
+        
+        try {
+            // 检查浏览器是否支持 AudioWorklet
+            if (audioContext.audioWorklet) {
+                // 加载音频处理器
+                await audioContext.audioWorklet.addModule('/static/js/audio-processor.js');
+                
+                // 创建 AudioWorkletNode 
+                const workletNode = new AudioWorkletNode(audioContext, 'audio-processor');
+                
+                // 监听从处理器发来的消息
+                workletNode.port.onmessage = (event) => {
+                    const { audioData, sampleRate } = event.data;
                     
-                    let processorUrl;
-                    // 检查全局变量中是否有预先创建的Blob URL
-                    if (window.audioProcessorBlobURL) {
-                        processorUrl = window.audioProcessorBlobURL;
-                        console.log('使用内联创建的Blob URL:', processorUrl);
-                    } else {
-                        // 回退到尝试使用普通路径
-                        const possiblePaths = [
-                            './static/js/audio-processor.js',
-                            '/static/js/audio-processor.js',
-                            window.location.origin + '/static/js/audio-processor.js'
-                        ];
+                    // 将音频数据转换为 Base64 编码并发送到服务器
+                    if (socket.connected) {
+                        const audioBlob = new Blob([audioData.buffer], { type: 'application/octet-stream' });
+                        const reader = new FileReader();
                         
-                        // 使用第一个路径
-                        processorUrl = possiblePaths[0];
-                        console.log('使用常规路径:', processorUrl);
+                        reader.onloadend = () => {
+                            const base64data = reader.result.split(',')[1];
+                            
+                            socket.emit('audio_data', {
+                                audio: base64data,
+                                sampleRate: sampleRate
+                            });
+                        };
+                        
+                        reader.readAsDataURL(audioBlob);
                     }
-                    
-                    // 尝试加载处理器
-                    await audioContext.audioWorklet.addModule(processorUrl);
-                    console.log('成功加载AudioWorklet处理器');
-                    
-                    // 创建 AudioWorkletNode 
-                    console.log('创建 AudioWorkletNode...');
-                    const workletNode = new AudioWorkletNode(audioContext, 'audio-processor');
-                    console.log('AudioWorkletNode 创建成功');
-                    
-                    // 监听从处理器发来的消息
-                    workletNode.port.onmessage = (event) => {
-                        const { audioData, sampleRate } = event.data;
-                        
-                        // 将音频数据转换为 Base64 编码并发送到服务器
-                        if (socket.connected) {
-                            const audioBlob = new Blob([audioData.buffer], { type: 'application/octet-stream' });
-                            const reader = new FileReader();
-                            
-                            reader.onloadend = () => {
-                                const base64data = reader.result.split(',')[1];
-                                
-                                socket.emit('audio_data', {
-                                    audio: base64data,
-                                    sampleRate: sampleRate
-                                });
-                            };
-                            
-                            reader.readAsDataURL(audioBlob);
-                        }
-                    };
-                    
-                    // 连接节点
-                    source.connect(workletNode);
-                    workletNode.connect(audioContext.destination);
-                    isUsingWorklet = true;
-                    
-                    console.log('使用 AudioWorklet 处理音频 - 更高性能、更低延迟');
-                }
-            } catch (err) {
-                console.error('设置 AudioWorklet 失败，回退到 ScriptProcessorNode:', err);
-                console.error('错误详情:', err.message);
-                console.error('错误栈:', err.stack);
-            }
-            
-            // 如果 AudioWorklet 不可用或设置失败，回退到 ScriptProcessorNode
-            if (!isUsingWorklet) {
-                console.warn('当前浏览器不支持 AudioWorklet 或设置失败，使用 ScriptProcessorNode (已弃用)');
-                
-                // 创建 ScriptProcessorNode
-                processor = audioContext.createScriptProcessor(256, 1, 1);
-                
-                // 连接音频节点
-                source.connect(processor);
-                processor.connect(audioContext.destination);
-                
-                // 添加音频处理函数
-        processor.onaudioprocess = function (e) {
-            let inputData = e.inputBuffer.getChannelData(0);
-            let outputData = new Int16Array(inputData.length);
-
-            // Convert to 16-bit PCM
-            for (let i = 0; i < inputData.length; i++) {
-                outputData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
-            }
-
-            // 将音频数据转换为 Base64 编码并发送到服务器
-            if (socket.connected) {
-                const audioBlob = new Blob([outputData.buffer], {type: 'application/octet-stream'});
-                const reader = new FileReader();
-
-                reader.onloadend = () => {
-                    const base64data = reader.result.split(',')[1];
-
-                    socket.emit('audio_data', {
-                        audio: base64data,
-                        sampleRate: audioContext.sampleRate
-                    });
                 };
+                
+                // 连接节点
+                source.connect(workletNode);
+                workletNode.connect(audioContext.destination);
+                isUsingWorklet = true;
+                
+                console.log('使用 AudioWorklet 处理音频 - 更高性能、更低延迟');
+            }
+        } catch (err) {
+            console.error('设置 AudioWorklet 失败，回退到 ScriptProcessorNode:', err);
+        }
+        
+        // 如果 AudioWorklet 不可用或设置失败，回退到 ScriptProcessorNode
+        if (!isUsingWorklet) {
+            console.warn('当前浏览器不支持 AudioWorklet 或设置失败，使用 ScriptProcessorNode (已弃用)');
+            
+            // 创建 ScriptProcessorNode
+            processor = audioContext.createScriptProcessor(256, 1, 1);
+            
+            // 连接音频节点
+            source.connect(processor);
+            processor.connect(audioContext.destination);
+            
+            // 添加音频处理函数
+            processor.onaudioprocess = function (e) {
+                let inputData = e.inputBuffer.getChannelData(0);
+                let outputData = new Int16Array(inputData.length);
 
-                reader.readAsDataURL(audioBlob);
-            }
-        };
-            }
-            
-            // 开始音频可视化
-            updateAudioVisualization();
-            
-            // 显式更新麦克风状态并重新显示初始消息
-            mic_available = true;
-            
-            // 通知服务器麦克风已就绪
-            if (socket && socket.connected) {
-                socket.emit('client_ready', { mic_ready: true });
-            }
-            
-            // 更新UI显示
-            updateRecordingStatusIndicator(true, '录音中');
-            
-            // 麦克风已获取到，更新显示消息
-            console.log('麦克风初始化完成，更新状态和显示');
-            if (displayDiv) {
-                // 重新显示初始消息，基于当前状态
-                start_msg();
-            }
-            
+                // Convert to 16-bit PCM
+                for (let i = 0; i < inputData.length; i++) {
+                    outputData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768));
+                }
+
+                // 将音频数据转换为 Base64 编码并发送到服务器
+                if (socket.connected) {
+                    const audioBlob = new Blob([outputData.buffer], {type: 'application/octet-stream'});
+                    const reader = new FileReader();
+
+                    reader.onloadend = () => {
+                        const base64data = reader.result.split(',')[1];
+
+                        socket.emit('audio_data', {
+                            audio: base64data,
+                            sampleRate: audioContext.sampleRate
+                        });
+                    };
+
+                    reader.readAsDataURL(audioBlob);
+                }
+            };
+        }
+        
+        // 开始音频可视化
+        updateAudioVisualization();
+        
+        mic_available = true;
+        
+        // 更新应用状态
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initApp();
+            });
+        } else {
+            initApp();
+        }
     })
     .catch(e => {
         console.error('麦克风访问错误:', e);
-            
-            if (document.readyState !== 'loading' && displayDiv) {
-        displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
-            } else {
-                // 等待 DOM 加载完成再显示错误
-                document.addEventListener('DOMContentLoaded', function() {
-                    displayDiv = document.getElementById('textDisplay');
-                    if (displayDiv) {
-                        displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
-                    }
-                });
-            }
-        });
-}
+        
+        if (document.readyState !== 'loading' && displayDiv) {
+            displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
+        } else {
+            // 等待 DOM 加载完成再显示错误
+            document.addEventListener('DOMContentLoaded', function() {
+                displayDiv = document.getElementById('textDisplay');
+                if (displayDiv) {
+                    displayRealtimeText("⚠️ 麦克风访问被拒绝，请允许访问麦克风并刷新页面 ⚠️", displayDiv);
+                }
+            });
+        }
+    });
 
 /**
  * 验证OpenWakeWord模型路径格式
@@ -2218,13 +1634,6 @@ function initNavigationTabs() {
     // 获取所有导航选项卡
     const navTabs = document.querySelectorAll('.nav-tab');
     
-    // 初始化时检查当前哪个标签页是激活的
-    const activeTab = document.querySelector('.nav-tab.active');
-    if (activeTab) {
-        currentNavTab = activeTab.getAttribute('data-page');
-        console.log(`初始化：当前活跃标签页为 ${currentNavTab}`);
-    }
-    
     // 为每个选项卡添加点击事件
     navTabs.forEach(tab => {
         tab.addEventListener('click', function() {
@@ -2236,39 +1645,22 @@ function initNavigationTabs() {
                 return;
             }
             
-            console.log(`切换到${targetPage}页面`);
-            
-            // 更新当前激活的标签页变量
-            currentNavTab = targetPage;
-            console.log(`当前活跃标签页: ${currentNavTab}`);
-            
             // 移除所有选项卡和页面的active类
             navTabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             
-            // 隐藏所有页面，并移除active类，但不清空内容
-            document.querySelectorAll('.page').forEach(p => {
-                p.classList.remove('active');
-                p.classList.add('hidden');
-                console.log(`隐藏页面: ${p.id}`);
-            });
-            
-            // 激活当前选项卡
+            // 激活当前选项卡和对应页面
             this.classList.add('active');
+            document.getElementById(`${targetPage}-page`).classList.add('active');
             
-            // 找到对应的页面并激活
-            const targetPageElement = document.getElementById(`${targetPage}-page`);
-            if (targetPageElement) {
-                targetPageElement.classList.add('active');
-                targetPageElement.classList.remove('hidden');
-                console.log(`显示页面: ${targetPageElement.id}`);
-            } else {
-                console.error(`找不到目标页面: ${targetPage}-page`);
+            // 如果切换到翻译页面，初始化翻译控制器
+            if (targetPage === 'translation' && window.realtimeTranslationController) {
+                // 确保翻译控制器已初始化
+                if (!window.realtimeTranslationControllerInitialized) {
+                    window.realtimeTranslationController.initSettings();
+                    window.realtimeTranslationControllerInitialized = true;
+                }
             }
-            
-            // 触发标签页变更事件，让其他组件可以响应
-            document.dispatchEvent(new CustomEvent('tabChanged', {
-                detail: { tabName: targetPage }
-            }));
         });
     });
 }
@@ -2287,19 +1679,4 @@ document.addEventListener('DOMContentLoaded', function() {
             tab.click();
         }
     }
-});
-
-/**
- * 打开指定 ID 的对话框
- * @param {string} dialogId - 对话框的 ID
- */
-function openDialog(dialogId) {
-    const dialog = document.getElementById(dialogId);
-    if (!dialog) {
-        console.error(`未找到ID为 ${dialogId} 的对话框元素`);
-        return;
-    }
-    
-    // 显示对话框
-    dialog.style.display = 'flex';
-} 
+}); 

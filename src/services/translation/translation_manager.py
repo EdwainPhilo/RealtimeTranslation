@@ -26,7 +26,6 @@ class TranslationManager:
         # 默认配置
         self.config = {
             'active_service': 'google',  # 默认使用Google翻译
-            'use_streaming_translation': False,  # 默认使用段落翻译模式
             'services': {
                 'google': {
                     'use_official_api': False,
@@ -179,11 +178,6 @@ class TranslationManager:
         # 更新配置
         if 'active_service' in config:
             self.config['active_service'] = config['active_service']
-        
-        # 处理流式翻译配置
-        if 'use_streaming_translation' in config:
-            self.config['use_streaming_translation'] = config['use_streaming_translation']
-            logger.info(f"流式翻译模式已设置为: {config['use_streaming_translation']}")
         
         if 'services' in config:
             for service_name, service_config in config['services'].items():
