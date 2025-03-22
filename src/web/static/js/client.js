@@ -700,15 +700,6 @@ socket.on('disconnect', function () {
         // 服务器断开连接，显示服务器不可用的提示
         displayRealtimeText("🖥️  请启动服务器  🖥️", displayDiv);
     }
-    
-    // 确保 DOM 已加载完成再调用 initApp
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
-        });
-    } else {
-        initApp();
-    }
 });
 
 // 处理模型路径重置事件
@@ -870,6 +861,35 @@ socket.on('recorder_status', function (data) {
     } else {
         showStatusMessage('录音机未就绪', false);
     }
+    
+    // 若收到录音成功的消息，说明服务器已就绪
+    if (data.status === 'success') {
+        // 确认麦克风已准备就绪，显示录音激活状态
+        mic_available = true;
+        updateRecordingStatusIndicator(true, data.message || '录音中');
+    } else if (data.status === 'error') {
+        // 麦克风故障或录音错误，显示错误状态
+        mic_available = false;
+        updateRecordingStatusIndicator(false, data.message || '录音错误');
+    }
+    
+    // 收到关于唤醒词状态的消息
+    if (data.wakeword_detection) {
+        if (data.wakeword_detection.status === 'active') {
+            updateWakewordStatusIndicator('listening', '聆听中');
+        } else if (data.wakeword_detection.status === 'detected') {
+            updateWakewordStatusIndicator('active', '已唤醒');
+            playWakeSound();
+        } else if (data.wakeword_detection.status === 'timeout') {
+            updateWakewordStatusIndicator('listening', '聆听中');
+            playTimeoutSound();
+        } else if (data.wakeword_detection.status === 'error') {
+            updateWakewordStatusIndicator('error', '错误');
+        } else {
+            // reset to default state
+            updateWakewordStatusIndicator('disabled', '禁用');
+        }
+    }
 });
 
 // 处理应用重启消息
@@ -899,306 +919,6 @@ socket.on('restart_required', function (data) {
     setTimeout(function () {
         window.location.reload();
     }, 5000);
-});
-
-// 当DOM加载完成，设置按钮事件
-document.addEventListener('DOMContentLoaded', function () {
-    const applySettingsBtn = document.getElementById('apply-settings');
-    if (applySettingsBtn) {
-        applySettingsBtn.addEventListener('click', async function () {
-            const config = getConfigFromUI();
-
-            // 验证Porcupine设置
-            if (config.wakeword_backend === 'pvporcupine') {
-                // 只有当唤醒词不为空时，才要求access_key必填
-                if (config.wake_words && config.wake_words.trim() && !config.porcupine_access_key) {
-                    showValidationError('porcupine-access-key', 'Porcupine访问密钥不能为空（唤醒词存在时必填）');
-                    showStatusMessage('设置验证失败，请修正错误后重试', false);
-                    return; // 阻止提交
-                }
-            }
-
-            // 验证OpenWakeWord模型路径
-            if (config.wakeword_backend === 'openwakeword' && document.getElementById('openwakeword-models')) {
-                const pathsString = document.getElementById('openwakeword-models').value;
-
-                // 首先进行格式验证
-                const formatValidation = validateOpenWakeWordPaths(pathsString);
-                if (!formatValidation.valid) {
-                    showValidationError('openwakeword-models', formatValidation.message);
-                    showStatusMessage('设置验证失败，请修正错误后重试', false);
-                    return; // 阻止提交
-                }
-
-                // 然后验证文件是否存在（如果路径不为空）
-                if (pathsString.trim()) {
-                    try {
-                        showStatusMessage('正在验证文件路径...', true);
-                        const fileValidation = await validateFilePath(pathsString);
-
-                        // 显示验证结果
-                        showFileValidationResult('openwakeword-models', fileValidation);
-
-                        // 如果验证失败，阻止提交
-                        if (!fileValidation.valid) {
-                            showStatusMessage('文件路径验证失败，请修正错误后重试', false);
-                            return;
-                        }
-                    } catch (error) {
-                        console.error('文件验证出错:', error);
-                        // 如果验证过程出错，仍然允许提交，但显示警告
-                        showStatusMessage('文件验证过程出错，将继续提交设置，但可能导致录音服务启动失败', false);
-                    }
-                }
-
-                clearValidationError('openwakeword-models', true); // 显示成功状态
-            }
-
-            socket.emit('update_config', config);
-            console.log('发送配置到服务器:', config);
-
-            // 显示正在更新的消息
-            showStatusMessage('正在应用设置...', true);
-            // 不立即关闭设置面板，而是等待响应
-            waitingForConfigUpdate = true;
-        });
-    }
-
-    // 恢复默认设置按钮
-    const resetToDefaultBtn = document.getElementById('reset-to-default');
-    if (resetToDefaultBtn) {
-        resetToDefaultBtn.addEventListener('click', function () {
-            if (confirm('确定要恢复所有设置到默认值吗？此操作无法撤销。')) {
-                socket.emit('reset_to_default');
-                console.log('发送恢复默认设置请求');
-
-                // 显示正在恢复的消息
-                showStatusMessage('正在恢复默认设置...', true);
-            }
-        });
-    }
-
-    // 从localStorage加载用户的简繁中文偏好
-    const savedPreference = localStorage.getItem('useSimplifiedChinese');
-    if (savedPreference !== null) {
-        useSimplifiedChinese = savedPreference === 'true';
-        // 更新切换按钮文本
-        const toggleButton = document.getElementById('toggle-chinese-mode');
-        if (toggleButton) {
-            toggleButton.textContent = useSimplifiedChinese ? '简' : '繁';
-        }
-    }
-    
-    // 从localStorage加载唤醒灯样式偏好
-    const savedWakewordStyle = localStorage.getItem('wakewordStyle');
-    if (savedWakewordStyle !== null) {
-        currentWakewordStyle = parseInt(savedWakewordStyle);
-    }
-    // 应用唤醒灯样式
-    updateWakewordStyle();
-    
-    // 添加点击唤醒灯切换样式的事件
-    const wakewordIndicator = document.getElementById('wakeword-status-indicator');
-    if (wakewordIndicator) {
-        wakewordIndicator.addEventListener('dblclick', function(e) {
-            // 双击打开唤醒灯样式选择面板
-            openWakewordStyleDialog();
-            e.stopPropagation(); // 阻止事件冒泡
-        });
-    }
-
-    // 获取按钮和对话框元素
-    const shutdownIcon = document.getElementById('shutdownIcon');
-    const shutdownDialog = document.getElementById('shutdownConfirmDialog');
-    const confirmShutdownBtn = document.getElementById('confirmShutdown');
-    const cancelShutdownBtn = document.getElementById('cancelShutdown');
-
-    // 显示确认对话框
-    shutdownIcon.addEventListener('click', function () {
-        shutdownDialog.style.display = 'flex';
-    });
-
-    // 取消关闭
-    cancelShutdownBtn.addEventListener('click', function () {
-        shutdownDialog.style.display = 'none';
-    });
-
-    // 确认关闭
-    confirmShutdownBtn.addEventListener('click', function () {
-        shutdownDialog.style.display = 'none';
-
-        // 发送关闭请求到服务器
-        socket.emit('shutdown_service');
-
-        // 显示关闭状态
-        displayDiv.innerHTML = '<span class="shutdown-message">服务正在关闭，请稍候...</span>';
-    });
-
-    // 点击对话框外部区域关闭对话框
-    shutdownDialog.addEventListener('click', function (event) {
-        if (event.target === shutdownDialog) {
-            shutdownDialog.style.display = 'none';
-        }
-    });
-
-    // 监听服务关闭事件
-    socket.on('service_shutdown', function (data) {
-        console.log('服务正在关闭:', data);
-
-        // 显示关闭倒计时
-        displayDiv.innerHTML = `<span class="shutdown-message">服务正在关闭，${data.countdown}秒后将自动断开连接...</span>`;
-
-        // 倒计时结束后刷新页面
-        setTimeout(function () {
-            displayDiv.innerHTML = '<span class="shutdown-message">服务已关闭，请关闭浏览器或刷新页面重新连接</span>';
-        }, data.countdown * 1000);
-    });
-
-    // 初始化唤醒词设置UI状态
-    const wakewordBackend = document.getElementById('wakeword-backend');
-    if (wakewordBackend) {
-        const settingGroup = wakewordBackend.closest('.setting-group');
-        if (settingGroup) {
-            // 默认显示OpenWakeWord设置
-            settingGroup.classList.add('openwakeword-active');
-        }
-    }
-
-    // 为OpenWakeWord模型路径输入框添加验证事件
-    const openwakewordModelsInput = document.getElementById('openwakeword-models');
-    if (openwakewordModelsInput) {
-        // 实时格式验证
-        openwakewordModelsInput.addEventListener('input', function () {
-            const formatValidation = validateOpenWakeWordPaths(this.value);
-            if (!formatValidation.valid) {
-                showValidationError('openwakeword-models', formatValidation.message);
-            } else {
-                // 只清除错误，不显示成功状态（留给文件存在验证）
-                clearValidationError('openwakeword-models');
-            }
-        });
-
-        // 添加失去焦点时验证文件路径
-        openwakewordModelsInput.addEventListener('blur', async function () {
-            // 首先进行格式验证
-            const formatValidation = validateOpenWakeWordPaths(this.value);
-            if (!formatValidation.valid) {
-                showValidationError('openwakeword-models', formatValidation.message);
-                return;
-            }
-
-            // 如果格式验证通过且值不为空，验证文件路径
-            if (this.value.trim()) {
-                try {
-                    const fileValidation = await validateFilePath(this.value);
-                    showFileValidationResult('openwakeword-models', fileValidation);
-                } catch (error) {
-                    console.error('文件验证出错:', error);
-                    // 显示警告但不阻止用户继续
-                    showValidationError('openwakeword-models', '无法验证文件是否存在: ' + error.message);
-                }
-            } else {
-                clearValidationError('openwakeword-models');
-            }
-        });
-
-        // 初始格式验证
-        const formatValidation = validateOpenWakeWordPaths(openwakewordModelsInput.value);
-        if (formatValidation.valid && openwakewordModelsInput.value.trim()) {
-            // 如果初始值格式正确且不为空，尝试验证文件存在性
-            validateFilePath(openwakewordModelsInput.value)
-                .then(result => showFileValidationResult('openwakeword-models', result))
-                .catch(error => console.error('初始文件验证失败:', error));
-        } else if (!formatValidation.valid) {
-            showValidationError('openwakeword-models', formatValidation.message);
-        }
-    }
-
-    // 为输入框添加input事件监听器，当用户输入内容时自动清除错误状态
-    const porcupineAccessKey = document.getElementById('porcupine-access-key');
-    const wakeWords = document.getElementById('wake-words');
-    const wakewordBackendSelect = document.getElementById('wakeword-backend');
-    
-    if (wakewordBackendSelect) {
-        wakewordBackendSelect.addEventListener('change', function() {
-            // 当切换到非pvporcupine时，清除相关错误状态
-            if (this.value !== 'pvporcupine') {
-                clearValidationError('porcupine-access-key');
-                clearValidationError('wake-words');
-            }
-        });
-    }
-    
-    if (porcupineAccessKey) {
-        porcupineAccessKey.addEventListener('input', function() {
-            if (this.value.trim()) {
-                clearValidationError('porcupine-access-key');
-            }
-        });
-    }
-    
-    if (wakeWords) {
-        wakeWords.addEventListener('input', function() {
-            if (this.value.trim()) {
-                clearValidationError('wake-words');
-            }
-        });
-    }
-
-    // 设置唤醒灯样式选择面板的事件
-    const styleDialog = document.getElementById('wakewordStyleDialog');
-    const closeStyleDialogBtn = document.getElementById('closeWakewordStyleDialog');
-    
-    // 点击选项切换样式
-    document.querySelectorAll('.wakeword-style-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const style = parseInt(this.getAttribute('data-style'));
-            currentWakewordStyle = style;
-            updateWakewordStyle();
-            updateSelectedStyle();
-            
-            // 保存用户偏好到localStorage
-            localStorage.setItem('wakewordStyle', currentWakewordStyle.toString());
-            
-            // 显示状态消息
-            showStatusMessage(`唤醒灯样式已切换到样式${currentWakewordStyle}`, true);
-        });
-    });
-    
-    // 关闭对话框
-    if (closeStyleDialogBtn) {
-        closeStyleDialogBtn.addEventListener('click', function() {
-            styleDialog.style.display = 'none';
-        });
-    }
-    
-    // 点击对话框外部区域关闭对话框
-    if (styleDialog) {
-        styleDialog.addEventListener('click', function(event) {
-            if (event.target === styleDialog) {
-                styleDialog.style.display = 'none';
-            }
-        });
-    }
-
-    // 处理标签页切换
-    initNavigationTabs();
-});
-
-// 在文档加载完成后初始化 displayDiv
-document.addEventListener('DOMContentLoaded', function() {
-    // 初始化导航选项卡
-    initNavigationTabs();
-    
-    // 检查URL参数，看是否需要激活特定页面
-    const urlParams = new URLSearchParams(window.location.search);
-    const page = urlParams.get('page');
-    if (page) {
-        const tab = document.querySelector(`.nav-tab[data-page="${page}"]`);
-        if (tab) {
-            tab.click();
-        }
-    }
 });
 
 /**
@@ -1232,243 +952,6 @@ function initApp() {
 
     // 初始化唤醒词状态指示器
     updateWakewordStatusIndicator('disabled', '禁用');
-
-    // 连接到服务器
-    socket.on('connect', function () {
-        server_available = true;
-        
-        // 更新显示状态
-        if (displayDiv) {
-            if (mic_available) {
-                // 如果麦克风和服务器都可用，显示开始说话的提示
-                displayRealtimeText("👄  开始说话  👄", displayDiv);
-            } else {
-                // 服务器可用但麦克风未就绪，提示允许麦克风访问
-                displayRealtimeText("🎤  请允许麦克风访问  🎤", displayDiv);
-            }
-        }
-        
-        // 确保 DOM 已加载完成再调用 initApp
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                initApp();
-            });
-        } else {
-            initApp();
-        }
-
-        // 连接后请求当前配置
-        socket.emit('get_config');
-    });
-
-    socket.on('disconnect', function () {
-        server_available = false;
-        
-        // 更新显示状态
-        if (displayDiv) {
-            // 服务器断开连接，显示服务器不可用的提示
-            displayRealtimeText("🖥️  请启动服务器  🖥️", displayDiv);
-        }
-        
-        // 确保 DOM 已加载完成再调用 initApp
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                initApp();
-            });
-        } else {
-            initApp();
-        }
-    });
-
-    // 处理模型路径重置事件
-    socket.on('model_path_reset', function (data) {
-        console.warn('配置重置:', data);
-
-        // 显示简短通知
-        showStatusMessage(data.message || '检测到配置错误，已自动重置相关设置', false);
-
-        // 检测错误类型并更新相应UI
-        if (data.error && data.error.toLowerCase().includes('porcupine')) {
-            // Porcupine相关错误
-            
-            // 清空唤醒词输入框
-            const wakeWordsInput = document.getElementById('wake-words');
-            if (wakeWordsInput) {
-                wakeWordsInput.value = '';
-                wakeWordsInput.classList.add('validation-error');
-                showValidationError('wake-words', '检测到无效的唤醒词，已自动重置');
-            }
-            
-            // 如果是access_key错误，也清空access_key输入框
-            if (data.error.toLowerCase().includes('access_key') || 
-                data.error.toLowerCase().includes('api key')) {
-                const accessKeyInput = document.getElementById('porcupine-access-key');
-                if (accessKeyInput) {
-                    accessKeyInput.value = '';
-                    accessKeyInput.classList.add('validation-error');
-                    showValidationError('porcupine-access-key', '检测到无效的访问密钥，已自动重置');
-                }
-            }
-        } else {
-            // OpenWakeWord模型路径错误
-            const modelPathInput = document.getElementById('openwakeword-models');
-            if (modelPathInput) {
-                // 清空输入框
-                modelPathInput.value = '';
-
-                // 添加错误样式
-                modelPathInput.classList.add('validation-error');
-
-                // 显示错误消息
-                showValidationError('openwakeword-models', '检测到无效的模型文件，已自动重置为默认值');
-            }
-        }
-
-        // 不需要额外的倒计时和刷新逻辑，重启页面会处理这些
-    });
-
-    socket.on('realtime', function (data) {
-        if (data.type === 'realtime') {
-            // 使用辅助函数处理文本
-            const processedText = processText(data.text);
-            displayRealtimeText(processedText, displayDiv);
-        }
-    });
-
-    socket.on('fullSentence', function (data) {
-        if (data.type === 'fullSentence') {
-            // 保存原始句子（未转换）
-            originalFullSentences.push(data.text);
-            // 使用辅助函数处理文本
-            const processedText = processText(data.text);
-            fullSentences.push(processedText);
-
-            // 更新显示
-            updateDisplay();
-        }
-    });
-
-    // 处理唤醒词状态事件
-    socket.on('wakeword_status', function (data) {
-        console.log('唤醒词状态更新:', data);
-        updateWakewordStatusIndicator(data.status, data.message);
-    });
-
-    // 处理录音状态事件
-    socket.on('recording_status', function (data) {
-        console.log('录音状态更新:', data);
-        updateRecordingStatusIndicator(data.active, data.message);
-    });
-
-    // 接收服务器配置
-    socket.on('config', function (config) {
-        currentConfig = config;
-        updateSettingsUI(config);
-        console.log('收到服务器配置:', config);
-
-        // 根据配置设置初始唤醒词状态
-        if (config.wakeword_backend === 'pvporcupine' && (!config.wake_words || config.wake_words === '')) {
-            // 唤醒词为空，视为未启用
-            updateWakewordStatusIndicator('disabled', '禁用');
-            // 唤醒词未启用时，录音是启用的
-            updateRecordingStatusIndicator(true, '聆听');
-        } else if (config.wakeword_backend === 'disabled') {
-            // 明确禁用
-            updateWakewordStatusIndicator('disabled', '禁用');
-            // 唤醒词未启用时，录音是启用的
-            updateRecordingStatusIndicator(true, '聆听');
-        } else {
-            // 唤醒词已配置，默认为监听状态
-            updateWakewordStatusIndicator('listening', '等待');
-            // 等待唤醒时，录音是禁用的
-            updateRecordingStatusIndicator(false, '休眠');
-        }
-
-        // 检查是否有启动错误信息
-        if (config.startup_error) {
-            showStartupErrorDialog(config.startup_error);
-        }
-    });
-
-    // 配置更新响应
-    socket.on('config_updated', function (response) {
-        if (response.success) {
-            currentConfig = response.config;
-            updateSettingsUI(response.config);
-            showStatusMessage('设置已成功应用，等待录音机就绪...', true);
-            // 记录正在等待录音机就绪
-            waitingForConfigUpdate = true;
-        } else {
-            showStatusMessage('设置应用失败: ' + response.error, false);
-            // 配置更新失败，重置等待状态
-            waitingForConfigUpdate = false;
-        }
-    });
-
-    // 设置录音机状态
-    socket.on('recorder_status', function (data) {
-        const currentTime = Date.now();
-        const message = data.ready ? '录音机已准备就绪' : '录音机未就绪';
-        
-        // 如果是相同消息且时间间隔小于防抖时间，则不显示
-        if (message === lastRecorderStatusMessage && 
-            (currentTime - lastRecorderStatusTime) < RECORDER_STATUS_DEBOUNCE_TIME) {
-            return;
-        }
-        
-        // 更新最后显示的消息和时间
-        lastRecorderStatusMessage = message;
-        lastRecorderStatusTime = currentTime;
-        
-        if (data.ready) {
-            if (waitingForConfigUpdate) {
-                // 如果是配置更新后的状态变更，则关闭设置面板
-                waitingForConfigUpdate = false;
-                showStatusMessage('录音机已准备就绪', true);
-
-                // 延迟一秒关闭设置面板，让用户看到成功消息
-                setTimeout(() => {
-                    const settingsOverlay = document.getElementById('settingsOverlay');
-                    if (settingsOverlay) {
-                        settingsOverlay.style.display = 'none';
-                    }
-                }, 1000);
-            } else {
-                showStatusMessage('录音机已准备就绪', true);
-            }
-        } else {
-            showStatusMessage('录音机未就绪', false);
-        }
-    });
-
-    // 处理应用重启消息
-    socket.on('restart_required', function (data) {
-        console.log('应用即将重启:', data);
-
-        // 如果提供了重定向URL，则在倒计时结束后重定向
-        if (data.redirect_to) {
-            // 显示简单的重启消息
-            displayDiv.innerHTML = `<span class="restart-message">应用正在重启，${data.countdown || 3}秒后将跳转到重启页面...</span>`;
-
-            // 倒计时结束后重定向
-            setTimeout(function () {
-                window.location.href = data.redirect_to;
-            }, (data.countdown || 3) * 1000);
-
-            return; // 不显示对话框，直接返回
-        }
-
-        // 旧的处理逻辑已被移除，现在所有重启都应该使用重定向
-        console.warn('收到没有重定向URL的重启请求，将刷新页面');
-
-        // 显示简单的重启消息
-        displayDiv.innerHTML = `<span class="restart-message">应用正在重启，页面将在5秒后刷新...</span>`;
-
-        // 5秒后刷新页面（兼容旧版本）
-        setTimeout(function () {
-            window.location.reload();
-        }, 5000);
-    });
 
     // 设置重置按钮事件处理
     const resetButton = document.getElementById('resetButton');
@@ -1538,64 +1021,6 @@ function initApp() {
         // 无需在切换到翻译页面时重新初始化翻译控制器，因为它已经在应用启动时初始化
     });
     
-    // 监听配置变更
-    socket.on('config_updated', function(data) {
-        console.log('收到配置更新:', data);
-        updateSettingsUI(data.config);
-        waitingForConfigUpdate = false;
-    });
-    
-    // 监听录音状态
-    socket.on('recorder_status', function(data) {
-        if (!data) return;
-        console.log('收到录音状态更新:', data);
-        
-        // 状态变更通知
-        if (data.status) {
-            // 应用防抖逻辑
-            const now = Date.now();
-            const isDuplicate = (
-                data.message === lastRecorderStatusMessage && 
-                (now - lastRecorderStatusTime) < RECORDER_STATUS_DEBOUNCE_TIME
-            );
-            
-            if (!isDuplicate) {
-                showStatusMessage(data.message, data.status === 'success');
-                lastRecorderStatusMessage = data.message;
-                lastRecorderStatusTime = now;
-            }
-            
-            // 若收到录音成功的消息，说明服务器已就绪
-            if (data.status === 'success') {
-                // 确认麦克风已准备就绪，显示录音激活状态
-                mic_available = true;
-                updateRecordingStatusIndicator(true, data.message || '录音中');
-            } else if (data.status === 'error') {
-                // 麦克风故障或录音错误，显示错误状态
-                mic_available = false;
-                updateRecordingStatusIndicator(false, data.message || '录音错误');
-            }
-        }
-        
-        // 收到关于唤醒词状态的消息
-        if (data.wakeword_detection) {
-            if (data.wakeword_detection.status === 'active') {
-                updateWakewordStatusIndicator('listening', '聆听中');
-            } else if (data.wakeword_detection.status === 'detected') {
-                updateWakewordStatusIndicator('active', '已唤醒');
-                playWakeSound();
-            } else if (data.wakeword_detection.status === 'timeout') {
-                updateWakewordStatusIndicator('listening', '聆听中');
-                playTimeoutSound();
-            } else if (data.wakeword_detection.status === 'error') {
-                updateWakewordStatusIndicator('error', '错误');
-            } else {
-                // reset to default state
-                updateWakewordStatusIndicator('disabled', '禁用');
-            }
-        }
-    });
-    
     // 初始消息显示
     start_msg();
 
@@ -1603,17 +1028,17 @@ function initApp() {
 navigator.mediaDevices.getUserMedia({audio: true})
         .then(async stream => {
             // 创建音频上下文
-        audioContext = new AudioContext();
-        let source = audioContext.createMediaStreamSource(stream);
+            audioContext = new AudioContext();
+            let source = audioContext.createMediaStreamSource(stream);
 
-        // 创建音频分析器并连接
-        audioAnalyser = audioContext.createAnalyser();
-        audioAnalyser.fftSize = 256; // 增大FFT大小以获取更详细的频率数据
-        const bufferLength = audioAnalyser.frequencyBinCount;
-        audioDataArray = new Uint8Array(bufferLength);
+            // 创建音频分析器并连接
+            audioAnalyser = audioContext.createAnalyser();
+            audioAnalyser.fftSize = 256; // 增大FFT大小以获取更详细的频率数据
+            const bufferLength = audioAnalyser.frequencyBinCount;
+            audioDataArray = new Uint8Array(bufferLength);
         
             // 连接音频分析器
-        source.connect(audioAnalyser);
+            source.connect(audioAnalyser);
             
             // 使用 AudioWorklet 或回退到 ScriptProcessorNode
             let processor;
